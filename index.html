@@ -1,0 +1,1537 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Maltepe'deki hastaneleri kurum tipi, acil servis, SGK anlaşması ve branşa göre süz, haritada gör.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E5AA7'/%3E%3Crect x='4.5' y='4.5' width='23' height='23' rx='4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Cpath d='M12 9v14M21 9l-8.5 7.5L21 23' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Keşif Maltepe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Yerleşim: üç şerit. Lejant gibi okunan filtre paneli | sonuç listesi | harita.
+   Dar ekranda panel çekmeceye girer; telefonda harita üstte, liste altta.
+   Dil: yol levhası. Mavi levha, beyaz harf, dar yazı. */
+:root {
+  --zemin: #EDF0EF;
+  --yuzey: #FAFBFA;
+  --yuzey-2: #FFFFFF;
+  --murekkep: #13232A;
+  --soluk: #56676D;
+  --cizgi: #D2DAD9;
+  --cizgi-koyu: #A9B6B5;
+  --vurgu: #0E5AA7;
+  --vurgu-dolgu: #0E5AA7;
+  --vurgu-ustu: #FFFFFF;
+  --vurgu-soluk: #E1ECF8;
+  --secim: #F2B21C;
+  --secim-ustu: #1B1503;
+  --olumlu: #1C7248;
+  --uyari: #8A5A00;
+  --h-deniz: #C9DCE7;
+  --h-kara: #F7F7F2;
+  --h-kara-2: #E2E7E1;
+  --h-cizgi: #A7B4AF;
+  --perde: rgb(8 16 20 / .45);
+  --golge: 0 1px 2px rgb(19 35 42 / .14), 0 4px 12px rgb(19 35 42 / .10);
+  --yazi: "Barlow", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --yazi-dar: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --zemin: #0E1618; --yuzey: #151F23; --yuzey-2: #1B282D; --murekkep: #E7EEED; --soluk: #9BAEB1;
+    --cizgi: #2A3A3F; --cizgi-koyu: #46595F; --vurgu: #86BDF7; --vurgu-dolgu: #2670C4; --vurgu-ustu: #FFFFFF;
+    --vurgu-soluk: #17304A; --secim: #F5BD33; --secim-ustu: #1B1503; --olumlu: #6FCB9B; --uyari: #E2B45A;
+    --h-deniz: #0C202B; --h-kara: #1E2C2E; --h-kara-2: #172325; --h-cizgi: #3F5356;
+    --perde: rgb(0 0 0 / .6);
+    --golge: 0 1px 2px rgb(0 0 0 / .5), 0 6px 16px rgb(0 0 0 / .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --zemin: #0E1618; --yuzey: #151F23; --yuzey-2: #1B282D; --murekkep: #E7EEED; --soluk: #9BAEB1;
+  --cizgi: #2A3A3F; --cizgi-koyu: #46595F; --vurgu: #86BDF7; --vurgu-dolgu: #2670C4; --vurgu-ustu: #FFFFFF;
+  --vurgu-soluk: #17304A; --secim: #F5BD33; --secim-ustu: #1B1503; --olumlu: #6FCB9B; --uyari: #E2B45A;
+  --h-deniz: #0C202B; --h-kara: #1E2C2E; --h-kara-2: #172325; --h-cizgi: #3F5356;
+  --perde: rgb(0 0 0 / .6);
+  --golge: 0 1px 2px rgb(0 0 0 / .5), 0 6px 16px rgb(0 0 0 / .35);
+  color-scheme: dark;
+}
+
+/* Leaflet 1.9.4 stil dosyası (görsel çağrıları çıkarıldı) */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+
+html { height: 100%; box-sizing: border-box; }
+body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep); font: 400 15px/1.45 var(--yazi); -webkit-text-size-adjust: 100%; }
+.uyg, .uyg *, .uyg *::before, .uyg *::after { box-sizing: border-box; }
+.uyg :focus-visible { outline: 2px solid var(--vurgu); outline-offset: 2px; }
+.gorunmez { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- iskelet ---------- */
+.uyg {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 300px 384px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "ust ust ust" "panel sonuc harita";
+}
+.ust { grid-area: ust; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--yuzey); border-bottom: 1px solid var(--cizgi); }
+.marka { display: flex; align-items: center; gap: 8px; margin: 0; font: 700 21px/1 var(--yazi-dar); letter-spacing: .01em; }
+.levha { display: grid; place-items: center; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); font-family: var(--yazi-dar); font-weight: 700; line-height: 1; }
+.marka .levha { width: 28px; height: 28px; border-radius: 6px; font-size: 17px; outline: 1.5px solid var(--vurgu-ustu); outline-offset: -4.5px; }
+.baglam { margin: 0; min-width: 0; color: var(--soluk); font: 500 15px/1.2 var(--yazi-dar); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.dugme { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px 14px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 600 15px/1 var(--yazi-dar); cursor: pointer; text-decoration: none; }
+.dugme:hover { border-color: var(--murekkep); }
+.dugme-dolu { width: 100%; border-color: transparent; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.dugme-dolu:hover { border-color: transparent; filter: brightness(1.08); }
+.dugme-filtre { display: none; margin-left: auto; }
+.rozet { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 600 12px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; }
+.bag { padding: 6px 2px; border: 0; background: none; color: var(--vurgu); font: 600 14px/1 var(--yazi-dar); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* ---------- filtre paneli ---------- */
+.panel { grid-area: panel; display: flex; flex-direction: column; min-height: 0; background: var(--yuzey); border-right: 1px solid var(--cizgi); }
+.panel-bas { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 16px 2px; }
+.baslik-kucuk { margin: 0; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .09em; text-transform: uppercase; }
+#temizle { margin-left: auto; }
+.kapat { display: none; width: 40px; height: 40px; margin-right: -8px; border: 0; border-radius: 6px; background: none; color: var(--murekkep); cursor: pointer; }
+.kapat .simge { width: 18px; height: 18px; }
+.panel-bas .bag + .kapat { margin-left: 4px; }
+.panel-bas .bag[hidden] + .kapat { margin-left: auto; }
+.panel-govde { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 20px; display: flex; flex-direction: column; gap: 20px; }
+.panel-alt { display: none; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--cizgi); background: var(--yuzey); }
+.grup { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.filtreler { gap: 20px; }
+.ikili { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 10px 8px; }
+.alan { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.alan label { color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
+.alan select, .ara { width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 500 15px/1.2 var(--yazi); }
+.ara::placeholder { color: var(--soluk); opacity: 1; }
+.adet { color: var(--soluk); font: 500 12.5px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; }
+
+.haplar { display: flex; flex-wrap: wrap; gap: 6px; }
+.hap { position: relative; }
+.hap input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.hap-yuz { display: inline-flex; align-items: baseline; gap: 6px; min-height: 36px; padding: 9px 12px 8px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); font: 500 15px/1 var(--yazi-dar); }
+.hap input:checked + .hap-yuz { border-color: var(--vurgu-dolgu); background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.hap input:checked + .hap-yuz .adet { color: inherit; opacity: .85; }
+.hap input:focus-visible + .hap-yuz { outline: 2px solid var(--vurgu); outline-offset: 2px; }
+.hap.bos .hap-yuz { color: var(--soluk); border-style: dashed; }
+
+.anahtar { flex-direction: row; align-items: center; gap: 10px; min-height: 40px; padding: 2px 0; border-top: 1px solid var(--cizgi); border-bottom: 1px solid var(--cizgi); margin-block: -10px; }
+.anahtar + .anahtar { border-top: 0; margin-top: -10px; }
+.anahtar label { flex: 1; min-width: 0; padding: 8px 0; font: 500 15px/1.2 var(--yazi); cursor: pointer; }
+.anahtar-giris { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 42px; height: 24px; margin: 0; border-radius: 12px; background: var(--cizgi-koyu); cursor: pointer; transition: background-color .15s; }
+.anahtar-giris::before { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--yuzey-2); transition: transform .15s; }
+.anahtar-giris:checked { background: var(--vurgu-dolgu); }
+.anahtar-giris:checked::before { transform: translateX(18px); background: var(--vurgu-ustu); }
+
+.grup-bas { display: flex; align-items: baseline; gap: 8px; }
+.secili-sayi { color: var(--vurgu); font: 600 12.5px/1 var(--yazi-dar); }
+.cok { list-style: none; margin: 0; padding: 0; }
+.cok-oge label { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 5px 2px; border-bottom: 1px solid var(--cizgi); cursor: pointer; }
+.cok-oge input { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--vurgu-dolgu); cursor: pointer; }
+.cok-ad { flex: 1; min-width: 0; font: 400 15px/1.25 var(--yazi); }
+.cok-oge.bos .cok-ad { color: var(--soluk); }
+.ipucu { margin: 0; color: var(--soluk); font-size: 13px; }
+
+/* ---------- sonuçlar ---------- */
+.sonuclar { grid-area: sonuc; min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--zemin); border-right: 1px solid var(--cizgi); }
+.sonuc-bas { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 10px; background: var(--zemin); }
+.sonuc-sayi { margin: 0; font: 600 23px/1.1 var(--yazi-dar); font-variant-numeric: tabular-nums; }
+.sonuc-not { margin: -4px 0 0; color: var(--soluk); font-size: 13.5px; }
+.cipler { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.cip { display: inline-flex; align-items: center; max-width: 100%; border-radius: 6px; background: var(--vurgu-soluk); color: var(--murekkep); font: 500 14px/1.15 var(--yazi-dar); }
+.cip-ad { min-width: 0; padding: 7px 2px 7px 10px; overflow-wrap: anywhere; }
+.cip button { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 6px; background: none; color: inherit; cursor: pointer; }
+.liste { list-style: none; margin: 0; padding: 2px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.kart { min-width: 0; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey-2); }
+.kart.secili { border-color: var(--vurgu); box-shadow: 0 0 0 1px var(--vurgu); }
+.kart-bas { display: block; width: 100%; padding: 12px 14px 2px; border: 0; border-radius: 8px 8px 0 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.kart-ad { display: block; font: 600 17.5px/1.22 var(--yazi-dar); text-wrap: balance; }
+.kart-adres { display: block; margin-top: 4px; color: var(--soluk); font-size: 13.5px; line-height: 1.35; }
+.ozet { list-style: none; margin: 0; padding: 8px 14px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; font: 500 13.5px/1.2 var(--yazi-dar); }
+.tip { padding: 3px 7px 2px; border: 1px solid var(--cizgi-koyu); border-radius: 4px; font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.olgu { display: inline-flex; align-items: center; gap: 4px; }
+.olgu.var { color: var(--olumlu); }
+.olgu.yok, .olgu.bilinmiyor, .olgu.yersiz { color: var(--soluk); }
+.olgu.bilinmiyor { text-decoration: underline dashed; text-underline-offset: 3px; }
+.simge { flex: none; width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.neden { margin: 0; padding: 0 14px 12px; color: var(--uyari); font: 500 13.5px/1.3 var(--yazi-dar); }
+
+.ayrinti { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px 14px; border-top: 1px solid var(--cizgi); }
+.bilgi { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 14px; }
+.bilgi dt { color: var(--soluk); font: 500 13.5px/1.45 var(--yazi-dar); }
+.bilgi dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.bilgi .genis { grid-column: 1 / -1; }
+.bilgi dt.genis { margin-top: 4px; }
+.bilgi .bilinmiyor { color: var(--soluk); font-style: italic; }
+.teyit { display: inline-block; margin-left: 4px; padding: 1px 6px; border: 1px dashed var(--uyari); border-radius: 4px; color: var(--uyari); font: 500 12px/1.3 var(--yazi-dar); white-space: nowrap; }
+.dallar { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.dallar li { padding: 3px 7px 2px; border: 1px solid var(--cizgi); border-radius: 4px; font: 500 13px/1.2 var(--yazi-dar); }
+.dallar li.aranan { border-color: var(--vurgu); background: var(--vurgu-soluk); font-weight: 600; }
+.tel { color: inherit; font-variant-numeric: tabular-nums; text-decoration: none; user-select: all; -webkit-user-select: all; }
+.kopya { margin-left: 8px; padding: 2px 2px; font-size: 13px; }
+.uyari-not { margin: 0; color: var(--uyari); font: 500 13.5px/1.3 var(--yazi-dar); }
+.eylemler { display: flex; flex-wrap: wrap; gap: 8px; }
+.eylemler .dugme { min-height: 38px; padding: 6px 12px; font-size: 14.5px; }
+
+.bos-durum { padding: 18px 16px; border: 1px dashed var(--cizgi-koyu); border-radius: 8px; color: var(--soluk); }
+.bos-durum p { margin: 0 0 10px; }
+.belirsiz { margin: 4px 16px 20px; padding-top: 12px; border-top: 1px dashed var(--cizgi-koyu); }
+.belirsiz > summary { padding: 4px 0; font: 600 15px/1.2 var(--yazi-dar); cursor: pointer; }
+.belirsiz > p { margin: 6px 0 10px; color: var(--soluk); font-size: 13.5px; }
+.belirsiz .liste { padding: 0; }
+.belirsiz .kart { border-style: dashed; background: none; }
+.kaynak-notu { margin: 0; padding: 2px 16px 22px; color: var(--soluk); font-size: 13px; }
+
+/* ---------- harita ---------- */
+.harita-kap { grid-area: harita; position: relative; min-width: 0; min-height: 0; background: var(--h-deniz); }
+#harita { position: absolute; inset: 0; z-index: 0; isolation: isolate; }
+.harita-not { position: absolute; z-index: 1; top: 12px; left: 12px; max-width: calc(100% - 24px); margin: 0; padding: 5px 10px 4px; border: 1px solid var(--cizgi); border-radius: 6px; background: var(--yuzey); color: var(--soluk); font: 500 13px/1.25 var(--yazi-dar); box-shadow: var(--golge); }
+.koor-kutu { position: absolute; z-index: 1; left: 12px; bottom: 30px; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 24px); padding: 6px 8px 6px 12px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey); box-shadow: var(--golge); font: 500 14px/1.2 var(--yazi-dar); }
+.koor-kutu output { font: 600 15px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; user-select: all; -webkit-user-select: all; }
+.koor-modu { cursor: crosshair !important; }
+
+.leaflet-container { background: var(--h-deniz); font: inherit; }
+.leaflet-container a { color: var(--vurgu); }
+.leaflet-bar, .leaflet-touch .leaflet-bar { border: 1px solid var(--cizgi-koyu); border-radius: 6px; box-shadow: var(--golge); overflow: hidden; }
+.leaflet-bar a, .leaflet-bar button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-bottom: 1px solid var(--cizgi); border-radius: 0; background: var(--yuzey-2); color: var(--murekkep); line-height: 1; cursor: pointer; }
+.leaflet-touch .leaflet-bar a { width: 34px; height: 34px; line-height: 1; }
+.leaflet-bar a:last-child, .leaflet-bar button:last-child { border-bottom: 0; }
+.leaflet-bar a:hover, .leaflet-bar a:focus, .leaflet-bar button:hover { background: var(--zemin); color: var(--murekkep); }
+.leaflet-bar a.leaflet-disabled { background: var(--zemin); color: var(--cizgi-koyu); }
+.leaflet-bar .koor-dugme { width: auto; padding: 0 10px; font: 600 13.5px/1 var(--yazi-dar); }
+.leaflet-bar .koor-dugme[aria-pressed="true"] { background: var(--secim); color: var(--secim-ustu); }
+.leaflet-container .leaflet-control-attribution { background: var(--yuzey); color: var(--soluk); font: 400 11px/1.5 var(--yazi); opacity: .92; }
+.leaflet-tooltip { padding: 4px 8px 3px; border: 0; border-radius: 5px; background: var(--murekkep); color: var(--yuzey); font: 500 13.5px/1.25 var(--yazi-dar); box-shadow: var(--golge); }
+.leaflet-tooltip-top::before { border-top-color: var(--murekkep); }
+.leaflet-tooltip-bottom::before { border-bottom-color: var(--murekkep); }
+.leaflet-tooltip-left::before { border-left-color: var(--murekkep); }
+.leaflet-tooltip-right::before { border-right-color: var(--murekkep); }
+
+.sinir { fill-opacity: 1; stroke-opacity: 1; stroke-linejoin: round; }
+.sinir-komsu { fill: var(--h-kara-2); stroke: var(--h-cizgi); stroke-width: 1; }
+.sinir-ilce { fill: var(--h-kara); stroke: none; }
+.sinir-mahalle { fill: var(--h-kara); stroke: var(--h-cizgi); stroke-width: 1; }
+.sinir-secili { fill: none; stroke: var(--vurgu-dolgu); stroke-width: 2.5; }
+.yer-adi span { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; color: var(--soluk); font: 500 12px/1 var(--yazi-dar); text-shadow: 0 0 3px var(--h-kara), 0 0 3px var(--h-kara), 0 0 3px var(--h-kara); }
+.yer-komsu span { font-weight: 600; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; text-shadow: 0 0 3px var(--h-kara-2), 0 0 3px var(--h-kara-2); }
+.yer-mahalle { display: none; }
+.yakin .yer-mahalle { display: block; }
+
+.igne { border: 0; background: none; }
+.igne .levha { position: absolute; left: 1px; top: 1px; width: 28px; height: 28px; border-radius: 6px; font-size: 17px; box-shadow: 0 0 0 2px var(--yuzey-2), 0 2px 6px rgb(0 0 0 / .4); transform-origin: 50% 39px; transition: transform .12s; }
+.igne .levha::after { content: ""; position: absolute; left: 50%; top: 100%; margin: 1px 0 0 -6px; border: 6px solid transparent; border-top: 9px solid var(--yuzey-2); border-bottom: 0; }
+.igne.secili .levha { background: var(--secim); color: var(--secim-ustu); transform: scale(1.2); }
+.igne:focus-visible { outline: 0; }
+.igne:focus-visible .levha { box-shadow: 0 0 0 2px var(--yuzey-2), 0 0 0 5px var(--vurgu); }
+.koor-nokta { width: 12px; height: 12px; border: 2px solid var(--yuzey-2); border-radius: 50%; background: var(--secim); box-shadow: 0 0 0 1px var(--secim-ustu); }
+
+.perde { display: none; }
+
+/* ---------- dar ekran: panel çekmece olur ---------- */
+@media (max-width: 1099.98px) {
+  .uyg { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "ust ust" "sonuc harita"; }
+  .dugme-filtre { display: inline-flex; }
+  .panel { position: fixed; z-index: 30; inset: 0 auto 0 0; width: min(380px, 100%); padding-top: env(safe-area-inset-top, 0px); box-shadow: var(--golge); transform: translateX(-104%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
+  .panel.acik { transform: none; visibility: visible; transition: transform .2s ease; }
+  .kapat { display: inline-grid; place-items: center; }
+  .panel-alt { display: block; }
+  .perde { display: block; position: fixed; z-index: 20; inset: 0; background: var(--perde); }
+}
+/* ---------- telefon: harita üstte, liste altta ---------- */
+@media (max-width: 719.98px) {
+  .uyg { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(200px, 42%) minmax(0, 1fr); grid-template-areas: "ust" "harita" "sonuc"; }
+  .panel { width: 100%; }
+  .sonuclar { border-right: 0; border-top: 1px solid var(--cizgi); }
+  .sonuc-sayi { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uyg *, .uyg *::before, .uyg *::after { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="uyg" id="uyg" lang="tr">
+  <header class="ust">
+    <h1 class="marka"><span class="levha" aria-hidden="true">K</span>Keşif</h1>
+    <p class="baglam" id="baglam"></p>
+    <button class="dugme dugme-filtre" id="filtreAc" type="button" aria-controls="panel" aria-expanded="false">Filtrele <span class="rozet" id="filtreSayisi" hidden>0</span></button>
+  </header>
+
+  <aside class="panel" id="panel" aria-label="Filtreler">
+    <div class="panel-bas">
+      <h2 class="baslik-kucuk">Filtreler</h2>
+      <button class="bag" id="temizle" type="button" hidden>Temizle</button>
+      <button class="kapat" id="panelKapat" type="button" aria-label="Filtreleri kapat"><svg class="simge" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"></path></svg></button>
+    </div>
+    <div class="panel-govde">
+      <div class="grup ikili">
+        <div class="alan"><label for="bolgeSec">Bölge</label><select id="bolgeSec"></select></div>
+        <div class="alan"><label for="kategoriSec">Kategori</label><select id="kategoriSec"></select></div>
+      </div>
+      <div id="filtreler" class="grup filtreler"></div>
+    </div>
+    <div class="panel-alt"><button class="dugme dugme-dolu" id="panelUygula" type="button">Sonuçları göster</button></div>
+  </aside>
+
+  <main class="sonuclar" id="sonuclar" aria-label="Sonuçlar">
+    <div class="sonuc-bas">
+      <p class="sonuc-sayi" id="sonucSayi" role="status" aria-live="polite">Yükleniyor</p>
+      <p class="sonuc-not" id="sonucNot" hidden></p>
+      <ul class="cipler" id="cipler" aria-label="Seçili filtreler" hidden></ul>
+    </div>
+    <ul class="liste" id="liste"></ul>
+    <details class="belirsiz" id="belirsiz" open hidden>
+      <summary id="belirsizBaslik"></summary>
+      <p>Seçtiğin filtrelerden en az birinin bilgisi bu kayıtlarda yok. Uyup uymadıkları bilinmediği için haritada gösterilmiyorlar.</p>
+      <ul class="liste" id="belirsizListe"></ul>
+    </details>
+    <p class="kaynak-notu" id="kaynakNotu" hidden></p>
+  </main>
+
+  <section class="harita-kap" aria-label="Harita">
+    <div id="harita"></div>
+    <p class="harita-not" id="haritaNot" hidden></p>
+    <div class="koor-kutu" id="koorKutu" hidden><span>Koordinat</span><output id="koorDeger"></output><button class="bag" id="koorKopya" type="button">Kopyala</button></div>
+  </section>
+  <div class="perde" id="perde" hidden></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}]}, { koordinatAraci: location.hash === '#koordinat' });
+</script>
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- ayar ve yardımcılar ---------- */
+  // altliklar: sokak haritası karo sağlayıcıları, sırayla denenir (boşsa yalnızca şematik zemin).
+  // veriYolu: veri dosyalarının klasörü. koordinatAraci: iğne yeri bulma aracı.
+  const AYAR = Object.assign({ altliklar: [], veriYolu: 'veri/', koordinatAraci: false }, window.KESIF_AYAR || {});
+  const TR = 'tr';
+  const kok = document.getElementById('uyg');
+  const $ = (s, k = document) => k.querySelector(s);
+  const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const HARITA_VAR = typeof window.L !== 'undefined';
+  document.documentElement.lang = TR;
+
+  function el(ad, oz, ...cocuklar) {
+    const d = document.createElement(ad);
+    for (const [k, v] of Object.entries(oz || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') d.className = v;
+      else if (k === 'text') d.textContent = v;
+      else d.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of cocuklar.flat()) if (c != null && c !== false) d.append(c);
+    return d;
+  }
+  const SIMGE = {
+    var: 'M3.2 8.6l3.1 3 6.5-7.2',
+    yok: 'M4 4l8 8M12 4l-8 8',
+    bilinmiyor: 'M5.8 6.1a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1.9-1.1 1.7M8 12.6v.1',
+    yersiz: 'M8 14s4-3.6 4-7a4 4 0 0 0-8 0c0 3.4 4 7 4 7zM3 2.5l10 11',
+    dis: 'M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5',
+    cerceve: 'M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10',
+  };
+  function simge(ad) {
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 16 16'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('class', 'simge');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', SIMGE[ad]); p.setAttribute('fill', 'none');
+    s.append(p);
+    return s;
+  }
+  const duz = s => s.toLocaleLowerCase(TR)
+    .replace(/[çğıöşü]/g, c => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c]))
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+  const tarihYaz = t => t.split('-').reverse().join('.');
+  async function kopyala(metin, dugme, kaynak) {
+    const eski = dugme.textContent;
+    try {
+      await navigator.clipboard.writeText(metin);
+      dugme.textContent = 'Kopyalandı';
+    } catch {
+      const r = document.createRange(); r.selectNodeContents(kaynak);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      dugme.textContent = 'Seçildi, kopyalayabilirsin';
+    }
+    setTimeout(() => { dugme.textContent = eski; }, 1800);
+  }
+
+  /* ---------- veri: tek giriş noktası ---------- */
+  // Bugün dosyadan okunur. İleride veritabanına geçilirse yalnızca bu fonksiyon değişir.
+  async function veriyiGetir() {
+    if (window.KESIF_VERI) return window.KESIF_VERI;
+    const oku = async ad => {
+      const y = await fetch(`${AYAR.veriYolu}${ad}.json`);
+      if (!y.ok) throw new Error(`${ad}: ${y.status}`);
+      return y.json();
+    };
+    const [kategoriler, mekanlar, sinirlar] = await Promise.all(['kategoriler', 'mekanlar', 'sinirlar'].map(oku));
+    return { kategoriler, mekanlar, sinirlar };
+  }
+
+  let kategoriler, mekanlar, sinirlar;
+  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null };
+
+  const filtreler = () => kategoriler[durum.kategori].filtreler;
+  const bolgeMekanlari = () => mekanlar
+    .filter(m => m.kategori === durum.kategori && m.il === durum.il && m.ilce === durum.ilce)
+    .sort((a, b) => a.ad.localeCompare(b.ad, TR));
+  const aktifMi = (f, s) => f.tip === 'coklu' ? !!(s && s.size) : s != null && s !== false;
+  const secenekEtiketi = (f, deger) => (f.secenekler.find(o => o.deger === deger) || { etiket: deger }).etiket;
+
+  /* ---------- eşleşme: uyar / uymaz / belirsiz ---------- */
+  // Bilinmeyen değer (null) "hayır" sayılmaz. Kesin uymayan elenir; bilgisi eksik olan ayrı listelenir.
+  function degerlendir(mekan, secimler) {
+    const eksik = [];
+    let uymaz = false;
+    for (const f of filtreler()) {
+      const s = secimler[f.alan];
+      if (!aktifMi(f, s)) continue;
+      const v = mekan.ozellikler[f.alan];
+      if (v == null) { eksik.push(f); continue; }
+      if (f.tip === 'secim') uymaz = uymaz || v !== s;
+      else if (f.tip === 'evet_hayir') uymaz = uymaz || v !== true;
+      else if (f.tip === 'coklu') {
+        const var_ = d => v.includes(d);
+        uymaz = uymaz || !(f.eslesme === 'herhangi' ? [...s].some(var_) : [...s].every(var_));
+      }
+    }
+    return { sonuc: uymaz ? 'uymaz' : eksik.length ? 'belirsiz' : 'uyar', eksik };
+  }
+
+  /* ---------- filtre paneli: kategori tanımından çizilir ---------- */
+  let girdiler = [];   // { alan, deger, giris, kutu, adet }
+  function filtreleriCiz() {
+    const kap = $('#filtreler');
+    kap.replaceChildren();
+    girdiler = [];
+    for (const f of filtreler()) {
+      const bid = `fb-${f.alan}`;
+      if (f.tip === 'secim') {
+        const haplar = [{ deger: null, etiket: 'Hepsi' }, ...f.secenekler].map(o => {
+          const adet = el('span', { class: 'adet' });
+          const giris = el('input', { type: 'radio', name: `f-${f.alan}`, id: `f-${f.alan}-${o.deger || 'hepsi'}` });
+          giris.addEventListener('change', () => { durum.secimler[f.alan] = o.deger; guncelle(); });
+          const kutu = el('label', { class: 'hap' }, giris, el('span', { class: 'hap-yuz' }, o.etiket, adet));
+          girdiler.push({ f, deger: o.deger, giris, kutu, adet });
+          return kutu;
+        });
+        kap.append(el('div', { class: 'grup', role: 'radiogroup', 'aria-labelledby': bid },
+          el('h3', { class: 'baslik-kucuk', id: bid, text: f.etiket }), el('div', { class: 'haplar' }, haplar)));
+      } else if (f.tip === 'evet_hayir') {
+        const adet = el('span', { class: 'adet' });
+        const giris = el('input', { type: 'checkbox', role: 'switch', class: 'anahtar-giris', id: `f-${f.alan}` });
+        giris.addEventListener('change', () => { durum.secimler[f.alan] = giris.checked ? true : null; guncelle(); });
+        const kutu = el('div', { class: 'grup anahtar' }, el('label', { for: giris.id, text: f.etiket }), adet, giris);
+        girdiler.push({ f, deger: true, giris, kutu, adet });
+        kap.append(kutu);
+      } else if (f.tip === 'coklu') {
+        const ogeler = f.secenekler.map(o => {
+          const adet = el('span', { class: 'adet' });
+          const giris = el('input', { type: 'checkbox', id: `f-${f.alan}-${o.deger}` });
+          giris.addEventListener('change', () => {
+            const s = durum.secimler[f.alan] || (durum.secimler[f.alan] = new Set());
+            if (giris.checked) s.add(o.deger); else s.delete(o.deger);
+            guncelle();
+          });
+          const kutu = el('li', { class: 'cok-oge' }, el('label', null, giris, el('span', { class: 'cok-ad', text: o.etiket }), adet));
+          girdiler.push({ f, deger: o.deger, giris, kutu, adet });
+          return { kutu, anahtar: duz(o.etiket) };
+        });
+        const seciliSayi = el('span', { class: 'secili-sayi', id: `ss-${f.alan}` });
+        const yok = el('p', { class: 'ipucu', text: 'Bu adla bir seçenek yok.', hidden: true });
+        let ara = null;
+        if (f.secenekler.length > 8) {
+          ara = el('input', { type: 'search', class: 'ara', id: `ara-${f.alan}`, placeholder: `${f.etiket} içinde ara`, 'aria-label': `${f.etiket} içinde ara`, autocomplete: 'off' });
+          ara.addEventListener('input', () => {
+            const q = duz(ara.value);
+            let gorunen = 0;
+            for (const o of ogeler) { const g = !q || o.anahtar.includes(q); o.kutu.hidden = !g; if (g) gorunen++; }
+            yok.hidden = gorunen > 0;
+          });
+        }
+        kap.append(el('div', { class: 'grup', role: 'group', 'aria-labelledby': bid },
+          el('div', { class: 'grup-bas' }, el('h3', { class: 'baslik-kucuk', id: bid, text: f.etiket }), seciliSayi),
+          el('p', { class: 'ipucu', text: f.eslesme === 'herhangi' ? 'Seçtiklerinden en az birini sunanlar gösterilir.' : 'Seçtiklerinin hepsini sunanlar gösterilir.' }),
+          ara, el('ul', { class: 'cok' }, ogeler.map(o => o.kutu)), yok));
+      }
+    }
+  }
+
+  // Girişleri duruma eşitler ve her seçeneğin yanına "bunu seçersem kaç sonuç kalır" sayısını yazar.
+  function paneliEsle(tum) {
+    const say = degistir => {
+      const s = { ...durum.secimler };
+      degistir(s);
+      return tum.filter(m => degerlendir(m, s).sonuc === 'uyar').length;
+    };
+    for (const g of girdiler) {
+      const { f } = g;
+      const s = durum.secimler[f.alan];
+      let n;
+      if (f.tip === 'secim') { g.giris.checked = (s ?? null) === g.deger; n = say(x => { x[f.alan] = g.deger; }); }
+      else if (f.tip === 'evet_hayir') { g.giris.checked = s === true; n = say(x => { x[f.alan] = true; }); }
+      else { g.giris.checked = !!(s && s.has(g.deger)); n = say(x => { x[f.alan] = new Set(s || []).add(g.deger); }); }
+      g.adet.textContent = n;
+      g.kutu.classList.toggle('bos', n === 0 && !g.giris.checked);
+    }
+    for (const f of filtreler()) {
+      if (f.tip !== 'coklu') continue;
+      const n = (durum.secimler[f.alan] || new Set()).size;
+      $(`#ss-${f.alan}`).textContent = n ? `${n} seçili` : '';
+    }
+  }
+
+  function aktifler() {
+    const a = [];
+    for (const f of filtreler()) {
+      const s = durum.secimler[f.alan];
+      if (!aktifMi(f, s)) continue;
+      if (f.tip === 'secim') a.push({ etiket: secenekEtiketi(f, s), kaldir: () => { durum.secimler[f.alan] = null; } });
+      else if (f.tip === 'evet_hayir') a.push({ etiket: f.etiket, kaldir: () => { durum.secimler[f.alan] = null; } });
+      else for (const d of f.secenekler.filter(o => s.has(o.deger))) a.push({ etiket: d.etiket, kaldir: () => { s.delete(d.deger); } });
+    }
+    return a;
+  }
+
+  /* ---------- sonuç listesi ---------- */
+  function ozetOgeleri(m) {
+    const ogeler = [];
+    for (const f of filtreler()) {
+      const v = m.ozellikler[f.alan];
+      if (v == null) ogeler.push(el('li', { class: 'olgu bilinmiyor' }, simge('bilinmiyor'), `${f.etiket} bilinmiyor`));
+      else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
+      else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
+      else if (f.tip === 'coklu') ogeler.push(el('li', { class: 'olgu', text: `${f.etiket}: ${v.length}` }));
+    }
+    if (!m.konum) ogeler.push(el('li', { class: 'olgu yersiz' }, simge('yersiz'), 'Haritada yeri yok'));
+    return ogeler;
+  }
+
+  function ayrinti(m) {
+    const bekleyen = new Set(m.dogrulanacak || []);
+    const teyit = alan => bekleyen.has(alan) ? el('span', { class: 'teyit', text: 'teyit bekliyor' }) : null;
+    const satirlar = [];
+    for (const f of filtreler()) {
+      const v = m.ozellikler[f.alan];
+      const genis = f.tip === 'coklu' && v != null ? 'genis' : null;
+      let dd;
+      if (v == null) dd = el('dd', { class: 'bilinmiyor', text: 'bilinmiyor' });
+      else if (f.tip === 'secim') dd = el('dd', { text: secenekEtiketi(f, v) });
+      else if (f.tip === 'evet_hayir') dd = el('dd', { text: v ? 'var' : 'yok' });
+      else {
+        const aranan = durum.secimler[f.alan] || new Set();
+        dd = el('dd', { class: genis }, el('ul', { class: 'dallar' },
+          f.secenekler.filter(o => v.includes(o.deger)).map(o => el('li', { class: aranan.has(o.deger) ? 'aranan' : null, text: o.etiket }))));
+      }
+      const dt = el('dt', { class: genis, text: genis ? `${f.etiket} (${v.length})` : f.etiket });
+      const t = teyit(f.alan);
+      if (t) (genis ? dt : dd).append(' ', t);
+      satirlar.push(dt, dd);
+    }
+    satirlar.push(el('dt', { text: 'Adres' }), el('dd', null, m.adres, teyit('adres')));
+    if (m.telefon) {
+      const no = el('a', { class: 'tel', href: `tel:${m.telefon.replace(/\s/g, '')}`, text: m.telefon });
+      const kopya = el('button', { class: 'bag kopya', type: 'button', text: 'Kopyala' });
+      kopya.addEventListener('click', () => kopyala(m.telefon, kopya, no));
+      satirlar.push(el('dt', { text: 'Telefon' }), el('dd', null, no, kopya, teyit('telefon')));
+    }
+    satirlar.push(el('dt', { text: 'Bilgi tarihi' }), el('dd', { text: tarihYaz(m.dogrulama_tarihi) }));
+
+    const eylemler = [el('a', { class: 'dugme', href: m.web, target: '_blank', rel: 'noopener noreferrer' }, 'Web sitesi', simge('dis'))];
+    if (m.konum) eylemler.push(el('a', { class: 'dugme', target: '_blank', rel: 'noopener noreferrer',
+      href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}` }, 'Yol tarifi', simge('dis')));
+    const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'
+      : bekleyen.has('konum') ? 'Haritadaki yeri yaklaşık olabilir, teyit bekliyor.' : null;
+    return el('div', { class: 'ayrinti', id: `ayr-${m.id}`, hidden: true },
+      el('dl', { class: 'bilgi' }, satirlar),
+      konumNotu && el('p', { class: 'uyari-not', text: konumNotu }),
+      el('div', { class: 'eylemler' }, eylemler));
+  }
+
+  function kart(m, eksik) {
+    const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-expanded': 'false', 'aria-controls': `ayr-${m.id}` },
+      el('span', { class: 'kart-ad', text: m.ad }), el('span', { class: 'kart-adres', text: m.adres }));
+    bas.addEventListener('click', () => sec(m.id, 'liste'));
+    return el('li', { class: 'kart', 'data-id': m.id },
+      bas,
+      el('ul', { class: 'ozet' }, ozetOgeleri(m)),
+      eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null,
+      ayrinti(m));
+  }
+
+  function listeyiCiz(tum, uyan, belirsiz) {
+    const aktif = aktifler();
+    $('#sonucSayi').textContent = `${uyan.length} sonuç`;
+    const notlar = [];
+    if (aktif.length) notlar.push(`${tum.length} kayıt içinden`);
+    const yersiz = uyan.filter(m => !m.konum).length;
+    if (yersiz) notlar.push(`${yersiz} sonucun haritada yeri henüz yok`);
+    const not = $('#sonucNot');
+    not.textContent = notlar.join(' · ');
+    not.hidden = !notlar.length;
+
+    const cipler = $('#cipler');
+    cipler.replaceChildren(...aktif.map(a => {
+      const kaldir = el('button', { type: 'button', 'aria-label': `${a.etiket} filtresini kaldır` }, simge('yok'));
+      kaldir.addEventListener('click', () => { a.kaldir(); guncelle(); });
+      return el('li', { class: 'cip' }, el('span', { class: 'cip-ad', text: a.etiket }), kaldir);
+    }));
+    cipler.hidden = !aktif.length;
+    $('#temizle').hidden = !aktif.length;
+    const rozet = $('#filtreSayisi');
+    rozet.textContent = aktif.length;
+    rozet.hidden = !aktif.length;
+    $('#panelUygula').textContent = uyan.length ? `${uyan.length} sonucu göster` : 'Listeye dön';
+
+    const liste = $('#liste');
+    if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
+    else {
+      const temizle = el('button', { class: 'dugme', type: 'button', text: 'Filtreleri temizle' });
+      temizle.addEventListener('click', filtreleriTemizle);
+      liste.replaceChildren(el('li', { class: 'bos-durum' },
+        el('p', { text: belirsiz.length ? 'Bu filtrelere kesin olarak uyan sonuç yok. Bilgisi eksik kayıtlar aşağıda.' : 'Bu filtrelere uyan sonuç yok.' }), temizle));
+    }
+    $('#belirsiz').hidden = !belirsiz.length;
+    $('#belirsizBaslik').textContent = `Bilgisi eksik: ${belirsiz.length} kayıt`;
+    $('#belirsizListe').replaceChildren(...belirsiz.map(b => kart(b.m, b.eksik)));
+  }
+
+  /* ---------- harita ---------- */
+  let harita = null, bolgeKatmani = null;
+  const igneler = new Map();
+  const SINIR_ATIF = 'Sınırlar &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıcıları';
+
+  function haritaNotu(metin) {
+    const n = $('#haritaNot');
+    n.textContent = metin || '';
+    n.hidden = !metin;
+  }
+
+  function haritaKur() {
+    if (!HARITA_VAR) { haritaNotu('Harita yüklenemedi. Liste ve filtreler çalışıyor.'); return; }
+    const [bati, guney, dogu, kuzey] = sinirlar.kutu;
+    harita = L.map('harita', {
+      // Karo görselleri yalnızca tam yakınlık basamaklarında net durur; şematik zemin her basamakta nettir.
+      zoomControl: false, minZoom: 11, maxZoom: 18, zoomSnap: AYAR.altliklar.length ? 1 : 0.25, zoomDelta: AYAR.altliklar.length ? 1 : 0.5,
+      maxBounds: [[guney, bati], [kuzey, dogu]], maxBoundsViscosity: 0.9,
+    });
+    harita.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+
+    // Şematik zemin karoların altında durur: karo gelirse üstünü örter, gelmezse zemin görünür kalır.
+    harita.createPane('zemin').style.zIndex = 150;
+    const yaziKatmani = harita.createPane('zeminYazi');
+    yaziKatmani.style.zIndex = 160;
+    yaziKatmani.style.pointerEvents = 'none';
+    L.geoJSON(sinirlar, {
+      pane: 'zemin', interactive: false, attribution: AYAR.altliklar.length ? null : SINIR_ATIF,
+      style: f => ({ className: `sinir sinir-${f.properties.tur}` }),
+    }).addTo(harita);
+    for (const f of sinirlar.features) {
+      const p = f.properties;
+      if (p.tur === 'ilce' || !p.yazi) continue;
+      L.marker([p.yazi[1], p.yazi[0]], {
+        pane: 'zeminYazi', interactive: false, keyboard: false,
+        icon: L.divIcon({ className: `yer-adi yer-${p.tur}`, html: el('span', { text: p.ad }), iconSize: [0, 0] }),
+      }).addTo(harita);
+    }
+
+    if (AYAR.altliklar.length) karoKur(0);
+    else haritaNotu('Şematik harita: ilçe ve mahalle sınırları');
+
+    L.control.zoom({ position: 'bottomright', zoomInTitle: 'Yakınlaştır', zoomOutTitle: 'Uzaklaştır' }).addTo(harita);
+    const Sigdir = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd() {
+        const kap = el('div', { class: 'leaflet-bar' });
+        const d = el('button', { type: 'button', title: 'Bölgenin tamamını göster', 'aria-label': 'Bölgenin tamamını göster' }, simge('cerceve'));
+        d.addEventListener('click', () => bolgeyeSigdir(true));
+        L.DomEvent.disableClickPropagation(kap);
+        kap.append(d);
+        return kap;
+      },
+    });
+    new Sigdir().addTo(harita);
+
+    const yakinlik = () => harita.getContainer().classList.toggle('yakin', harita.getZoom() >= 12.75);
+    harita.on('zoomend', yakinlik);
+    new ResizeObserver(() => harita.invalidateSize({ pan: false })).observe(harita.getContainer());
+
+    if (AYAR.koordinatAraci) koordinatAraciKur();
+    bolgeyiCiz();
+    yakinlik();
+  }
+
+  // Sokak haritası: sıradaki sağlayıcıdan hiç karo gelmeden art arda hata olursa bir sonrakine geçilir.
+  // Hepsi tükenirse şematik zemin görünür kalır ve not çıkar.
+  function karoKur(sira) {
+    const a = AYAR.altliklar[sira];
+    if (!a) {
+      harita.getContainer().dataset.altlik = 'yok';
+      haritaNotu('Sokak haritası yüklenemedi. İlçe ve mahalle sınırları gösteriliyor.');
+      return;
+    }
+    const karo = L.tileLayer(a.url, { attribution: a.atif, subdomains: a.altAlanlar || 'abc', maxZoom: 20, maxNativeZoom: a.enYakin || 19 }).addTo(harita);
+    harita.getContainer().dataset.altlik = a.ad || String(sira);
+    let gelen = 0, hata = 0, birakildi = false;
+    karo.on('tileload', () => { gelen++; });
+    karo.on('tileerror', () => {
+      hata++;
+      if (birakildi || gelen || hata < 4) return;
+      birakildi = true;
+      karo.remove();
+      karoKur(sira + 1);
+    });
+  }
+
+  function bolgeyiCiz() {
+    if (!harita) return;
+    if (bolgeKatmani) bolgeKatmani.remove();
+    const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.ad === durum.ilce);
+    bolgeKatmani = ilce.length
+      ? L.geoJSON({ type: 'FeatureCollection', features: ilce }, { interactive: false, style: { className: 'sinir sinir-secili' } }).addTo(harita)
+      : null;
+    bolgeyeSigdir(false);
+  }
+
+  function bolgeyeSigdir(canli) {
+    if (!harita) return;
+    const konumlu = bolgeMekanlari().filter(m => m.konum).map(m => [m.konum.lat, m.konum.lng]);
+    const kutu = bolgeKatmani ? bolgeKatmani.getBounds() : konumlu.length ? L.latLngBounds(konumlu) : null;
+    if (kutu) harita.fitBounds(kutu, { padding: [14, 14], animate: canli && !azHareket });
+  }
+
+  function igneleriCiz(uyan) {
+    if (!harita) return;
+    const olmali = new Map(uyan.filter(m => m.konum).map(m => [m.id, m]));
+    for (const [id, igne] of igneler) if (!olmali.has(id)) { igne.remove(); igneler.delete(id); }
+    const harf = kategoriler[durum.kategori].simge || kategoriler[durum.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
+    for (const [id, m] of olmali) {
+      if (igneler.has(id)) continue;
+      const igne = L.marker([m.konum.lat, m.konum.lng], {
+        keyboard: true, riseOnHover: true,
+        icon: L.divIcon({ className: 'igne', html: el('span', { class: 'levha', text: harf }), iconSize: [30, 40], iconAnchor: [15, 40] }),
+      }).addTo(harita);
+      igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
+      igne.on('click', () => sec(id, 'harita'));
+      const e = igne.getElement();
+      e.setAttribute('aria-label', m.ad);
+      e.dataset.id = id;
+      igneler.set(id, igne);
+    }
+  }
+
+  function koordinatAraciKur() {
+    let acik = false, nokta = null;
+    const dugme = el('button', { type: 'button', class: 'koor-dugme', 'aria-pressed': 'false', text: 'Koordinat al' });
+    const Arac = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd() { const kap = el('div', { class: 'leaflet-bar' }, dugme); L.DomEvent.disableClickPropagation(kap); return kap; },
+    });
+    new Arac().addTo(harita);
+    dugme.addEventListener('click', () => {
+      acik = !acik;
+      dugme.setAttribute('aria-pressed', String(acik));
+      dugme.textContent = acik ? 'Haritada bir yere tıkla' : 'Koordinat al';
+      harita.getContainer().classList.toggle('koor-modu', acik);
+      if (!acik) { $('#koorKutu').hidden = true; if (nokta) { nokta.remove(); nokta = null; } }
+    });
+    harita.on('click', e => {
+      if (!acik) return;
+      const metin = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+      $('#koorDeger').textContent = metin;
+      $('#koorKutu').hidden = false;
+      if (nokta) nokta.setLatLng(e.latlng);
+      else nokta = L.marker(e.latlng, { interactive: false, keyboard: false, icon: L.divIcon({ className: 'koor-nokta', iconSize: [12, 12] }) }).addTo(harita);
+    });
+    $('#koorKopya').addEventListener('click', () => kopyala($('#koorDeger').textContent, $('#koorKopya'), $('#koorDeger')));
+  }
+
+  /* ---------- seçim: liste ve harita birlikte ---------- */
+  function sec(id, kaynak) {
+    if (kaynak === 'liste' && durum.secili === id) id = null;   // açık karta ikinci tık kapatır
+    durum.secili = id;
+    seciliyiUygula();
+    if (!id) return;
+    const igne = igneler.get(id);
+    if (kaynak === 'liste' && igne && harita) {
+      harita.setView(igne.getLatLng(), Math.max(harita.getZoom(), 15), { animate: !azHareket });
+    }
+    if (kaynak === 'harita') {
+      const k = kok.querySelector(`.kart[data-id="${id}"]`);
+      if (k) k.scrollIntoView({ block: 'nearest', behavior: azHareket ? 'auto' : 'smooth' });
+    }
+  }
+
+  function seciliyiUygula() {
+    for (const k of kok.querySelectorAll('.kart')) {
+      const s = k.dataset.id === durum.secili;
+      k.classList.toggle('secili', s);
+      k.querySelector('.kart-bas').setAttribute('aria-expanded', String(s));
+      k.querySelector('.ayrinti').hidden = !s;
+    }
+    for (const [id, igne] of igneler) {
+      const s = id === durum.secili;
+      igne.getElement().classList.toggle('secili', s);
+      igne.setZIndexOffset(s ? 1000 : 0);
+    }
+  }
+
+  /* ---------- ana döngü ---------- */
+  function guncelle() {
+    const tum = bolgeMekanlari();
+    const uyan = [], belirsiz = [];
+    for (const m of tum) {
+      const d = degerlendir(m, durum.secimler);
+      if (d.sonuc === 'uyar') uyan.push(m);
+      else if (d.sonuc === 'belirsiz') belirsiz.push({ m, eksik: d.eksik });
+    }
+    if (durum.secili && !uyan.some(m => m.id === durum.secili) && !belirsiz.some(b => b.m.id === durum.secili)) durum.secili = null;
+    paneliEsle(tum);
+    listeyiCiz(tum, uyan, belirsiz);
+    igneleriCiz(uyan);
+    seciliyiUygula();
+  }
+
+  function filtreleriTemizle() {
+    durum.secimler = {};
+    guncelle();
+  }
+
+  function baglamiYaz() {
+    const kat = kategoriler[durum.kategori];
+    $('#baglam').textContent = `${durum.ilce} · ${kat.ad}`;
+    const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
+    not.textContent = kat.bilgi_notu || '';
+    not.hidden = !kat.bilgi_notu;
+  }
+
+  /* ---------- çekmece (dar ekranda filtre paneli) ---------- */
+  const dar = window.matchMedia('(max-width: 1099.98px)');
+  const panel = $('#panel');
+  function paneliAyarla(acik, odakla) {
+    const cekmece = dar.matches;
+    const gorunur = cekmece && acik;
+    panel.classList.toggle('acik', gorunur);
+    panel.inert = cekmece && !acik;
+    $('#perde').hidden = !gorunur;
+    $('#filtreAc').setAttribute('aria-expanded', String(gorunur));
+    if (cekmece) { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); }
+    else { panel.removeAttribute('role'); panel.removeAttribute('aria-modal'); }
+    for (const b of [$('.ust'), $('#sonuclar'), $('.harita-kap')]) b.inert = gorunur;
+    if (odakla) (gorunur ? $('#panelKapat') : $('#filtreAc')).focus();
+  }
+
+  /* ---------- başlat ---------- */
+  async function baslat() {
+    try {
+      ({ kategoriler, mekanlar, sinirlar } = await veriyiGetir());
+    } catch (hata) {
+      $('#sonucSayi').textContent = 'Veri yüklenemedi';
+      const not = $('#sonucNot');
+      not.textContent = 'Sayfayı yenileyip yeniden dene.';
+      not.hidden = false;
+      console.error(hata);
+      return;
+    }
+    const bolgeler = [...new Map(mekanlar.map(m => [`${m.il}|${m.ilce}`, m])).values()]
+      .sort((a, b) => `${a.il} ${a.ilce}`.localeCompare(`${b.il} ${b.ilce}`, TR));
+    const bolgeSec = $('#bolgeSec'), kategoriSec = $('#kategoriSec');
+    bolgeSec.replaceChildren(...bolgeler.map(m => el('option', { value: `${m.il}|${m.ilce}`, text: `${m.il} · ${m.ilce}` })));
+    kategoriSec.replaceChildren(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
+    [durum.il, durum.ilce] = bolgeSec.value.split('|');
+    durum.kategori = kategoriSec.value;
+
+    bolgeSec.addEventListener('change', () => {
+      [durum.il, durum.ilce] = bolgeSec.value.split('|');
+      durum.secili = null;
+      baglamiYaz(); bolgeyiCiz(); guncelle();
+    });
+    kategoriSec.addEventListener('change', () => {
+      durum.kategori = kategoriSec.value;
+      durum.secimler = {}; durum.secili = null;
+      baglamiYaz(); filtreleriCiz(); guncelle();
+    });
+    $('#temizle').addEventListener('click', filtreleriTemizle);
+    $('#filtreAc').addEventListener('click', () => paneliAyarla(true, true));
+    $('#panelKapat').addEventListener('click', () => paneliAyarla(false, true));
+    $('#panelUygula').addEventListener('click', () => paneliAyarla(false, true));
+    $('#perde').addEventListener('click', () => paneliAyarla(false, true));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('acik')) paneliAyarla(false, true); });
+    dar.addEventListener('change', () => paneliAyarla(false, false));
+
+    paneliAyarla(false, false);
+    baglamiYaz();
+    filtreleriCiz();
+    haritaKur();
+    guncelle();
+  }
+  baslat();
+})();
+</script>
+</body>
+</html>
