@@ -957,9 +957,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
   <div class="perde" id="perde" hidden></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous"></script>
 <script>
-window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}]}, { koordinatAraci: location.hash === '#koordinat' });
+window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}],"veritabani":{"url":"https://jnnawgcfrckmjgahimxd.supabase.co","anahtar":"sb_publishable_ob8hBUnU_NHSrXaMGaf7Rw_gutBWiBS"}}, { koordinatAraci: location.hash === '#koordinat' });
 </script>
 <script>
 (() => {
@@ -1006,7 +1006,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   const duz = s => s.toLocaleLowerCase(TR)
     .replace(/[çğıöşü]/g, c => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c]))
     .replace(/[^a-z0-9]+/g, ' ').trim();
-  const tarihYaz = t => t.split('-').reverse().join('.');
+  const tarihYaz = t => (t ? String(t).slice(0, 10).split('-').reverse().join('.') : 'bilinmiyor');
   async function kopyala(metin, dugme, kaynak) {
     const eski = dugme.textContent;
     try {
@@ -1021,7 +1021,31 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   /* ---------- veri: tek giriş noktası ---------- */
-  // Bugün dosyadan okunur. İleride veritabanına geçilirse yalnızca bu fonksiyon değişir.
+  // Kategori tanımı ve sınırlar dosyadan okunur. Mekanlar, ayarda veritabanı varsa oradan okunur
+  // (yönetim sayfasında yapılan değişiklik hemen görünür). Veritabanına ulaşılamazsa ya da boş dönerse
+  // depodaki son kopya (mekanlar.json) kullanılır.
+  const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi';
+
+  async function mekanlariVeritabanindanGetir(ms) {
+    const { url, anahtar } = AYAR.veritabani;
+    const iptal = new AbortController();
+    const sayac = setTimeout(() => iptal.abort(), ms);
+    try {
+      // Herkese açık anahtar yalnızca "apikey" başlığında gider; okuma izni veritabanındaki kurallarla sınırlı.
+      const y = await fetch(`${url}/rest/v1/mekan?select=${MEKAN_ALANLARI}&durum=eq.acik`, {
+        headers: { apikey: anahtar, Accept: 'application/json' }, signal: iptal.signal,
+      });
+      if (!y.ok) throw new Error(`veritabanı yanıtı: ${y.status}`);
+      const satirlar = await y.json();
+      if (!Array.isArray(satirlar)) throw new Error('veritabanı yanıtı liste değil');
+      return satirlar
+        .filter(m => m && m.id && m.ad && m.kategori && m.il && m.ilce && m.ozellikler)
+        .map(({ lat, lng, ...m }) => ({ ...m, konum: lat == null || lng == null ? null : { lat, lng } }));
+    } finally {
+      clearTimeout(sayac);
+    }
+  }
+
   async function veriyiGetir() {
     if (window.KESIF_VERI) return window.KESIF_VERI;
     const oku = async ad => {
@@ -1029,7 +1053,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       if (!y.ok) throw new Error(`${ad}: ${y.status}`);
       return y.json();
     };
-    const [kategoriler, mekanlar, sinirlar] = await Promise.all(['kategoriler', 'mekanlar', 'sinirlar'].map(oku));
+    const [kategoriler, sinirlar] = await Promise.all([oku('kategoriler'), oku('sinirlar')]);
+    let mekanlar = null;
+    if (AYAR.veritabani) {
+      try {
+        mekanlar = await mekanlariVeritabanindanGetir(8000);
+        if (!mekanlar.length) { console.warn('Veritabanı boş döndü; depodaki son kopya kullanılıyor.'); mekanlar = null; }
+      } catch (hata) {
+        console.warn('Veritabanına ulaşılamadı; depodaki son kopya kullanılıyor.', hata);
+      }
+    }
+    if (!mekanlar) mekanlar = await oku('mekanlar');
     return { kategoriler, mekanlar, sinirlar };
   }
 
@@ -1202,7 +1236,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     }
     satirlar.push(el('dt', { text: 'Bilgi tarihi' }), el('dd', { text: tarihYaz(m.dogrulama_tarihi) }));
 
-    const eylemler = [el('a', { class: 'dugme', href: m.web, target: '_blank', rel: 'noopener noreferrer' }, 'Web sitesi', simge('dis'))];
+    const eylemler = [];
+    if (/^https:\/\//.test(m.web || '')) eylemler.push(el('a', { class: 'dugme', href: m.web, target: '_blank', rel: 'noopener noreferrer' }, 'Web sitesi', simge('dis')));
     if (m.konum) eylemler.push(el('a', { class: 'dugme', target: '_blank', rel: 'noopener noreferrer',
       href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}` }, 'Yol tarifi', simge('dis')));
     const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'

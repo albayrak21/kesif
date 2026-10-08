@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self' https://jnnawgcfrckmjgahimxd.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E5AA7'/%3E%3Crect x='4.5' y='4.5' width='23' height='23' rx='4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Cpath d='M12 9v14M21 9l-8.5 7.5L21 23' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Keşif · Yönetim</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Yönetim sayfası. Aynı levha dili: mavi levha, dar yazı.
+   Solda mekan listesi, sağda düzenleme formu; dar ekranda ikisi sırayla görünür. */
+:root {
+  --zemin: #EDF0EF;
+  --yuzey: #FAFBFA;
+  --yuzey-2: #FFFFFF;
+  --murekkep: #13232A;
+  --soluk: #56676D;
+  --cizgi: #D2DAD9;
+  --cizgi-koyu: #A9B6B5;
+  --vurgu: #0E5AA7;
+  --vurgu-dolgu: #0E5AA7;
+  --vurgu-ustu: #FFFFFF;
+  --vurgu-soluk: #E1ECF8;
+  --secim: #F2B21C;
+  --secim-ustu: #1B1503;
+  --olumlu: #1C7248;
+  --uyari: #8A5A00;
+  --hata: #B3261E;
+  --hata-soluk: #FBEAE8;
+  --h-deniz: #C9DCE7;
+  --perde: rgb(8 16 20 / .45);
+  --golge: 0 1px 2px rgb(19 35 42 / .14), 0 4px 12px rgb(19 35 42 / .10);
+  --yazi: "Barlow", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --yazi-dar: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --zemin: #0E1618; --yuzey: #151F23; --yuzey-2: #1B282D; --murekkep: #E7EEED; --soluk: #9BAEB1;
+    --cizgi: #2A3A3F; --cizgi-koyu: #46595F; --vurgu: #86BDF7; --vurgu-dolgu: #2670C4; --vurgu-ustu: #FFFFFF;
+    --vurgu-soluk: #17304A; --secim: #F5BD33; --secim-ustu: #1B1503; --olumlu: #6FCB9B; --uyari: #E2B45A;
+    --hata: #FF8A80; --hata-soluk: #3A1A18; --h-deniz: #0C202B;
+    --perde: rgb(0 0 0 / .6);
+    --golge: 0 1px 2px rgb(0 0 0 / .5), 0 6px 16px rgb(0 0 0 / .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --zemin: #0E1618; --yuzey: #151F23; --yuzey-2: #1B282D; --murekkep: #E7EEED; --soluk: #9BAEB1;
+  --cizgi: #2A3A3F; --cizgi-koyu: #46595F; --vurgu: #86BDF7; --vurgu-dolgu: #2670C4; --vurgu-ustu: #FFFFFF;
+  --vurgu-soluk: #17304A; --secim: #F5BD33; --secim-ustu: #1B1503; --olumlu: #6FCB9B; --uyari: #E2B45A;
+  --hata: #FF8A80; --hata-soluk: #3A1A18; --h-deniz: #0C202B;
+  --perde: rgb(0 0 0 / .6);
+  --golge: 0 1px 2px rgb(0 0 0 / .5), 0 6px 16px rgb(0 0 0 / .35);
+  color-scheme: dark;
+}
+
+/* Leaflet 1.9.4 stil dosyası (görsel çağrıları çıkarıldı) */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+
+html { height: 100%; box-sizing: border-box; }
+body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep); font: 400 15px/1.45 var(--yazi); -webkit-text-size-adjust: 100%; }
+.ynt, .ynt *, .ynt *::before, .ynt *::after { box-sizing: border-box; }
+.ynt :focus-visible { outline: 2px solid var(--vurgu); outline-offset: 2px; }
+
+/* ---------- iskelet ---------- */
+.ynt { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.ust { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 16px; background: var(--yuzey); border-bottom: 1px solid var(--cizgi); }
+.marka { display: flex; align-items: center; gap: 8px; margin: 0; color: inherit; font: 700 21px/1 var(--yazi-dar); letter-spacing: .01em; text-decoration: none; }
+.levha { display: grid; place-items: center; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); font-family: var(--yazi-dar); font-weight: 700; line-height: 1; }
+.marka .levha { width: 28px; height: 28px; border-radius: 6px; font-size: 17px; outline: 1.5px solid var(--vurgu-ustu); outline-offset: -4.5px; }
+.baglam { margin: 0; padding: 3px 8px 2px; border: 1px solid var(--cizgi-koyu); border-radius: 4px; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .08em; text-transform: uppercase; }
+.ust-sag { display: flex; align-items: center; gap: 8px; min-width: 0; margin-left: auto; }
+.kullanici { min-width: 0; max-width: 30ch; overflow: hidden; color: var(--soluk); font: 500 14px/1.2 var(--yazi-dar); text-overflow: ellipsis; white-space: nowrap; }
+.sahne { min-height: 0; display: grid; }
+.ortala { min-height: 0; overflow-y: auto; display: grid; place-items: center; padding: 24px 16px; }
+
+/* ---------- ortak parçalar ---------- */
+.dugme { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px 14px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 600 15px/1 var(--yazi-dar); cursor: pointer; text-decoration: none; white-space: nowrap; }
+.dugme:hover { border-color: var(--murekkep); }
+.dugme:disabled { opacity: .5; cursor: default; border-color: var(--cizgi-koyu); }
+.dugme-dolu { border-color: transparent; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.dugme-dolu:hover { border-color: transparent; filter: brightness(1.08); }
+.dugme-dolu:disabled { filter: none; border-color: transparent; }
+.dugme.ince { min-height: 36px; padding: 6px 12px; font-size: 14.5px; }
+.tam { width: 100%; }
+.bag { padding: 6px 2px; border: 0; background: none; color: var(--vurgu); font: 600 14px/1 var(--yazi-dar); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.baslik-kucuk { margin: 0; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .09em; text-transform: uppercase; }
+.ipucu { margin: 0; color: var(--soluk); font-size: 13px; line-height: 1.4; }
+.simge { flex: none; width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.alan { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.alan-bas, .bolum-bas { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.alan > label, .alan-bas > label:first-child, .etiket { color: var(--soluk); font: 500 13.5px/1.2 var(--yazi-dar); }
+.giris-alani { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 400 15px/1.3 var(--yazi); }
+.giris-alani::placeholder { color: var(--soluk); opacity: .8; }
+textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
+.giris-alani[readonly] { background: var(--zemin); color: var(--soluk); }
+.giris-alani:disabled { opacity: .7; }
+.giris-alani[aria-invalid="true"] { border-color: var(--hata); box-shadow: 0 0 0 1px var(--hata); }
+.alan-hata { margin: 0; color: var(--hata); font: 500 13.5px/1.3 var(--yazi-dar); }
+.hata-kutu { margin: 0; padding: 10px 12px; border-radius: 6px; background: var(--hata-soluk); color: var(--hata); font: 500 14.5px/1.35 var(--yazi-dar); }
+.satir { display: flex; gap: 8px; }
+.satir .giris-alani { flex: 1; min-width: 0; }
+
+.secenekler { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.hap { position: relative; }
+.hap input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.hap-yuz { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); font: 500 15px/1 var(--yazi-dar); }
+.hap input:checked + .hap-yuz { border-color: var(--vurgu-dolgu); background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.hap.bilinmiyor .hap-yuz { border-style: dashed; color: var(--soluk); }
+.hap.bilinmiyor input:checked + .hap-yuz { border-color: var(--murekkep); background: var(--zemin); color: var(--murekkep); }
+.hap input:focus-visible + .hap-yuz { outline: 2px solid var(--vurgu); outline-offset: 2px; }
+.hap input:disabled + .hap-yuz { opacity: .55; }
+.teyit-sec { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: var(--uyari); font: 500 13.5px/1.2 var(--yazi-dar); cursor: pointer; }
+.teyit-sec input { width: 16px; height: 16px; margin: 0; accent-color: var(--uyari); cursor: pointer; }
+.teyit-sec:has(input:disabled) { opacity: .45; cursor: default; }
+
+/* ---------- giriş ve mesaj kartları ---------- */
+.kart-kutu { width: min(420px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); box-shadow: var(--golge); }
+.kart-kutu h1 { margin: 0; font: 700 25px/1.1 var(--yazi-dar); }
+.kart-kutu p { margin: 0; }
+.yukleniyor { margin: 0; color: var(--soluk); font: 500 16px/1.3 var(--yazi-dar); }
+
+/* ---------- çalışma alanı ---------- */
+.calisma { min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); }
+.liste-panel { min-height: 0; display: flex; flex-direction: column; background: var(--yuzey); border-right: 1px solid var(--cizgi); }
+.liste-bas { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px; border-bottom: 1px solid var(--cizgi); }
+.liste-ust { display: flex; align-items: center; gap: 8px; }
+.liste-ust .bag { margin-left: auto; }
+.mekan-liste { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; margin: 0; padding: 6px 8px 20px; }
+.mekan-oge > button { display: block; width: 100%; padding: 10px 10px 9px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.mekan-oge > button:hover { background: var(--zemin); }
+.mekan-oge > button[aria-current="true"] { background: var(--vurgu-soluk); box-shadow: inset 3px 0 0 var(--vurgu-dolgu); }
+.oge-ad { display: block; font: 600 16px/1.22 var(--yazi-dar); }
+.oge-bilgi { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 3px; color: var(--soluk); font: 500 13px/1.25 var(--yazi-dar); }
+.oge-bilgi .uyari { color: var(--uyari); }
+.bos-liste { padding: 12px 10px; }
+
+.duzenleyici { min-height: 0; display: flex; flex-direction: column; }
+.kaydirma { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.bos-secim { max-width: 420px; margin: 0 auto; padding: 64px 20px; color: var(--soluk); text-align: center; }
+.bos-secim p { margin: 0; }
+.form { max-width: 880px; margin: 0 auto; padding: 16px 20px 40px; }
+.kilit { display: flex; flex-direction: column; gap: 18px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.form-bas { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.form-bas h1 { min-width: 0; margin: 0; font: 700 25px/1.15 var(--yazi-dar); overflow-wrap: anywhere; text-wrap: balance; }
+.form-bas h1:focus { outline: 0; }
+.durum-rozet, .gizli-rozet { padding: 3px 8px 2px; border: 1px solid var(--cizgi-koyu); border-radius: 4px; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .06em; text-transform: uppercase; }
+.durum-rozet.kapali { border-color: var(--uyari); color: var(--uyari); }
+.durum-rozet.yeni { border-color: var(--vurgu); color: var(--vurgu); }
+.geri { display: none; flex-basis: 100%; justify-content: flex-start; text-align: left; }
+
+.bolum { min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); display: flex; flex-direction: column; gap: 14px; }
+.bolum h2, .gecmis > summary { margin: 0; font: 700 19px/1.2 var(--yazi-dar); }
+.bolum-bas .gizli-rozet { margin-left: auto; }
+.izgara { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px 14px; }
+.izgara .genis { grid-column: 1 / -1; }
+
+.konum-harita { position: relative; height: 340px; overflow: hidden; border: 1px solid var(--cizgi-koyu); border-radius: 8px; background: var(--h-deniz); }
+#harita { position: absolute; inset: 0; z-index: 0; isolation: isolate; }
+.harita-not { position: absolute; z-index: 1; top: 10px; left: 10px; max-width: calc(100% - 20px); margin: 0; padding: 5px 10px 4px; border: 1px solid var(--cizgi); border-radius: 6px; background: var(--yuzey); color: var(--soluk); font: 500 13px/1.25 var(--yazi-dar); box-shadow: var(--golge); }
+.konum-satir { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.konum-satir .alan { flex: 1 1 240px; }
+
+.ozellikler { display: flex; flex-direction: column; gap: 14px; }
+.oz { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--cizgi); }
+.oz:first-child { padding-top: 0; border-top: 0; }
+.oz-bas { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+.oz-ad { font: 600 16px/1.2 var(--yazi-dar); }
+.cok-ust { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; }
+.bilinmiyor-sec { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; font: 500 15px/1.2 var(--yazi-dar); cursor: pointer; }
+.bilinmiyor-sec input { width: 18px; height: 18px; margin: 0; accent-color: var(--murekkep); }
+.secili-sayi { color: var(--vurgu); font: 600 13px/1 var(--yazi-dar); }
+.cok-izgara { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 18px; }
+.cok-izgara label { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 4px 2px; border-bottom: 1px solid var(--cizgi); font: 400 15px/1.25 var(--yazi); cursor: pointer; }
+.cok-izgara input { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--vurgu-dolgu); cursor: pointer; }
+.cok-izgara.pasif { opacity: .45; }
+
+.kaynaklar { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.kaynak { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 8px; padding: 10px; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey); }
+.kaynak .giris-alani { min-height: 38px; }
+.kaynak .kaynak-kapsam, .kaynak .alan-hata { grid-column: 1; }
+.kaynak-eylem { grid-row: 1 / span 2; grid-column: 2; display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.kucuk-dugme { display: grid; place-items: center; min-width: 38px; height: 38px; padding: 0 8px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 600 13.5px/1 var(--yazi-dar); text-decoration: none; cursor: pointer; }
+.kucuk-dugme[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+.bolum.ic { background: var(--yuzey); border-style: dashed; }
+
+.gecmis > summary { cursor: pointer; }
+.gecmis-liste { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gecmis-oge { padding: 9px 12px; border-left: 3px solid var(--cizgi-koyu); border-radius: 0 6px 6px 0; background: var(--yuzey); }
+.gecmis-oge p { margin: 0; }
+.gecmis-bas { color: var(--soluk); font: 500 13px/1.3 var(--yazi-dar); }
+.gecmis-ne { font: 600 15px/1.3 var(--yazi-dar); }
+.gecmis-oge ul { margin: 4px 0 0; padding-left: 18px; font-size: 14px; overflow-wrap: anywhere; }
+
+.eylem-cubugu { display: flex; align-items: center; gap: 8px; padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--cizgi); background: var(--yuzey); }
+.kayit-durumu { flex: 1; min-width: 0; margin: 0; color: var(--soluk); font: 500 14.5px/1.3 var(--yazi-dar); }
+.kayit-durumu[data-tur="kirli"] { color: var(--uyari); }
+.kayit-durumu[data-tur="hata"] { color: var(--hata); }
+.kayit-durumu[data-tur="tamam"] { color: var(--olumlu); }
+
+dialog.diyalog { width: min(440px, calc(100% - 32px)); padding: 20px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); color: var(--murekkep); box-shadow: var(--golge); }
+dialog.diyalog::backdrop { background: var(--perde); }
+.diyalog h2 { margin: 0 0 6px; font: 700 21px/1.2 var(--yazi-dar); }
+.diyalog p { margin: 0 0 18px; color: var(--soluk); }
+.diyalog .eylemler { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+/* ---------- harita ---------- */
+.leaflet-container { background: var(--h-deniz); font: inherit; }
+.leaflet-container a { color: var(--vurgu); }
+.leaflet-bar, .leaflet-touch .leaflet-bar { border: 1px solid var(--cizgi-koyu); border-radius: 6px; box-shadow: var(--golge); overflow: hidden; }
+.leaflet-bar a, .leaflet-touch .leaflet-bar a { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-bottom: 1px solid var(--cizgi); border-radius: 0; background: var(--yuzey-2); color: var(--murekkep); line-height: 1; }
+.leaflet-bar a:last-child { border-bottom: 0; }
+.leaflet-bar a:hover, .leaflet-bar a:focus { background: var(--zemin); color: var(--murekkep); }
+.leaflet-bar a.leaflet-disabled { background: var(--zemin); color: var(--cizgi-koyu); }
+.leaflet-container .leaflet-control-attribution { background: var(--yuzey); color: var(--soluk); font: 400 11px/1.5 var(--yazi); opacity: .92; }
+.leaflet-tooltip { padding: 4px 8px 3px; border: 0; border-radius: 5px; background: var(--murekkep); color: var(--yuzey); font: 500 13.5px/1.25 var(--yazi-dar); box-shadow: var(--golge); }
+.leaflet-tooltip-top::before { border-top-color: var(--murekkep); }
+.igne { border: 0; background: none; cursor: grab; }
+.igne .levha { position: absolute; left: 1px; top: 1px; width: 28px; height: 28px; border-radius: 6px; background: var(--secim); color: var(--secim-ustu); font-size: 17px; box-shadow: 0 0 0 2px var(--yuzey-2), 0 2px 6px rgb(0 0 0 / .4); }
+.igne .levha::after { content: ""; position: absolute; left: 50%; top: 100%; margin: 1px 0 0 -6px; border: 6px solid transparent; border-top: 9px solid var(--yuzey-2); border-bottom: 0; }
+.diger-nokta { fill: var(--vurgu-dolgu); fill-opacity: .55; stroke: var(--yuzey-2); stroke-width: 2; stroke-opacity: 1; }
+
+/* ---------- dar ekran: liste ve form sırayla ---------- */
+@media (max-width: 899.98px) {
+  .calisma { grid-template-columns: minmax(0, 1fr); }
+  .calisma[data-gorunum="liste"] .duzenleyici { display: none; }
+  .calisma[data-gorunum="duzen"] .liste-panel { display: none; }
+  .liste-panel { border-right: 0; }
+  .geri { display: inline-flex; }
+  .form { padding: 12px 12px 28px; }
+  .bolum { padding: 14px 12px; }
+  .eylem-cubugu { padding-inline: 12px; flex-wrap: wrap; }
+  .kayit-durumu { flex-basis: 100%; }
+  .eylem-cubugu .dugme { flex: 1; }
+  .kullanici { display: none; }
+  .konum-harita { height: 280px; }
+}
+@media (max-width: 479.98px) {
+  .ust { gap: 8px; padding-inline: 12px; }
+  .baglam { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ynt *, .ynt *::before, .ynt *::after { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="ynt" id="ynt" lang="tr">
+  <header class="ust">
+    <a class="marka" href="./" title="Siteye dön"><span class="levha" aria-hidden="true">K</span>Keşif</a>
+    <p class="baglam">Yönetim</p>
+    <div class="ust-sag">
+      <span class="kullanici" id="kullanici" hidden></span>
+      <a class="dugme ince" href="./" target="_blank" rel="noopener">Siteyi aç</a>
+      <button class="dugme ince" id="cikis" type="button" hidden>Çıkış</button>
+    </div>
+  </header>
+
+  <div class="sahne">
+    <section class="ortala" id="yukleniyor">
+      <p class="yukleniyor" id="yukleniyorMetni" role="status">Yükleniyor…</p>
+      <noscript><p class="hata-kutu">Bu sayfa için JavaScript açık olmalı.</p></noscript>
+    </section>
+
+    <section class="ortala" id="girisBolumu" hidden>
+      <form class="kart-kutu" id="girisFormu" method="post" novalidate>
+        <h1>Yönetici girişi</h1>
+        <p class="ipucu">Mekan bilgilerini düzenlemek için giriş yap.</p>
+        <div class="alan"><label for="eposta">E-posta</label><input class="giris-alani" id="eposta" name="eposta" type="email" inputmode="email" autocomplete="username" spellcheck="false" required></div>
+        <div class="alan"><label for="sifre">Şifre</label><input class="giris-alani" id="sifre" name="sifre" type="password" autocomplete="current-password" required></div>
+        <p class="hata-kutu" id="girisHata" role="alert" hidden></p>
+        <button class="dugme dugme-dolu tam" id="girisDugme" type="submit" disabled>Giriş yap</button>
+        <p class="ipucu">Hesaplar yalnızca davetle açılır. Şifreni unuttuysan Supabase panelindeki Authentication bölümünden yenileyebilirsin.</p>
+      </form>
+    </section>
+
+    <section class="ortala" id="mesajBolumu" hidden>
+      <div class="kart-kutu" role="alert">
+        <h1 id="mesajBaslik"></h1>
+        <p id="mesajMetin"></p>
+        <button class="dugme dugme-dolu tam" id="mesajEylem" type="button" hidden></button>
+      </div>
+    </section>
+
+    <div class="calisma" id="calisma" data-gorunum="liste" hidden>
+      <aside class="liste-panel" aria-label="Mekanlar">
+        <div class="liste-bas">
+          <div class="liste-ust">
+            <h2 class="baslik-kucuk" id="listeSayi">Mekanlar</h2>
+            <button class="bag" id="yenile" type="button">Listeyi yenile</button>
+          </div>
+          <input class="giris-alani" id="ara" type="search" placeholder="Ad, adres ya da ilçe ara" aria-label="Mekan ara" autocomplete="off">
+          <button class="dugme dugme-dolu tam" id="yeniMekan" type="button">+ Yeni mekan</button>
+        </div>
+        <ul class="mekan-liste" id="mekanListe"></ul>
+      </aside>
+
+      <main class="duzenleyici" aria-label="Düzenleme">
+        <div class="kaydirma" id="kaydirma">
+          <div class="bos-secim" id="bosSecim"><p>Düzenlemek için listeden bir mekan seç ya da yeni mekan ekle.</p></div>
+          <form class="form" id="form" novalidate hidden>
+            <fieldset class="kilit" id="kilit">
+              <div class="form-bas">
+                <button class="bag geri" id="geri" type="button">← Mekanlar</button>
+                <h1 id="formBaslik" tabindex="-1"></h1>
+                <span class="durum-rozet" id="durumRozet" hidden></span>
+              </div>
+
+              <section class="bolum" aria-labelledby="b-temel">
+                <h2 id="b-temel">Temel bilgiler</h2>
+                <div class="izgara">
+                  <div class="alan genis">
+                    <label for="ad">Ad</label>
+                    <input class="giris-alani" id="ad" autocomplete="off" maxlength="200" aria-describedby="hata-ad">
+                    <p class="alan-hata" id="hata-ad" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="kimlik">Kimlik</label>
+                    <input class="giris-alani" id="kimlik" autocomplete="off" spellcheck="false" maxlength="80" aria-describedby="ipucu-kimlik hata-kimlik">
+                    <p class="ipucu" id="ipucu-kimlik"></p>
+                    <p class="alan-hata" id="hata-kimlik" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="kategori">Kategori</label>
+                    <select class="giris-alani" id="kategori" aria-describedby="ipucu-kategori hata-kategori"></select>
+                    <p class="ipucu" id="ipucu-kategori"></p>
+                    <p class="alan-hata" id="hata-kategori" hidden></p>
+                  </div>
+                  <div class="alan genis">
+                    <span class="etiket" id="durum-etiket">Durum</span>
+                    <div class="secenekler" role="radiogroup" aria-labelledby="durum-etiket" aria-describedby="ipucu-durum">
+                      <label class="hap"><input type="radio" name="durum" value="acik" id="durum-acik"><span class="hap-yuz">Açık</span></label>
+                      <label class="hap"><input type="radio" name="durum" value="kapali" id="durum-kapali"><span class="hap-yuz">Kapalı</span></label>
+                    </div>
+                    <p class="ipucu" id="ipucu-durum">Kapalı mekanlar sitede görünmez. Silmek yerine bunu kullan; geçmiş korunur.</p>
+                  </div>
+                  <div class="alan genis">
+                    <div class="alan-bas"><label for="adres">Adres</label><label class="teyit-sec"><input type="checkbox" data-teyit="adres" id="teyit-adres">Teyit bekliyor</label></div>
+                    <input class="giris-alani" id="adres" autocomplete="off" aria-describedby="hata-adres">
+                    <p class="alan-hata" id="hata-adres" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="il">İl</label>
+                    <input class="giris-alani" id="il" list="ilListesi" autocomplete="off" aria-describedby="hata-il">
+                    <p class="alan-hata" id="hata-il" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="ilce">İlçe</label>
+                    <input class="giris-alani" id="ilce" list="ilceListesi" autocomplete="off" aria-describedby="hata-ilce">
+                    <p class="alan-hata" id="hata-ilce" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <div class="alan-bas"><label for="telefon">Telefon</label><label class="teyit-sec"><input type="checkbox" data-teyit="telefon" id="teyit-telefon">Teyit bekliyor</label></div>
+                    <input class="giris-alani" id="telefon" type="tel" inputmode="tel" autocomplete="off" placeholder="+90 216 421 42 00" aria-describedby="ipucu-telefon hata-telefon">
+                    <p class="ipucu" id="ipucu-telefon">Boş bırakılabilir. 0216 421 42 00 yazarsan biçimi kendisi düzeltir.</p>
+                    <p class="alan-hata" id="hata-telefon" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="web">Web sitesi</label>
+                    <input class="giris-alani" id="web" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" aria-describedby="hata-web">
+                    <p class="alan-hata" id="hata-web" hidden></p>
+                  </div>
+                  <div class="alan">
+                    <label for="tarih">Bilgi tarihi</label>
+                    <div class="satir"><input class="giris-alani" id="tarih" type="date" aria-describedby="ipucu-tarih hata-tarih"><button class="dugme" id="bugun" type="button">Bugün</button></div>
+                    <p class="ipucu" id="ipucu-tarih">Bilgileri kaynaktan en son kontrol ettiğin gün. Sitede gösterilir.</p>
+                    <p class="alan-hata" id="hata-tarih" hidden></p>
+                  </div>
+                </div>
+                <datalist id="ilListesi"></datalist>
+                <datalist id="ilceListesi"></datalist>
+              </section>
+
+              <section class="bolum" aria-labelledby="b-konum">
+                <div class="bolum-bas"><h2 id="b-konum">Konum</h2><label class="teyit-sec"><input type="checkbox" data-teyit="konum" id="teyit-konum">Yaklaşık, teyit bekliyor</label></div>
+                <p class="ipucu">Haritada mekanın girişine tıkla ya da iğneyi sürükle. Koordinatı elle de yazabilirsin. Mavi noktalar diğer mekanlar.</p>
+                <div class="konum-harita"><div id="harita"></div><p class="harita-not" id="haritaNot" hidden></p></div>
+                <div class="konum-satir">
+                  <div class="alan">
+                    <label for="konumMetni">Koordinat (enlem, boylam)</label>
+                    <input class="giris-alani" id="konumMetni" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="40.93686, 29.13531" aria-describedby="hata-konumMetni">
+                  </div>
+                  <button class="dugme" id="konumGit" type="button">Haritada göster</button>
+                  <button class="dugme" id="konumKaldir" type="button">Konumu kaldır</button>
+                </div>
+                <p class="alan-hata" id="hata-konumMetni" hidden></p>
+              </section>
+
+              <section class="bolum" aria-labelledby="b-oz">
+                <h2 id="b-oz">Özellikler</h2>
+                <p class="ipucu">Emin olmadığın bilgide "Bilinmiyor"u seç. Sitede bilinmeyen bilgi "yok" sayılmaz, ayrıca gösterilir.</p>
+                <div class="ozellikler" id="ozellikler"></div>
+              </section>
+
+              <section class="bolum ic" aria-labelledby="b-ic">
+                <div class="bolum-bas"><h2 id="b-ic">İç bilgi</h2><span class="gizli-rozet">Sitede görünmez</span></div>
+                <p class="ipucu" id="icDurum" hidden></p>
+                <div class="alan">
+                  <span class="etiket" id="kaynak-etiket">Kaynaklar: bilginin alındığı resmi sayfalar</span>
+                  <ul class="kaynaklar" id="kaynakListe" aria-labelledby="kaynak-etiket"></ul>
+                  <div><button class="dugme" id="kaynakEkle" type="button">+ Kaynak ekle</button></div>
+                </div>
+                <div class="alan">
+                  <label for="notMetni">Not</label>
+                  <textarea class="giris-alani" id="notMetni" rows="4"></textarea>
+                </div>
+              </section>
+
+              <details class="bolum gecmis" id="gecmis">
+                <summary>Değişiklik geçmişi</summary>
+                <ol class="gecmis-liste" id="gecmisListe"></ol>
+              </details>
+            </fieldset>
+          </form>
+        </div>
+        <div class="eylem-cubugu" id="eylemCubugu" hidden>
+          <p class="kayit-durumu" id="kayitDurumu" role="status" aria-live="polite"></p>
+          <button class="dugme" id="guncelYukle" type="button" hidden>Güncel hâlini yükle</button>
+          <button class="dugme" id="vazgec" type="button">Vazgeç</button>
+          <button class="dugme dugme-dolu" id="kaydet" type="submit" form="form">Kaydet</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="diyalog" id="ayrilDiyalog" aria-labelledby="ayrilBaslik">
+    <h2 id="ayrilBaslik">Kaydedilmemiş değişiklik var</h2>
+    <p>Bu mekanda kaydetmediğin değişiklikler var. Devam edersen kaybolur.</p>
+    <div class="eylemler">
+      <button class="dugme" id="ayrilHayir" type="button">Geri dön</button>
+      <button class="dugme dugme-dolu" id="ayrilEvet" type="button">Kaydetmeden devam et</button>
+    </div>
+  </dialog>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
+<script>
+window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}],"veritabani":{"url":"https://jnnawgcfrckmjgahimxd.supabase.co","anahtar":"sb_publishable_ob8hBUnU_NHSrXaMGaf7Rw_gutBWiBS"}};
+</script>
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- ayar ve yardımcılar ---------- */
+  // veritabani: { url, anahtar } — anahtar herkese açık (publishable) anahtardır; yazma yetkisini
+  // veritabanındaki kurallar (RLS) ve yönetici listesi belirler.
+  const AYAR = Object.assign({ altliklar: [], veriYolu: '', veritabani: null }, window.KESIF_AYAR || {});
+  const TR = 'tr';
+  const OTURUM_ANAHTARI = 'kesif-yonetim-oturum';
+  const $ = (s, k = document) => k.querySelector(s);
+  const $$ = (s, k = document) => [...k.querySelectorAll(s)];
+  document.documentElement.lang = TR;
+
+  function el(ad, oz, ...cocuklar) {
+    const d = document.createElement(ad);
+    for (const [k, v] of Object.entries(oz || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') d.className = v;
+      else if (k === 'text') d.textContent = v;
+      else d.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of cocuklar.flat()) if (c != null && c !== false) d.append(c);
+    return d;
+  }
+  const SIMGE = { yok: 'M4 4l8 8M12 4l-8 8', dis: 'M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5' };
+  function simge(ad) {
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 16 16'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('class', 'simge');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', SIMGE[ad]); p.setAttribute('fill', 'none');
+    s.append(p);
+    return s;
+  }
+  const HARF = { ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u', â: 'a', î: 'i', û: 'u' };
+  const sade = s => String(s || '').toLocaleLowerCase(TR).replace(/[çğıöşüâîû]/g, c => HARF[c]).normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const duz = s => sade(s).replace(/[^a-z0-9]+/g, ' ').trim();
+  const kimlikUret = s => sade(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '');
+  const metin = s => String(s || '').trim().replace(/\s+/g, ' ');
+  const iki = n => String(n).padStart(2, '0');
+  const bugun = () => { const t = new Date(); return `${t.getFullYear()}-${iki(t.getMonth() + 1)}-${iki(t.getDate())}`; };
+  const saat = () => { const t = new Date(); return `${iki(t.getHours())}:${iki(t.getMinutes())}`; };
+  const tarihYaz = t => (t ? String(t).slice(0, 10).split('-').reverse().join('.') : 'boş');
+  const zamanYaz = z => new Date(z).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const kisalt = (s, n = 80) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+  const sayiYaz = n => String(Number(n.toFixed(6)));
+  const esc = s => (window.CSS && CSS.escape ? CSS.escape(s) : String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&'));
+
+  // Karşılaştırma için anahtarları sıralı kopya: aynı içerik her zaman aynı metne döner.
+  function kanonik(x) {
+    if (Array.isArray(x)) return x.map(kanonik);
+    if (x && typeof x === 'object') return Object.fromEntries(Object.keys(x).sort().map(k => [k, kanonik(x[k])]));
+    return x;
+  }
+  const ayni = (a, b) => JSON.stringify(kanonik(a)) === JSON.stringify(kanonik(b));
+
+  // Veritabanındaki kurallarla aynı denetimler (kayıttan önce burada yakalanır).
+  const TELEFON = /^(\+90 [0-9]{3} [0-9]{3} [0-9]{2} [0-9]{2}|444 [0-9]{2} [0-9]{2})$/;
+  const KIMLIK = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  function webGecerli(s, httpDeOlur) {
+    if (!/^https?:\/\/\S+$/i.test(s || '')) return false;
+    try {
+      const u = new URL(s);
+      return (u.protocol === 'https:' || (httpDeOlur && u.protocol === 'http:')) && u.hostname.includes('.');
+    } catch { return false; }
+  }
+  function telefonDuzenle(s) {
+    const ham = metin(s);
+    if (!ham) return '';
+    let r = ham.replace(/[^\d]/g, '');
+    if (/^444\d{4}$/.test(r)) return `444 ${r.slice(3, 5)} ${r.slice(5, 7)}`;
+    if (r.startsWith('90') && r.length === 12) r = r.slice(2);
+    else if (r.startsWith('0') && r.length === 11) r = r.slice(1);
+    if (/^\d{10}$/.test(r)) return `+90 ${r.slice(0, 3)} ${r.slice(3, 6)} ${r.slice(6, 8)} ${r.slice(8, 10)}`;
+    return ham;
+  }
+  // "40.93686, 29.13531" ya da "40,93686 29,13531" biçimini okur.
+  function konumOku(s) {
+    const t = metin(s);
+    if (!t) return null;
+    let m = t.match(/^(-?\d{1,3}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+    if (!m) {
+      const v = t.match(/^(-?\d{1,3}(?:,\d+)?)\s*[;\s]\s*(-?\d{1,3}(?:,\d+)?)$/);
+      if (v) m = [v[0], v[1].replace(',', '.'), v[2].replace(',', '.')];
+    }
+    if (!m) return { hata: 'Koordinatı "40.93686, 29.13531" biçiminde yaz: önce enlem, sonra boylam.' };
+    const lat = Number(m[1]), lng = Number(m[2]);
+    if (!(lat >= -90 && lat <= 90)) return { hata: 'Enlem -90 ile 90 arasında olmalı.' };
+    if (!(lng >= -180 && lng <= 180)) return { hata: 'Boylam -180 ile 180 arasında olmalı.' };
+    return { lat: Number(lat.toFixed(6)), lng: Number(lng.toFixed(6)) };
+  }
+
+  /* ---------- hata iletileri ---------- */
+  const KISIT = {
+    mekan_telefon: 'Telefon biçimi geçersiz. Örnek: +90 216 421 42 00 ya da 444 06 20.',
+    mekan_web: 'Web adresi https:// ile başlamalı.',
+    mekan_id_bicim: 'Kimlik yalnızca küçük harf, rakam ve tire içerebilir.',
+    mekan_konum_birlikte: 'Enlem ve boylam birlikte girilmeli.',
+    mekan_lat: 'Enlem -90 ile 90 arasında olmalı.',
+    mekan_lng: 'Boylam -180 ile 180 arasında olmalı.',
+    mekan_durum: 'Durum yalnızca Açık ya da Kapalı olabilir.',
+    mekan_ozellikler_nesne: 'Özellikler bozuk biçimde gönderildi.',
+    mekan_ic_kaynaklar_dizi: 'Kaynaklar bozuk biçimde gönderildi.',
+  };
+  const BAGLANTI = 'Veritabanına ulaşılamadı. İnternet bağlantını kontrol et. Sorun sürerse Supabase projesi duraklatılmış olabilir: panelden "Restore" et.';
+  function agHatasiMi(h) {
+    return !h.code && /fetch|network|load failed|abort/i.test(`${h.message || ''} ${h.name || ''}`);
+  }
+  function hataMetni(h) {
+    if (!h) return 'Bilinmeyen bir hata oluştu.';
+    const kod = h.code || '';
+    const ileti = h.message || String(h);
+    if (kod === '23505') return 'Bu kimlikle bir mekan zaten var. Başka bir kimlik yaz.';
+    if (kod === '23514') {
+      const k = Object.keys(KISIT).find(a => ileti.includes(`"${a}"`));
+      return k ? KISIT[k] : 'Kayıt veritabanı kurallarına uymuyor.';
+    }
+    if (kod === '23502') return 'Zorunlu bir alan boş kalmış.';
+    if (kod === '42501' || /row-level security/i.test(ileti)) return 'Bu işlem için yetkin yok.';
+    if (kod === 'PGRST301' || kod === 'PGRST303' || /jwt/i.test(ileti)) return 'Oturumun süresi dolmuş. Çıkış yapıp yeniden giriş yap.';
+    if (agHatasiMi(h)) return BAGLANTI;
+    return `İşlem tamamlanamadı: ${ileti}`;
+  }
+  function girisHataMetni(h) {
+    const kod = h.code || '';
+    if (kod === 'invalid_credentials' || /invalid login credentials/i.test(h.message || '')) return 'E-posta ya da şifre hatalı.';
+    if (kod === 'email_not_confirmed') return 'Bu e-posta adresi onaylanmamış. Supabase panelinde kullanıcıyı onayla.';
+    if (kod === 'user_banned') return 'Bu hesap engellenmiş.';
+    if (kod === 'over_request_rate_limit' || h.status === 429) return 'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.';
+    if (h.name === 'AuthRetryableFetchError' || !h.status || h.status >= 500) return BAGLANTI;
+    return `Giriş yapılamadı: ${h.message}`;
+  }
+
+  /* ---------- durum ---------- */
+  let db = null;            // Supabase istemcisi
+  let kategoriler = null;   // kategoriler.json
+  let mekanlar = [];        // veritabanındaki tüm mekan satırları
+  let kullanici = null;
+  const d = {               // açık form
+    ham: null,              // veritabanındaki son satır; yeni kayıtta taslak
+    id: null,               // kayıtlı mekanın kimliği (yeni kayıtta null)
+    yeni: false,
+    ilk: null,              // { mekan, ic }: formun kayıtlı hâli, değişiklik denetimi için
+    icHam: null,            // mekan_ic satırı
+    icHazir: false,         // iç bilgi yüklendi mi
+    kimlikElle: false,
+    cakisan: null,          // başkasının kaydettiği güncel satır
+  };
+  let kaydediliyor = false;
+
+  /* ---------- görünümler ---------- */
+  const BOLUMLER = { yukleniyor: '#yukleniyor', giris: '#girisBolumu', mesaj: '#mesajBolumu', calisma: '#calisma' };
+  function goster(ad) {
+    for (const [k, s] of Object.entries(BOLUMLER)) $(s).hidden = k !== ad;
+    $('#kullanici').textContent = kullanici ? kullanici.email || '' : '';
+    $('#kullanici').hidden = !kullanici;
+    $('#cikis').hidden = !kullanici;
+  }
+  function yukleniyor(yazi) { $('#yukleniyorMetni').textContent = yazi; goster('yukleniyor'); }
+  function mesajGoster(baslik, yazi, eylem) {
+    $('#mesajBaslik').textContent = baslik;
+    $('#mesajMetin').textContent = yazi;
+    const b = $('#mesajEylem');
+    b.hidden = !eylem;
+    if (eylem) { b.textContent = eylem.etiket; b.onclick = eylem.is; }
+    goster('mesaj');
+  }
+  const dar = window.matchMedia('(max-width: 899.98px)');
+  function gorunum(ad) {
+    $('#calisma').dataset.gorunum = ad;
+    if (ad === 'duzen') {
+      $('#kaydirma').scrollTop = 0;
+      if (dar.matches) $('#formBaslik').focus({ preventScroll: true });
+    }
+  }
+
+  /* ---------- açılış ve oturum ---------- */
+  async function baslat() {
+    if (window.top !== window.self) { document.body.textContent = ''; return; }   // başka sayfaya gömülmesin
+    if (!AYAR.veritabani) { mesajGoster('Ayar eksik', 'Bu sayfa veritabanı ayarı olmadan çalışmaz.'); return; }
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+      mesajGoster('Sayfa tam yüklenemedi', 'Veritabanı kitaplığı (supabase-js) yüklenemedi. Sayfayı yenile; sorun sürerse bu site için reklam engelleyiciyi kapat.',
+        { etiket: 'Yenile', is: () => location.reload() });
+      return;
+    }
+    db = window.supabase.createClient(AYAR.veritabani.url, AYAR.veritabani.anahtar, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: OTURUM_ANAHTARI },
+    });
+    // Oturum başka yoldan kapanırsa (süresi dolup yenilenemezse) giriş ekranına dön.
+    db.auth.onAuthStateChange(olay => {
+      if (olay === 'SIGNED_OUT' && kullanici) setTimeout(() => oturumKapandi('Oturum kapandı. Yeniden giriş yap.'), 0);
+    });
+    try {
+      const y = await fetch(`${AYAR.veriYolu}kategoriler.json`, { cache: 'no-cache' });
+      if (!y.ok) throw new Error(String(y.status));
+      kategoriler = await y.json();
+    } catch {
+      mesajGoster('Kategori tanımı okunamadı', 'kategoriler.json yüklenemedi. Sayfayı yenile.', { etiket: 'Yenile', is: () => location.reload() });
+      return;
+    }
+    girisFormunuKur();
+    formOlaylariniKur();
+    const { data } = await db.auth.getSession();
+    if (data && data.session) await oturumAc(data.session.user);
+    else goster('giris');
+  }
+
+  function girisFormunuKur() {
+    const form = $('#girisFormu'), dugme = $('#girisDugme'), hata = $('#girisHata');
+    dugme.disabled = false;
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const eposta = $('#eposta').value.trim(), sifre = $('#sifre').value;
+      hata.hidden = true;
+      if (!eposta || !sifre) { hata.textContent = 'E-posta ve şifreyi yaz.'; hata.hidden = false; return; }
+      dugme.disabled = true;
+      dugme.textContent = 'Giriş yapılıyor…';
+      let sonuc;
+      try {
+        sonuc = await db.auth.signInWithPassword({ email: eposta, password: sifre });
+      } catch (h) {
+        sonuc = { error: h };
+      }
+      dugme.disabled = false;
+      dugme.textContent = 'Giriş yap';
+      if (sonuc.error) {
+        hata.textContent = girisHataMetni(sonuc.error);
+        hata.hidden = false;
+        $('#sifre').select();
+        return;
+      }
+      $('#sifre').value = '';
+      await oturumAc(sonuc.data.user);
+    });
+  }
+
+  async function oturumAc(u) {
+    kullanici = u;
+    yukleniyor('Yetki denetleniyor…');
+    const { data, error, status } = await db.from('yonetici').select('user_id').eq('user_id', u.id).maybeSingle();
+    if (error) {
+      if (status === 401 || /jwt/i.test(error.message || '')) { await cikisYap('Oturumun süresi dolmuş. Yeniden giriş yap.'); return; }
+      mesajGoster('Bağlantı sorunu', hataMetni(error), { etiket: 'Tekrar dene', is: () => oturumAc(u) });
+      return;
+    }
+    if (!data) {
+      mesajGoster('Yetki yok', `${u.email || 'Bu hesap'} için yönetici yetkisi tanımlı değil. Yetki için proje sahibiyle iletişime geç.`,
+        { etiket: 'Başka hesapla gir', is: () => cikisYap() });
+      return;
+    }
+    await mekanlariYukle();
+  }
+
+  async function cikisYap(neden) {
+    let hata = null;
+    try { ({ error: hata } = await db.auth.signOut({ scope: 'local' })); } catch (h) { hata = h; }
+    if (hata) { try { localStorage.removeItem(OTURUM_ANAHTARI); } catch { /* yok say */ } }
+    oturumKapandi(neden);
+  }
+  function oturumKapandi(neden) {
+    if (!kullanici && !$('#girisBolumu').hidden) return;
+    kullanici = null; mekanlar = []; formuKapat();
+    const hata = $('#girisHata');
+    hata.textContent = neden || '';
+    hata.hidden = !neden;
+    goster('giris');
+  }
+
+  /* ---------- mekan listesi ---------- */
+  async function mekanlariYukle() {
+    yukleniyor('Mekanlar yükleniyor…');
+    const { data, error } = await db.from('mekan').select('*');
+    if (error) {
+      mesajGoster('Mekanlar yüklenemedi', hataMetni(error), { etiket: 'Tekrar dene', is: () => mekanlariYukle() });
+      return;
+    }
+    mekanlar = data;
+    goster('calisma');
+    listeyiCiz();
+    oneriListeleri();
+  }
+
+  async function listeyiYenile() {
+    const b = $('#yenile');
+    b.disabled = true; b.textContent = 'Yenileniyor…';
+    const { data, error } = await db.from('mekan').select('*');
+    b.disabled = false; b.textContent = 'Listeyi yenile';
+    if (error) { $('#listeSayi').textContent = 'Liste yenilenemedi'; return; }
+    mekanlar = data;
+    listeyiCiz();
+    oneriListeleri();
+  }
+
+  function ozetParcalari(m) {
+    const kat = kategoriler[m.kategori];
+    const p = [{ yazi: kat ? kat.ad : `Tanımsız kategori: ${m.kategori}`, uyari: !kat }];
+    if (m.durum === 'kapali') p.push({ yazi: 'Kapalı', uyari: true });
+    if (m.lat == null) p.push({ yazi: 'Konum yok', uyari: true });
+    const bilinmeyen = kat ? kat.filtreler.filter(f => (m.ozellikler || {})[f.alan] == null).length : 0;
+    if (bilinmeyen) p.push({ yazi: `${bilinmeyen} bilinmiyor`, uyari: true });
+    if ((m.dogrulanacak || []).length) p.push({ yazi: `${m.dogrulanacak.length} teyit bekliyor` });
+    return p;
+  }
+
+  function listeyiCiz() {
+    const q = duz($('#ara').value);
+    const sirali = [...mekanlar].sort((a, b) => a.ad.localeCompare(b.ad, TR));
+    const gorunen = sirali.filter(m => !q || duz(`${m.ad} ${m.adres} ${m.il} ${m.ilce} ${m.id}`).includes(q));
+    $('#listeSayi').textContent = q ? `${gorunen.length} / ${mekanlar.length} mekan` : `${mekanlar.length} mekan`;
+    const liste = $('#mekanListe');
+    liste.replaceChildren(...gorunen.map(m => {
+      const b = el('button', { type: 'button', 'data-id': m.id, 'aria-current': m.id === d.id ? 'true' : null },
+        el('span', { class: 'oge-ad', text: m.ad }),
+        el('span', { class: 'oge-bilgi' }, ozetParcalari(m).map(p => el('span', { class: p.uyari ? 'uyari' : null, text: p.yazi }))));
+      b.addEventListener('click', () => mekaniAc(m.id));
+      return el('li', { class: 'mekan-oge' }, b);
+    }));
+    if (!gorunen.length) liste.append(el('li', { class: 'ipucu bos-liste', text: mekanlar.length ? 'Aramaya uyan mekan yok.' : 'Henüz mekan yok.' }));
+  }
+
+  function oneriListeleri() {
+    const doldur = (sec, degerler) => $(sec).replaceChildren(...[...new Set(degerler)].sort((a, b) => a.localeCompare(b, TR)).map(v => el('option', { value: v })));
+    doldur('#ilListesi', mekanlar.map(m => m.il));
+    doldur('#ilceListesi', mekanlar.map(m => m.ilce));
+  }
+
+  /* ---------- form: açma, doldurma, okuma ---------- */
+  async function mekaniAc(id, zorla) {
+    if (!zorla && id === d.id) { gorunum('duzen'); return; }
+    if (!zorla && !(await ayrilabilirMi())) return;
+    const m = mekanlar.find(x => x.id === id);
+    if (!m) return;
+    gorunum('duzen');
+    formuKur(m, false);
+    icYukle(id);
+  }
+
+  function yeniMekan() {
+    const enCok = alan => {
+      const say = new Map();
+      for (const m of mekanlar) say.set(m[alan], (say.get(m[alan]) || 0) + 1);
+      return [...say.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    };
+    const kaynak = d.ham && !d.yeni ? d.ham : null;   // açık mekanın il/ilçesi öne alınır
+    const taslak = {
+      id: '', kategori: Object.keys(kategoriler)[0], ad: '', lat: null, lng: null, adres: '',
+      il: kaynak ? kaynak.il : enCok('il'), ilce: kaynak ? kaynak.ilce : enCok('ilce'),
+      telefon: null, web: '', ozellikler: {}, dogrulanacak: [], dogrulama_tarihi: bugun(), durum: 'acik',
+    };
+    gorunum('duzen');
+    formuKur(taslak, true);
+    icDoldur({ kaynaklar: [], not_metni: null });
+    d.ilk.ic = icOku();
+    kirliGoster();
+    $('#ad').focus();
+  }
+
+  async function yeniMekanIste() {
+    if (!(await ayrilabilirMi())) return;
+    yeniMekan();
+  }
+
+  function formuKur(m, yeni) {
+    Object.assign(d, { ham: m, id: yeni ? null : m.id, yeni, ilk: null, icHam: null, icHazir: false, kimlikElle: false, cakisan: null });
+    $('#bosSecim').hidden = true;
+    $('#form').hidden = false;
+    $('#eylemCubugu').hidden = false;
+    $('#guncelYukle').hidden = true;
+    for (const p of $$('.alan-hata', $('#form'))) { p.hidden = true; p.textContent = ''; }
+    for (const g of $$('[aria-invalid]', $('#form'))) g.removeAttribute('aria-invalid');
+
+    basligiYaz();
+    $('#ad').value = m.ad || '';
+    const kimlik = $('#kimlik');
+    kimlik.value = m.id || '';
+    kimlik.readOnly = !yeni;
+    $('#ipucu-kimlik').textContent = yeni
+      ? 'Addan otomatik üretilir. Kaydettikten sonra değiştirilemez.'
+      : 'Kalıcı kimlik; değiştirilemez.';
+    const kategori = $('#kategori');
+    kategori.replaceChildren(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
+    if (!kategoriler[m.kategori]) kategori.append(el('option', { value: m.kategori, text: `${m.kategori} (tanımsız)` }));
+    kategori.value = m.kategori;
+    kategori.disabled = !yeni;
+    $('#ipucu-kategori').textContent = yeni ? 'Özellik alanları kategoriye göre değişir.' : 'Kayıtlı mekanın kategorisi değiştirilemez.';
+    $(`#durum-${m.durum === 'kapali' ? 'kapali' : 'acik'}`).checked = true;
+    $('#adres').value = m.adres || '';
+    $('#il').value = m.il || '';
+    $('#ilce').value = m.ilce || '';
+    $('#telefon').value = m.telefon || '';
+    $('#web').value = m.web || '';
+    $('#tarih').value = m.dogrulama_tarihi ? String(m.dogrulama_tarihi).slice(0, 10) : '';
+    const teyitler = new Set(m.dogrulanacak || []);
+    for (const a of ['adres', 'telefon', 'konum']) $(`#teyit-${a}`).checked = teyitler.has(a);
+    $('#konumMetni').value = m.lat == null ? '' : `${sayiYaz(m.lat)}, ${sayiYaz(m.lng)}`;
+    ozellikleriCiz(m.kategori, m.ozellikler || {}, teyitler);
+    teyitDurumlari();
+
+    icDoldur(null);
+    $('#gecmis').open = false;
+    $('#gecmisListe').replaceChildren();
+
+    d.ilk = { mekan: mekanOku(), ic: null };
+    haritayiHazirla();
+    listeyiCiz();
+    kayitDurumu('', '');
+    kirliGoster();
+  }
+
+  function basligiYaz() {
+    $('#formBaslik').textContent = d.yeni ? 'Yeni mekan' : d.ham.ad;
+    const r = $('#durumRozet');
+    r.className = 'durum-rozet';
+    if (d.yeni) { r.textContent = 'Kaydedilmedi'; r.classList.add('yeni'); r.hidden = false; }
+    else if (d.ham.durum === 'kapali') { r.textContent = 'Kapalı · sitede görünmüyor'; r.classList.add('kapali'); r.hidden = false; }
+    else r.hidden = true;
+  }
+
+  function formuKapat() {
+    Object.assign(d, { ham: null, id: null, yeni: false, ilk: null, icHam: null, icHazir: false, cakisan: null });
+    $('#form').hidden = true;
+    $('#eylemCubugu').hidden = true;
+    $('#bosSecim').hidden = false;
+    gorunum('liste');
+    if (mekanlar.length) listeyiCiz();
+  }
+
+  /* --- özellikler: kategori tanımından çizilir --- */
+  const ozKutusu = alan => $(`.oz[data-alan="${esc(alan)}"]`);
+
+  function ozellikleriCiz(katAd, oz, teyitler) {
+    const kap = $('#ozellikler');
+    kap.replaceChildren();
+    const kat = kategoriler[katAd];
+    if (!kat) { kap.append(el('p', { class: 'ipucu', text: 'Bu kategorinin tanımı yok; özellikler düzenlenemez.' })); return; }
+    for (const f of kat.filtreler) {
+      const v = oz[f.alan] ?? null;
+      const baslikId = `oz-${f.alan}-ad`;
+      const teyit = el('input', { type: 'checkbox', 'data-teyit': f.alan, id: `teyit-${f.alan}` });
+      teyit.checked = teyitler.has(f.alan);
+      let govde;
+      if (f.tip === 'secim' || f.tip === 'evet_hayir') {
+        const secenekler = f.tip === 'secim'
+          ? f.secenekler.map(o => ({ deger: o.deger, etiket: o.etiket }))
+          : [{ deger: true, etiket: 'Var' }, { deger: false, etiket: 'Yok' }];
+        if (v != null && !secenekler.some(o => o.deger === v)) secenekler.push({ deger: v, etiket: `${v} (tanımda yok)` });
+        secenekler.push({ deger: null, etiket: 'Bilinmiyor' });
+        govde = el('div', { class: 'secenekler', role: 'radiogroup', 'aria-labelledby': baslikId },
+          secenekler.map((o, i) => {
+            const g = el('input', { type: 'radio', name: `oz-${f.alan}`, id: `oz-${f.alan}-${i}`, 'data-deger': JSON.stringify(o.deger) });
+            g.checked = o.deger === v;
+            return el('label', { class: o.deger === null ? 'hap bilinmiyor' : 'hap' }, g, el('span', { class: 'hap-yuz', text: o.etiket }));
+          }));
+      } else if (f.tip === 'coklu') {
+        const bilinmiyor = el('input', { type: 'checkbox', 'data-bilinmiyor': f.alan, id: `oz-${f.alan}-bilinmiyor` });
+        bilinmiyor.checked = !Array.isArray(v);
+        const tanimsiz = Array.isArray(v) ? v.filter(x => !f.secenekler.some(o => o.deger === x)) : [];
+        govde = el('div', { class: 'alan' },
+          el('div', { class: 'cok-ust' },
+            el('label', { class: 'bilinmiyor-sec' }, bilinmiyor, 'Bilinmiyor (liste henüz yok)'),
+            el('span', { class: 'secili-sayi' })),
+          el('ul', { class: 'cok-izgara', role: 'group', 'aria-labelledby': baslikId }, f.secenekler.map(o => {
+            const g = el('input', { type: 'checkbox', 'data-coklu': f.alan, value: o.deger });
+            g.checked = Array.isArray(v) && v.includes(o.deger);
+            return el('li', null, el('label', null, g, el('span', { text: o.etiket })));
+          })),
+          tanimsiz.length ? el('p', { class: 'ipucu', 'data-tanimsiz': JSON.stringify(tanimsiz), text: `Tanımda olmayan değerler korunuyor: ${tanimsiz.join(', ')}` }) : null);
+      } else {
+        govde = el('p', { class: 'ipucu', text: `Bu alan tipi (${f.tip}) burada düzenlenemiyor; mevcut değer korunur.` });
+      }
+      kap.append(el('div', { class: 'oz', 'data-alan': f.alan, 'data-tip': f.tip },
+        el('div', { class: 'oz-bas' }, el('span', { class: 'oz-ad', id: baslikId, text: f.etiket }), el('label', { class: 'teyit-sec' }, teyit, 'Teyit bekliyor')),
+        govde,
+        el('p', { class: 'alan-hata', id: `hata-oz-${f.alan}`, hidden: true })));
+    }
+    for (const f of kat.filtreler) ozellikDurumu(f.alan);
+  }
+
+  function ozellikDegeri(alan) {
+    const kutu = ozKutusu(alan);
+    const tip = kutu.dataset.tip;
+    if (tip === 'coklu') {
+      if ($('[data-bilinmiyor]', kutu).checked) return null;
+      const tanimsiz = $('[data-tanimsiz]', kutu);
+      return [...$$('[data-coklu]', kutu).filter(g => g.checked).map(g => g.value), ...(tanimsiz ? JSON.parse(tanimsiz.dataset.tanimsiz) : [])];
+    }
+    if (tip === 'secim' || tip === 'evet_hayir') {
+      const g = $$(`input[name="oz-${esc(alan)}"]`, kutu).find(x => x.checked);
+      return g ? JSON.parse(g.dataset.deger) : null;
+    }
+    return (d.ham.ozellikler || {})[alan] ?? null;   // düzenlenemeyen tip: olduğu gibi kalır
+  }
+
+  function ozellikDurumu(alan) {
+    const kutu = ozKutusu(alan);
+    if (!kutu) return;
+    const v = ozellikDegeri(alan);
+    const teyit = $('[data-teyit]', kutu);
+    teyit.disabled = v == null;
+    if (v == null) teyit.checked = false;
+    if (kutu.dataset.tip === 'coklu') {
+      const bilinmiyor = $('[data-bilinmiyor]', kutu).checked;
+      $('.cok-izgara', kutu).classList.toggle('pasif', bilinmiyor);
+      const n = $$('[data-coklu]', kutu).filter(g => g.checked).length;
+      $('.secili-sayi', kutu).textContent = bilinmiyor ? '' : `${n} seçili`;
+    }
+  }
+
+  // Değeri boş olan alanın "teyit" kutusu anlamsızdır: kapatılır.
+  function teyitDurumlari() {
+    const bos = { adres: !metin($('#adres').value), telefon: !metin($('#telefon').value), konum: !metin($('#konumMetni').value) };
+    for (const [alan, b] of Object.entries(bos)) {
+      const g = $(`#teyit-${alan}`);
+      g.disabled = b;
+      if (b) g.checked = false;
+    }
+  }
+
+  function mekanOku() {
+    const kat = kategoriler[$('#kategori').value];
+    const ozellikler = { ...(d.ham.ozellikler || {}) };   // tanımda olmayan alanlar korunur
+    if (kat) for (const f of kat.filtreler) if (ozKutusu(f.alan)) ozellikler[f.alan] = ozellikDegeri(f.alan);
+    const kutular = $$('[data-teyit]', $('#form'));
+    const yonetilen = new Set(kutular.map(g => g.dataset.teyit));
+    const dogrulanacak = [...kutular.filter(g => g.checked && !g.disabled).map(g => g.dataset.teyit),
+      ...(d.ham.dogrulanacak || []).filter(a => !yonetilen.has(a))].sort();
+    const k = konumOku($('#konumMetni').value);
+    const konum = k && !k.hata ? k : null;
+    return {
+      id: $('#kimlik').value.trim(),
+      kategori: $('#kategori').value,
+      ad: metin($('#ad').value),
+      adres: metin($('#adres').value),
+      il: metin($('#il').value),
+      ilce: metin($('#ilce').value),
+      telefon: metin($('#telefon').value) || null,
+      web: $('#web').value.trim(),
+      lat: konum ? konum.lat : null,
+      lng: konum ? konum.lng : null,
+      ozellikler,
+      dogrulanacak,
+      dogrulama_tarihi: $('#tarih').value,
+      durum: ($('input[name="durum"]:checked') || { value: 'acik' }).value,
+    };
+  }
+
+  /* --- iç bilgi (mekan_ic): ayrı tabloda, yalnızca yöneticiler görür --- */
+  async function icYukle(id) {
+    const durum = $('#icDurum');
+    durum.textContent = 'İç bilgi yükleniyor…'; durum.hidden = false;
+    const { data, error } = await db.from('mekan_ic').select('kaynaklar,not_metni').eq('mekan_id', id).maybeSingle();
+    if (d.id !== id) return;   // bu arada başka mekana geçildi
+    if (error) {
+      durum.textContent = `İç bilgi yüklenemedi; bu bölüm kaydedilmeyecek. ${hataMetni(error)}`;
+      return;
+    }
+    durum.hidden = true;
+    icDoldur(data || { kaynaklar: [], not_metni: null });
+    d.ilk.ic = icOku();
+    kirliGoster();
+  }
+
+  function icDoldur(ic) {
+    d.icHam = ic;
+    d.icHazir = !!ic;
+    const liste = $('#kaynakListe');
+    liste.replaceChildren(...(ic ? (ic.kaynaklar || []).map(kaynakSatiri) : []));
+    $('#notMetni').value = ic ? ic.not_metni || '' : '';
+    for (const g of [$('#notMetni'), $('#kaynakEkle')]) g.disabled = !ic;
+  }
+
+  function kaynakSatiri(k) {
+    const url = el('input', { type: 'url', class: 'giris-alani kaynak-url', inputmode: 'url', placeholder: 'https://…', 'aria-label': 'Kaynak adresi', autocomplete: 'off', spellcheck: 'false' });
+    url.value = (k && k.url) || '';
+    const kapsam = el('textarea', { class: 'giris-alani kaynak-kapsam', rows: '2', placeholder: 'Bu kaynaktan hangi bilgi alındı? Örnek: branşlar, telefon', 'aria-label': 'Kaynaktan alınan bilgi' });
+    kapsam.value = (k && k.kapsam) || '';
+    const ac = el('a', { class: 'kucuk-dugme', target: '_blank', rel: 'noopener noreferrer', title: 'Kaynağı yeni sekmede aç' }, 'Aç');
+    const sil = el('button', { type: 'button', class: 'kucuk-dugme', 'aria-label': 'Kaynağı kaldır', title: 'Kaynağı kaldır' }, simge('yok'));
+    const hata = el('p', { class: 'alan-hata', hidden: true });
+    const satir = el('li', { class: 'kaynak' }, url, el('div', { class: 'kaynak-eylem' }, ac, sil), kapsam, hata);
+    const baglantiyiGuncelle = () => {
+      const gecerli = webGecerli(url.value.trim(), true);
+      if (gecerli) { ac.href = url.value.trim(); ac.removeAttribute('aria-disabled'); }
+      else { ac.removeAttribute('href'); ac.setAttribute('aria-disabled', 'true'); }
+    };
+    url.addEventListener('input', baglantiyiGuncelle);
+    baglantiyiGuncelle();
+    sil.addEventListener('click', () => { satir.remove(); kirliGoster(); });
+    return satir;
+  }
+
+  function icOku() {
+    if (!d.icHazir) return null;
+    return {
+      kaynaklar: $$('.kaynak').map(s => ({ url: $('.kaynak-url', s).value.trim(), kapsam: metin($('.kaynak-kapsam', s).value) })).filter(k => k.url || k.kapsam),
+      not_metni: $('#notMetni').value.trim() || null,
+    };
+  }
+
+  /* --- değişiklik denetimi --- */
+  function farklar() {
+    const mekan = mekanOku();
+    const ic = icOku();
+    const mekanFark = d.ilk ? Object.keys(mekan).filter(k => !ayni(mekan[k], d.ilk.mekan[k])) : [];
+    const icFark = !!(d.ilk && d.ilk.ic && ic && !ayni(ic, d.ilk.ic));
+    return { mekan, ic, mekanFark, icFark };
+  }
+  function kirliMi() {
+    if (!d.ham || !d.ilk) return false;
+    const { mekanFark, icFark } = farklar();
+    return mekanFark.length > 0 || icFark;
+  }
+  function kayitDurumu(yazi, tur) {
+    const p = $('#kayitDurumu');
+    p.textContent = yazi;
+    p.dataset.tur = tur || '';
+  }
+  // Düğmeleri ve durum yazısını formun hâline göre ayarlar. durumuKoru: kayıt sonucunu (hata/tamam) silme.
+  function kirliGoster(durumuKoru) {
+    if (!d.ham) return;
+    const kirli = kirliMi();
+    if (!kaydediliyor) {
+      $('#kaydet').disabled = !kirli;
+      $('#vazgec').disabled = !kirli && !d.yeni;
+    }
+    if (durumuKoru || d.cakisan) return;
+    if (kirli) kayitDurumu(d.yeni ? 'Yeni mekan henüz kaydedilmedi.' : 'Kaydedilmemiş değişiklik var.', 'kirli');
+    else if ($('#kayitDurumu').dataset.tur !== 'tamam') kayitDurumu(d.yeni ? 'Bilgileri doldurup kaydet.' : 'Değişiklik yok.', '');
+  }
+
+  // Kaydedilmemiş değişiklik varken başka işe geçmeden önce sorar.
+  function ayrilabilirMi() {
+    if (!kirliMi()) return Promise.resolve(true);
+    const dlg = $('#ayrilDiyalog');
+    if (typeof dlg.showModal !== 'function') return Promise.resolve(window.confirm('Kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?'));
+    return new Promise(coz => {
+      const kapat = sonuc => { dlg.close(); coz(sonuc); };
+      $('#ayrilEvet').onclick = () => kapat(true);
+      $('#ayrilHayir').onclick = () => kapat(false);
+      dlg.oncancel = e => { e.preventDefault(); kapat(false); };
+      dlg.showModal();
+      $('#ayrilHayir').focus();
+    });
+  }
+
+  /* ---------- denetim ---------- */
+  function alanHatasi(id, ileti) {
+    const p = $(`#hata-${esc(id)}`);
+    const g = $(`#${esc(id)}`);
+    if (p) { p.textContent = ileti || ''; p.hidden = !ileti; }
+    if (g && g.matches('input, select, textarea')) {
+      if (ileti) g.setAttribute('aria-invalid', 'true'); else g.removeAttribute('aria-invalid');
+    }
+    return ileti ? (g && g.matches('input, select, textarea') ? g : (p && p.closest('.oz, .alan, .bolum'))) : null;
+  }
+
+  function dogrula() {
+    const hatali = [];
+    const isaretle = (id, ileti) => { const g = alanHatasi(id, ileti); if (g) hatali.push(g); };
+    for (const p of $$('.alan-hata', $('#form'))) { p.hidden = true; p.textContent = ''; }
+    for (const g of $$('[aria-invalid]', $('#form'))) g.removeAttribute('aria-invalid');
+
+    const m = mekanOku();
+    if (!m.ad) isaretle('ad', 'Ad boş olamaz.');
+    if (d.yeni) {
+      if (!m.id) isaretle('kimlik', 'Kimlik boş olamaz.');
+      else if (!KIMLIK.test(m.id)) isaretle('kimlik', 'Yalnızca küçük harf (a-z), rakam ve tire kullan. Örnek: maltepe-devlet-hastanesi');
+      else if (mekanlar.some(x => x.id === m.id)) isaretle('kimlik', 'Bu kimlikle bir mekan zaten var.');
+    }
+    if (!kategoriler[m.kategori]) isaretle('kategori', 'Tanımlı bir kategori seç.');
+    if (!m.adres) isaretle('adres', 'Adres boş olamaz.');
+    if (!m.il) isaretle('il', 'İl boş olamaz.');
+    if (!m.ilce) isaretle('ilce', 'İlçe boş olamaz.');
+    if (m.telefon && !TELEFON.test(m.telefon)) isaretle('telefon', 'Biçim: +90 216 421 42 00 ya da 444 06 20.');
+    if (!webGecerli(m.web)) isaretle('web', 'https:// ile başlayan tam adres yaz. Örnek: https://www.ornek.com.tr/');
+    if (!m.dogrulama_tarihi) isaretle('tarih', 'Tarih seç.');
+    else if (m.dogrulama_tarihi > bugun()) isaretle('tarih', 'Gelecekteki bir tarih olamaz.');
+    const k = konumOku($('#konumMetni').value);
+    if (k && k.hata) isaretle('konumMetni', k.hata);
+    const kat = kategoriler[m.kategori];
+    if (kat) for (const f of kat.filtreler) {
+      const v = m.ozellikler[f.alan];
+      if (f.tip === 'coklu' && Array.isArray(v) && !v.length) isaretle(`oz-${f.alan}`, 'En az bir seçenek işaretle ya da "Bilinmiyor"u seç.');
+    }
+    for (const s of $$('.kaynak')) {
+      const url = $('.kaynak-url', s), kapsam = $('.kaynak-kapsam', s), p = $('.alan-hata', s);
+      const u = url.value.trim();
+      let ileti = null;
+      if (!u && metin(kapsam.value)) ileti = 'Kaynağın adresini yaz.';
+      else if (u && !webGecerli(u, true)) ileti = 'Adres http:// ya da https:// ile başlamalı.';
+      p.textContent = ileti || ''; p.hidden = !ileti;
+      if (ileti) { url.setAttribute('aria-invalid', 'true'); hatali.push(url); }
+    }
+    return hatali;
+  }
+
+  /* ---------- kaydetme ---------- */
+  function kilitle(acik) {
+    kaydediliyor = acik;
+    $('#kilit').disabled = acik;
+    $('#kaydet').disabled = acik;
+    $('#vazgec').disabled = acik;
+    if (igne && igne.dragging) acik ? igne.dragging.disable() : igne.dragging.enable();
+  }
+
+  async function kaydet() {
+    if (kaydediliyor || !d.ham) return;
+    $('#guncelYukle').hidden = true;
+    const hatali = dogrula();
+    if (hatali.length) {
+      kayitDurumu(hatali.length === 1 ? 'Kaydetmeden önce işaretli alanı düzelt.' : `Kaydetmeden önce işaretli ${hatali.length} alanı düzelt.`, 'hata');
+      hatali[0].scrollIntoView({ block: 'center' });
+      if (hatali[0].focus) hatali[0].focus({ preventScroll: true });
+      return;
+    }
+    const { mekan, ic, mekanFark, icFark } = farklar();
+    if (!d.yeni && !mekanFark.length && !icFark) { kayitDurumu('Değişiklik yok.', ''); return; }
+
+    kilitle(true);
+    kayitDurumu('Kaydediliyor…', '');
+    try {
+      if (d.yeni) {
+        const { data, error } = await db.from('mekan').insert(mekan).select().single();
+        if (error) throw error;
+        mekanKaydedildi(data, mekan);
+      } else if (mekanFark.length) {
+        const yama = Object.fromEntries(mekanFark.filter(k => k !== 'id' && k !== 'kategori').map(k => [k, mekan[k]]));
+        // guncellenme koşulu: başkası bu arada kaydettiyse hiçbir satır değişmez, çakışma yakalanır.
+        const { data, error } = await db.from('mekan').update(yama).eq('id', d.id).eq('guncellenme', d.ham.guncellenme).select();
+        if (error) throw error;
+        if (!data.length) { await cakismayiIncele(); return; }
+        mekanKaydedildi(data[0], mekan);
+      }
+      if (icFark) {
+        const { error } = await db.from('mekan_ic').upsert({ mekan_id: d.id, ...ic }, { onConflict: 'mekan_id' });
+        if (error) { kayitDurumu(`Mekan bilgileri kaydedildi ama iç bilgi kaydedilemedi. ${hataMetni(error)}`, 'hata'); return; }
+        d.ilk.ic = ic;
+      }
+      kayitDurumu(`Kaydedildi · ${saat()}`, 'tamam');
+      if ($('#gecmis').open) gecmisiYukle();
+    } catch (h) {
+      kayitDurumu(hataMetni(h), 'hata');
+    } finally {
+      kilitle(false);
+      kirliGoster(true);
+    }
+  }
+
+  function mekanKaydedildi(satir, gonderilen) {
+    const yeniydi = d.yeni;
+    d.ham = satir; d.id = satir.id; d.yeni = false;
+    const i = mekanlar.findIndex(m => m.id === satir.id);
+    if (i >= 0) mekanlar[i] = satir; else mekanlar.push(satir);
+    d.ilk.mekan = gonderilen;
+    if (yeniydi) {
+      $('#kimlik').readOnly = true;
+      $('#kategori').disabled = true;
+      $('#ipucu-kimlik').textContent = 'Kalıcı kimlik; değiştirilemez.';
+      $('#ipucu-kategori').textContent = 'Kayıtlı mekanın kategorisi değiştirilemez.';
+    }
+    basligiYaz();
+    listeyiCiz();
+    oneriListeleri();
+    digerleriniCiz();
+  }
+
+  // Güncelleme hiçbir satırı değiştirmediyse nedenini bulur: başkası mı kaydetti, yetki mi yok?
+  async function cakismayiIncele() {
+    const { data, error } = await db.from('mekan').select('*').eq('id', d.id).maybeSingle();
+    if (error) { kayitDurumu(hataMetni(error), 'hata'); return; }
+    if (!data) { kayitDurumu('Bu mekan veritabanında bulunamadı. Listeyi yenile.', 'hata'); return; }
+    if (data.guncellenme !== d.ham.guncellenme) {
+      d.cakisan = data;
+      const i = mekanlar.findIndex(m => m.id === data.id);
+      if (i >= 0) mekanlar[i] = data;
+      kayitDurumu('Bu mekanı sen düzenlerken başka biri kaydetti; değişikliklerin kaydedilmedi. Güncel hâlini yükleyip değişikliğini yeniden yap.', 'hata');
+      $('#guncelYukle').hidden = false;
+      return;
+    }
+    kayitDurumu('Bu işlem için yetkin yok.', 'hata');
+  }
+
+  async function guncelHaliYukle() {
+    const id = d.id;
+    $('#guncelYukle').hidden = true;
+    kayitDurumu('', '');
+    await mekaniAc(id, true);
+  }
+
+  async function vazgec() {
+    if (d.yeni) {
+      if (!(await ayrilabilirMi())) return;
+      formuKapat();
+      return;
+    }
+    if (!kirliMi()) return;
+    if (!(await ayrilabilirMi())) return;
+    const ic = d.icHam;
+    formuKur(d.ham, false);
+    if (ic) { icDoldur(ic); d.ilk.ic = icOku(); $('#icDurum').hidden = true; }
+    else icYukle(d.id);
+    kayitDurumu('Değişiklikler geri alındı.', '');
+  }
+
+  /* ---------- değişiklik geçmişi ---------- */
+  const ALAN_ETIKETI = { ad: 'Ad', adres: 'Adres', il: 'İl', ilce: 'İlçe', telefon: 'Telefon', web: 'Web sitesi', dogrulama_tarihi: 'Bilgi tarihi', durum: 'Durum', kategori: 'Kategori', id: 'Kimlik', konum: 'Konum' };
+  const DURUM_ETIKETI = { acik: 'Açık', kapali: 'Kapalı' };
+
+  async function gecmisiYukle() {
+    const liste = $('#gecmisListe');
+    if (!d.id) { liste.replaceChildren(el('li', { class: 'ipucu', text: 'Mekan kaydedilince geçmişi burada görünür.' })); return; }
+    const id = d.id;
+    liste.replaceChildren(el('li', { class: 'ipucu', text: 'Yükleniyor…' }));
+    const { data, error } = await db.from('degisiklik').select('id,tablo,islem,eski,yeni,yapan_eposta,zaman')
+      .eq('mekan_id', id).order('id', { ascending: false }).limit(50);
+    if (d.id !== id) return;
+    if (error) { liste.replaceChildren(el('li', { class: 'alan-hata', text: hataMetni(error) })); return; }
+    liste.replaceChildren(...data.map(gecmisOgesi));
+    if (!data.length) liste.append(el('li', { class: 'ipucu', text: 'Kayıt yok.' }));
+  }
+
+  function gecmisOgesi(r) {
+    const kim = r.yapan_eposta || 'Toplu aktarım (SQL)';
+    const ne = r.tablo === 'mekan'
+      ? ({ INSERT: 'Mekan eklendi', UPDATE: 'Mekan güncellendi', DELETE: 'Mekan silindi' }[r.islem] || r.islem)
+      : ({ INSERT: 'İç bilgi eklendi', UPDATE: 'İç bilgi güncellendi', DELETE: 'İç bilgi silindi' }[r.islem] || r.islem);
+    const satirlar = r.islem === 'UPDATE' ? farkSatirlari(r) : [];
+    return el('li', { class: 'gecmis-oge' },
+      el('p', { class: 'gecmis-bas' }, el('time', { datetime: r.zaman, text: zamanYaz(r.zaman) }), ` · ${kim}`),
+      el('p', { class: 'gecmis-ne', text: ne }),
+      satirlar.length ? el('ul', null, satirlar.map(s => el('li', { text: s }))) : null);
+  }
+
+  function farkSatirlari(r) {
+    const e = r.eski || {}, y = r.yeni || {};
+    const cikti = [];
+    const yaz = v => (v == null || v === '' ? 'boş' : kisalt(String(v)));
+    if (r.tablo === 'mekan_ic') {
+      const ek = new Map((e.kaynaklar || []).map(k => [k.url, k.kapsam])), yk = new Map((y.kaynaklar || []).map(k => [k.url, k.kapsam]));
+      const eklenen = [...yk.keys()].filter(u => !ek.has(u)).length;
+      const cikan = [...ek.keys()].filter(u => !yk.has(u)).length;
+      const degisen = [...yk.keys()].filter(u => ek.has(u) && ek.get(u) !== yk.get(u)).length;
+      if (eklenen) cikti.push(`${eklenen} kaynak eklendi`);
+      if (cikan) cikti.push(`${cikan} kaynak kaldırıldı`);
+      if (degisen) cikti.push(`${degisen} kaynağın açıklaması değişti`);
+      if ((e.not_metni || '') !== (y.not_metni || '')) cikti.push('Not değişti');
+      return cikti;
+    }
+    if (e.lat !== y.lat || e.lng !== y.lng) {
+      const k = o => (o.lat == null ? 'yok' : `${sayiYaz(o.lat)}, ${sayiYaz(o.lng)}`);
+      cikti.push(`Konum: ${k(e)} → ${k(y)}`);
+    }
+    for (const a of ['ad', 'adres', 'il', 'ilce', 'telefon', 'web', 'dogrulama_tarihi', 'durum', 'kategori']) {
+      if (ayni(e[a], y[a])) continue;
+      const bicim = a === 'durum' ? (v => DURUM_ETIKETI[v] || yaz(v)) : a === 'dogrulama_tarihi' ? tarihYaz : yaz;
+      cikti.push(`${ALAN_ETIKETI[a]}: ${bicim(e[a])} → ${bicim(y[a])}`);
+    }
+    const kat = kategoriler[y.kategori || e.kategori];
+    const filtre = alan => (kat ? kat.filtreler.find(f => f.alan === alan) : null);
+    const ozDeger = (f, v) => {
+      if (v == null) return 'bilinmiyor';
+      if (typeof v === 'boolean') return v ? 'var' : 'yok';
+      if (Array.isArray(v)) return `${v.length} seçenek`;
+      if (f && f.secenekler) return (f.secenekler.find(o => o.deger === v) || { etiket: String(v) }).etiket;
+      return yaz(v);
+    };
+    const eo = e.ozellikler || {}, yo = y.ozellikler || {};
+    for (const alan of new Set([...Object.keys(eo), ...Object.keys(yo)])) {
+      if (ayni(eo[alan], yo[alan])) continue;
+      const f = filtre(alan);
+      const etiket = f ? f.etiket : alan;
+      if (Array.isArray(eo[alan]) && Array.isArray(yo[alan])) {
+        const ad = v => (f && f.secenekler ? (f.secenekler.find(o => o.deger === v) || { etiket: v }).etiket : v);
+        const degisim = [...yo[alan].filter(v => !eo[alan].includes(v)).map(v => `+${ad(v)}`), ...eo[alan].filter(v => !yo[alan].includes(v)).map(v => `−${ad(v)}`)];
+        cikti.push(`${etiket}: ${degisim.join(', ')}`);
+      } else cikti.push(`${etiket}: ${ozDeger(f, eo[alan])} → ${ozDeger(f, yo[alan])}`);
+    }
+    const et = a => ALAN_ETIKETI[a] || (filtre(a) ? filtre(a).etiket : a);
+    const ed = new Set(e.dogrulanacak || []), yd = new Set(y.dogrulanacak || []);
+    const eklenen = [...yd].filter(a => !ed.has(a)).map(et), kalkan = [...ed].filter(a => !yd.has(a)).map(et);
+    if (eklenen.length) cikti.push(`Teyit bekliyor olarak işaretlendi: ${eklenen.join(', ')}`);
+    if (kalkan.length) cikti.push(`Teyit edildi: ${kalkan.join(', ')}`);
+    return cikti;
+  }
+
+  /* ---------- harita: konum seçimi ---------- */
+  let harita = null, igne = null, digerKatmani = null;
+
+  function haritaNotu(yazi) {
+    const n = $('#haritaNot');
+    n.textContent = yazi || '';
+    n.hidden = !yazi;
+  }
+
+  function haritaKur() {
+    if (harita) return true;
+    if (typeof window.L === 'undefined') { haritaNotu('Harita yüklenemedi. Koordinatı elle yazabilirsin.'); return false; }
+    harita = L.map('harita', { zoomControl: false, minZoom: 4, maxZoom: 19 });
+    harita.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    L.control.zoom({ position: 'bottomright', zoomInTitle: 'Yakınlaştır', zoomOutTitle: 'Uzaklaştır' }).addTo(harita);
+    digerKatmani = L.layerGroup().addTo(harita);
+    if (AYAR.altliklar.length) karoKur(0);
+    else haritaNotu('Sokak haritası tanımlı değil. Koordinatı elle yazabilirsin.');
+    harita.on('click', e => konumuAyarla(e.latlng.lat, e.latlng.lng, 5, false));
+    new ResizeObserver(() => harita.invalidateSize({ pan: false })).observe(harita.getContainer());
+    return true;
+  }
+
+  // Sıradaki karo sağlayıcıdan hiç karo gelmeden art arda hata olursa bir sonrakine geçilir.
+  function karoKur(sira) {
+    const a = AYAR.altliklar[sira];
+    if (!a) {
+      harita.getContainer().dataset.altlik = 'yok';
+      haritaNotu('Sokak haritası yüklenemedi. Koordinatı elle yazabilirsin.');
+      return;
+    }
+    const karo = L.tileLayer(a.url, { attribution: a.atif, subdomains: a.altAlanlar || 'abc', maxZoom: 20, maxNativeZoom: a.enYakin || 19 }).addTo(harita);
+    harita.getContainer().dataset.altlik = a.ad || String(sira);
+    let gelen = 0, hata = 0, birakildi = false;
+    karo.on('tileload', () => { gelen++; });
+    karo.on('tileerror', () => {
+      hata++;
+      if (birakildi || gelen || hata < 4) return;
+      birakildi = true;
+      karo.remove();
+      karoKur(sira + 1);
+    });
+  }
+
+  function igneHarfi() {
+    const kat = kategoriler[$('#kategori').value];
+    return kat ? kat.simge || kat.ad.trim().charAt(0).toLocaleUpperCase(TR) : '?';
+  }
+
+  function igneyiKoy(lat, lng) {
+    if (!harita) return;
+    const ikon = L.divIcon({ className: 'igne', html: el('span', { class: 'levha', text: igneHarfi() }), iconSize: [30, 40], iconAnchor: [15, 40] });
+    if (!igne) {
+      igne = L.marker([lat, lng], { draggable: true, keyboard: true, autoPan: true, icon: ikon, title: 'Mekanın konumu (sürükleyebilirsin)' }).addTo(harita);
+      igne.on('dragend', () => { const p = igne.getLatLng(); konumuAyarla(p.lat, p.lng, 5, false); });
+    } else {
+      igne.setLatLng([lat, lng]);
+      igne.setIcon(ikon);
+      if (!harita.hasLayer(igne)) igne.addTo(harita);
+    }
+  }
+  function igneyiKaldir() { if (igne && harita && harita.hasLayer(igne)) igne.remove(); }
+
+  function konumuAyarla(lat, lng, basamak, ortala) {
+    if (kaydediliyor || !d.ham) return;
+    const la = Number(lat.toFixed(basamak)), ln = Number(lng.toFixed(basamak));
+    $('#konumMetni').value = `${sayiYaz(la)}, ${sayiYaz(ln)}`;
+    alanHatasi('konumMetni', null);
+    igneyiKoy(la, ln);
+    if (ortala && harita) harita.setView([la, ln], Math.max(harita.getZoom() || 0, 17));
+    teyitDurumlari();
+    kirliGoster();
+  }
+
+  function digerleriniCiz() {
+    if (!harita) return;
+    digerKatmani.clearLayers();
+    for (const m of mekanlar) {
+      if (m.id === d.id || m.lat == null) continue;
+      L.circleMarker([m.lat, m.lng], { radius: 6, className: 'diger-nokta', bubblingMouseEvents: false })
+        .bindTooltip(m.ad, { direction: 'top', offset: [0, -6] }).addTo(digerKatmani);
+    }
+  }
+
+  function haritayiHazirla() {
+    if (!haritaKur()) return;
+    digerleriniCiz();
+    const k = konumOku($('#konumMetni').value);
+    if (k && !k.hata) {
+      igneyiKoy(k.lat, k.lng);
+      harita.setView([k.lat, k.lng], 17, { animate: false });
+      return;
+    }
+    igneyiKaldir();
+    const ilce = metin($('#ilce').value);
+    const ayniIlce = mekanlar.filter(m => m.lat != null && m.ilce === ilce);
+    const hepsi = mekanlar.filter(m => m.lat != null);
+    const noktalar = (ayniIlce.length ? ayniIlce : hepsi).map(m => [m.lat, m.lng]);
+    if (noktalar.length) harita.fitBounds(L.latLngBounds(noktalar), { padding: [30, 30], maxZoom: 15, animate: false });
+    else harita.setView([39.0, 35.2], 6, { animate: false });
+  }
+
+  /* ---------- olaylar ---------- */
+  function formOlaylariniKur() {
+    const form = $('#form');
+    form.addEventListener('submit', e => { e.preventDefault(); kaydet(); });
+    form.addEventListener('input', e => {
+      if (e.target.matches('[aria-invalid]')) e.target.removeAttribute('aria-invalid');
+      if (['adres', 'telefon'].includes(e.target.id)) teyitDurumlari();
+      kirliGoster();
+    });
+    form.addEventListener('change', e => {
+      const t = e.target;
+      const kutu = t.closest('.oz');
+      if (kutu) {
+        if (t.matches('[data-coklu]') && t.checked) $('[data-bilinmiyor]', kutu).checked = false;
+        ozellikDurumu(kutu.dataset.alan);
+        alanHatasi(`oz-${kutu.dataset.alan}`, null);
+      }
+      if (t.name === 'durum') basligiYaz();
+      kirliGoster();
+    });
+    $('#ad').addEventListener('input', () => {
+      if (d.yeni && !d.kimlikElle) $('#kimlik').value = kimlikUret($('#ad').value);
+      if (d.yeni) $('#formBaslik').textContent = metin($('#ad').value) || 'Yeni mekan';
+    });
+    $('#kimlik').addEventListener('input', () => { if (d.yeni) d.kimlikElle = true; });
+    $('#kimlik').addEventListener('blur', () => {
+      if (!d.yeni) return;
+      const k = kimlikUret($('#kimlik').value);
+      if (k !== $('#kimlik').value) { $('#kimlik').value = k; kirliGoster(); }
+    });
+    $('#telefon').addEventListener('blur', () => {
+      const v = telefonDuzenle($('#telefon').value);
+      if (v !== $('#telefon').value) { $('#telefon').value = v; teyitDurumlari(); kirliGoster(); }
+    });
+    $('#web').addEventListener('blur', () => {
+      const v = $('#web').value.trim();
+      if (v && !/^[a-z]+:\/\//i.test(v) && /^[\w-]+(\.[\w-]+)+/.test(v)) { $('#web').value = `https://${v}`; kirliGoster(); }
+    });
+    $('#bugun').addEventListener('click', () => { $('#tarih').value = bugun(); alanHatasi('tarih', null); kirliGoster(); });
+    $('#kategori').addEventListener('change', () => {
+      if (!d.yeni) return;
+      ozellikleriCiz($('#kategori').value, {}, new Set());
+      const k = konumOku($('#konumMetni').value);
+      if (k && !k.hata) igneyiKoy(k.lat, k.lng);
+      kirliGoster();
+    });
+    const konumuMetindenAl = () => {
+      const k = konumOku($('#konumMetni').value);
+      if (!k) { igneyiKaldir(); alanHatasi('konumMetni', null); }
+      else if (k.hata) alanHatasi('konumMetni', k.hata);
+      else konumuAyarla(k.lat, k.lng, 6, true);
+      teyitDurumlari();
+      kirliGoster();
+    };
+    $('#konumMetni').addEventListener('change', konumuMetindenAl);
+    $('#konumGit').addEventListener('click', konumuMetindenAl);
+    $('#konumKaldir').addEventListener('click', () => {
+      $('#konumMetni').value = '';
+      igneyiKaldir();
+      alanHatasi('konumMetni', null);
+      teyitDurumlari();
+      kirliGoster();
+    });
+    $('#kaynakEkle').addEventListener('click', () => {
+      const s = kaynakSatiri(null);
+      $('#kaynakListe').append(s);
+      $('.kaynak-url', s).focus();
+      kirliGoster();
+    });
+    $('#vazgec').addEventListener('click', vazgec);
+    $('#guncelYukle').addEventListener('click', guncelHaliYukle);
+    $('#geri').addEventListener('click', () => { gorunum('liste'); const s = $('#mekanListe [aria-current="true"]'); if (s) s.focus(); });
+    $('#gecmis').addEventListener('toggle', () => { if ($('#gecmis').open) gecmisiYukle(); });
+    $('#ara').addEventListener('input', listeyiCiz);
+    $('#yenile').addEventListener('click', listeyiYenile);
+    $('#yeniMekan').addEventListener('click', yeniMekanIste);
+    $('#cikis').addEventListener('click', async () => {
+      if (!(await ayrilabilirMi())) return;
+      formuKapat();
+      await cikisYap();
+    });
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && d.ham && !$('#calisma').hidden) { e.preventDefault(); kaydet(); }
+    });
+    window.addEventListener('beforeunload', e => {
+      if (kirliMi()) { e.preventDefault(); e.returnValue = ''; }
+    });
+    dar.addEventListener('change', () => { if (!d.ham) gorunum('liste'); });
+  }
+
+  baslat().catch(h => {
+    console.error(h);
+    mesajGoster('Beklenmeyen hata', hataMetni(h), { etiket: 'Yenile', is: () => location.reload() });
+  });
+})();
+</script>
+</body>
+</html>
