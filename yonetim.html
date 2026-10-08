@@ -757,6 +757,7 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 .giris-alani[readonly] { background: var(--zemin); color: var(--soluk); }
 .giris-alani:disabled { opacity: .7; }
 .giris-alani[aria-invalid="true"] { border-color: var(--hata); box-shadow: 0 0 0 1px var(--hata); }
+.istege-bagli { font-weight: 400; }
 .alan-hata { margin: 0; color: var(--hata); font: 500 13.5px/1.3 var(--yazi-dar); }
 .hata-kutu { margin: 0; padding: 10px 12px; border-radius: 6px; background: var(--hata-soluk); color: var(--hata); font: 500 14.5px/1.35 var(--yazi-dar); }
 .satir { display: flex; gap: 8px; }
@@ -787,6 +788,8 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 .liste-bas { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px; border-bottom: 1px solid var(--cizgi); }
 .liste-ust { display: flex; align-items: center; gap: 8px; }
 .liste-ust .bag { margin-left: auto; }
+.liste-suz { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.liste-suz select { width: auto; max-width: 150px; }
 .mekan-liste { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; margin: 0; padding: 6px 8px 20px; }
 .mekan-oge > button { display: block; width: 100%; padding: 10px 10px 9px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .mekan-oge > button:hover { background: var(--zemin); }
@@ -808,6 +811,7 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 .durum-rozet, .gizli-rozet { padding: 3px 8px 2px; border: 1px solid var(--cizgi-koyu); border-radius: 4px; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .06em; text-transform: uppercase; }
 .durum-rozet.kapali { border-color: var(--uyari); color: var(--uyari); }
 .durum-rozet.yeni { border-color: var(--vurgu); color: var(--vurgu); }
+.osm-bag { color: var(--soluk); font: 500 13.5px/1.2 var(--yazi-dar); text-underline-offset: 3px; }
 .geri { display: none; flex-basis: 100%; justify-content: flex-start; text-align: left; }
 
 .bolum { min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); display: flex; flex-direction: column; gap: 14px; }
@@ -879,6 +883,7 @@ dialog.diyalog::backdrop { background: var(--perde); }
 .igne { border: 0; background: none; cursor: grab; }
 .igne .levha { position: absolute; left: 1px; top: 1px; width: 28px; height: 28px; border-radius: 6px; background: var(--secim); color: var(--secim-ustu); font-size: 17px; box-shadow: 0 0 0 2px var(--yuzey-2), 0 2px 6px rgb(0 0 0 / .4); }
 .igne .levha::after { content: ""; position: absolute; left: 50%; top: 100%; margin: 1px 0 0 -6px; border: 6px solid transparent; border-top: 9px solid var(--yuzey-2); border-bottom: 0; }
+.ilce-sinir { fill: none; stroke: var(--vurgu-dolgu); stroke-width: 2; stroke-dasharray: 6 4; stroke-opacity: .8; }
 .diger-nokta { fill: var(--vurgu-dolgu); fill-opacity: .55; stroke: var(--yuzey-2); stroke-width: 2; stroke-opacity: 1; }
 
 /* ---------- dar ekran: liste ve form sırayla ---------- */
@@ -950,7 +955,10 @@ dialog.diyalog::backdrop { background: var(--perde); }
             <h2 class="baslik-kucuk" id="listeSayi">Mekanlar</h2>
             <button class="bag" id="yenile" type="button">Listeyi yenile</button>
           </div>
-          <input class="giris-alani" id="ara" type="search" placeholder="Ad, adres ya da ilçe ara" aria-label="Mekan ara" autocomplete="off">
+          <div class="liste-suz">
+            <input class="giris-alani" id="ara" type="search" placeholder="Ad, adres ya da ilçe ara" aria-label="Mekan ara" autocomplete="off">
+            <select class="giris-alani" id="katSuz" aria-label="Kategoriye göre süz"><option value="">Tümü</option></select>
+          </div>
           <button class="dugme dugme-dolu tam" id="yeniMekan" type="button">+ Yeni mekan</button>
         </div>
         <ul class="mekan-liste" id="mekanListe"></ul>
@@ -965,6 +973,7 @@ dialog.diyalog::backdrop { background: var(--perde); }
                 <button class="bag geri" id="geri" type="button">← Mekanlar</button>
                 <h1 id="formBaslik" tabindex="-1"></h1>
                 <span class="durum-rozet" id="durumRozet" hidden></span>
+                <a class="osm-bag" id="osmBag" target="_blank" rel="noopener noreferrer" hidden>OpenStreetMap kaydı (ODbL)</a>
               </div>
 
               <section class="bolum" aria-labelledby="b-temel">
@@ -1017,7 +1026,7 @@ dialog.diyalog::backdrop { background: var(--perde); }
                     <p class="alan-hata" id="hata-telefon" hidden></p>
                   </div>
                   <div class="alan">
-                    <label for="web">Web sitesi</label>
+                    <label for="web">Web sitesi <span class="istege-bagli">(isteğe bağlı)</span></label>
                     <input class="giris-alani" id="web" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://" aria-describedby="hata-web">
                     <p class="alan-hata" id="hata-web" hidden></p>
                   </div>
@@ -1235,6 +1244,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   /* ---------- durum ---------- */
   let db = null;            // Supabase istemcisi
   let kategoriler = null;   // kategoriler.json
+  let sinirlar = null;      // sinirlar.json (isteğe bağlı: harita başlangıcı ve ilçe sınırı için)
   let mekanlar = [];        // veritabanındaki tüm mekan satırları
   let kullanici = null;
   const d = {               // açık form
@@ -1299,6 +1309,8 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       mesajGoster('Kategori tanımı okunamadı', 'kategoriler.json yüklenemedi. Sayfayı yenile.', { etiket: 'Yenile', is: () => location.reload() });
       return;
     }
+    $('#katSuz').append(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
+    fetch(`${AYAR.veriYolu}sinirlar.json`).then(y => (y.ok ? y.json() : null)).then(v => { sinirlar = v; oneriListeleri(); }).catch(() => {});
     girisFormunuKur();
     formOlaylariniKur();
     const { data } = await db.auth.getSession();
@@ -1405,9 +1417,10 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
 
   function listeyiCiz() {
     const q = duz($('#ara').value);
+    const kat = $('#katSuz').value;
     const sirali = [...mekanlar].sort((a, b) => a.ad.localeCompare(b.ad, TR));
-    const gorunen = sirali.filter(m => !q || duz(`${m.ad} ${m.adres} ${m.il} ${m.ilce} ${m.id}`).includes(q));
-    $('#listeSayi').textContent = q ? `${gorunen.length} / ${mekanlar.length} mekan` : `${mekanlar.length} mekan`;
+    const gorunen = sirali.filter(m => (!kat || m.kategori === kat) && (!q || duz(`${m.ad} ${m.adres} ${m.il} ${m.ilce} ${m.id}`).includes(q)));
+    $('#listeSayi').textContent = q || kat ? `${gorunen.length} / ${mekanlar.length} mekan` : `${mekanlar.length} mekan`;
     const liste = $('#mekanListe');
     liste.replaceChildren(...gorunen.map(m => {
       const b = el('button', { type: 'button', 'data-id': m.id, 'aria-current': m.id === d.id ? 'true' : null },
@@ -1421,8 +1434,9 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
 
   function oneriListeleri() {
     const doldur = (sec, degerler) => $(sec).replaceChildren(...[...new Set(degerler)].sort((a, b) => a.localeCompare(b, TR)).map(v => el('option', { value: v })));
-    doldur('#ilListesi', mekanlar.map(m => m.il));
-    doldur('#ilceListesi', mekanlar.map(m => m.ilce));
+    const sinirIlce = sinirlar ? sinirlar.features.filter(f => f.properties.tur === 'ilce') : [];
+    doldur('#ilListesi', [...mekanlar.map(m => m.il), ...sinirIlce.map(f => f.properties.il)]);
+    doldur('#ilceListesi', [...mekanlar.map(m => m.ilce), ...sinirIlce.map(f => f.properties.ad)]);
   }
 
   /* ---------- form: açma, doldurma, okuma ---------- */
@@ -1510,6 +1524,10 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
 
   function basligiYaz() {
     $('#formBaslik').textContent = d.yeni ? 'Yeni mekan' : d.ham.ad;
+    const osm = $('#osmBag');
+    const ref = !d.yeni && /^(node|way|relation)\/\d+$/.test(d.ham.osm_ref || '') ? d.ham.osm_ref : null;
+    osm.hidden = !ref;
+    if (ref) { osm.href = `https://www.openstreetmap.org/${ref}`; osm.title = 'Bu kayıt OpenStreetMap\'ten geldi; ODbL lisansına tabidir.'; }
     const r = $('#durumRozet');
     r.className = 'durum-rozet';
     if (d.yeni) { r.textContent = 'Kaydedilmedi'; r.classList.add('yeni'); r.hidden = false; }
@@ -1635,7 +1653,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       il: metin($('#il').value),
       ilce: metin($('#ilce').value),
       telefon: metin($('#telefon').value) || null,
-      web: $('#web').value.trim(),
+      web: $('#web').value.trim() || null,
       lat: konum ? konum.lat : null,
       lng: konum ? konum.lng : null,
       ozellikler,
@@ -1773,7 +1791,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     if (!m.il) isaretle('il', 'İl boş olamaz.');
     if (!m.ilce) isaretle('ilce', 'İlçe boş olamaz.');
     if (m.telefon && !TELEFON.test(m.telefon)) isaretle('telefon', 'Biçim: +90 216 421 42 00 ya da 444 06 20.');
-    if (!webGecerli(m.web)) isaretle('web', 'https:// ile başlayan tam adres yaz. Örnek: https://www.ornek.com.tr/');
+    if (m.web && !webGecerli(m.web)) isaretle('web', 'https:// ile başlayan tam adres yaz ya da boş bırak. Örnek: https://www.ornek.com.tr/');
     if (!m.dogrulama_tarihi) isaretle('tarih', 'Tarih seç.');
     else if (m.dogrulama_tarihi > bugun()) isaretle('tarih', 'Gelecekteki bir tarih olamaz.');
     const k = konumOku($('#konumMetni').value);
@@ -2058,6 +2076,18 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     kirliGoster();
   }
 
+  // Seçili ilçenin sınırı (sinirlar.json'da varsa) haritada ince çizgiyle gösterilir.
+  let ilceKatmani = null;
+  function ilceSinirKatmani() {
+    if (ilceKatmani) { ilceKatmani.remove(); ilceKatmani = null; }
+    if (!harita || !sinirlar) return null;
+    const il = metin($('#il').value), ilce = metin($('#ilce').value);
+    const f = sinirlar.features.filter(x => x.properties.tur === 'ilce' && x.properties.il === il && x.properties.ad === ilce);
+    if (!f.length) return null;
+    ilceKatmani = L.geoJSON({ type: 'FeatureCollection', features: f }, { interactive: false, style: { className: 'ilce-sinir' } }).addTo(harita);
+    return ilceKatmani;
+  }
+
   function digerleriniCiz() {
     if (!harita) return;
     digerKatmani.clearLayers();
@@ -2071,6 +2101,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   function haritayiHazirla() {
     if (!haritaKur()) return;
     digerleriniCiz();
+    const sinir = ilceSinirKatmani();
     const k = konumOku($('#konumMetni').value);
     if (k && !k.hata) {
       igneyiKoy(k.lat, k.lng);
@@ -2078,12 +2109,14 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       return;
     }
     igneyiKaldir();
-    const ilce = metin($('#ilce').value);
-    const ayniIlce = mekanlar.filter(m => m.lat != null && m.ilce === ilce);
-    const hepsi = mekanlar.filter(m => m.lat != null);
-    const noktalar = (ayniIlce.length ? ayniIlce : hepsi).map(m => [m.lat, m.lng]);
-    if (noktalar.length) harita.fitBounds(L.latLngBounds(noktalar), { padding: [30, 30], maxZoom: 15, animate: false });
-    else harita.setView([39.0, 35.2], 6, { animate: false });
+    const il = metin($('#il').value), ilce = metin($('#ilce').value);
+    const ayniIlce = mekanlar.filter(m => m.lat != null && m.il === il && m.ilce === ilce);
+    if (sinir) harita.fitBounds(sinir.getBounds(), { padding: [20, 20], animate: false });
+    else if (ayniIlce.length) harita.fitBounds(L.latLngBounds(ayniIlce.map(m => [m.lat, m.lng])), { padding: [30, 30], maxZoom: 15, animate: false });
+    else if (sinirlar && sinirlar.iller && sinirlar.iller[il]) {
+      const [b, g, dd, n] = sinirlar.iller[il].kutu;
+      harita.fitBounds([[g, b], [n, dd]], { animate: false });
+    } else harita.setView([39.0, 35.2], 6, { animate: false });
   }
 
   /* ---------- olaylar ---------- */
@@ -2124,6 +2157,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       const v = $('#web').value.trim();
       if (v && !/^[a-z]+:\/\//i.test(v) && /^[\w-]+(\.[\w-]+)+/.test(v)) { $('#web').value = `https://${v}`; kirliGoster(); }
     });
+    for (const id of ['#il', '#ilce']) $(id).addEventListener('change', () => { const k = ilceSinirKatmani(); if (k && !konumOku($('#konumMetni').value)) harita.fitBounds(k.getBounds(), { padding: [20, 20] }); });
     $('#bugun').addEventListener('click', () => { $('#tarih').value = bugun(); alanHatasi('tarih', null); kirliGoster(); });
     $('#kategori').addEventListener('change', () => {
       if (!d.yeni) return;
@@ -2160,6 +2194,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     $('#geri').addEventListener('click', () => { gorunum('liste'); const s = $('#mekanListe [aria-current="true"]'); if (s) s.focus(); });
     $('#gecmis').addEventListener('toggle', () => { if ($('#gecmis').open) gecmisiYukle(); });
     $('#ara').addEventListener('input', listeyiCiz);
+    $('#katSuz').addEventListener('change', listeyiCiz);
     $('#yenile').addEventListener('click', listeyiYenile);
     $('#yeniMekan').addEventListener('click', yeniMekanIste);
     $('#cikis').addEventListener('click', async () => {

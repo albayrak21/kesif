@@ -831,6 +831,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .tel { color: inherit; font-variant-numeric: tabular-nums; text-decoration: none; user-select: all; -webkit-user-select: all; }
 .kopya { margin-left: 8px; padding: 2px 2px; font-size: 13px; }
 .uyari-not { margin: 0; color: var(--uyari); font: 500 13.5px/1.3 var(--yazi-dar); }
+.kaynak-satiri { margin: 0; color: var(--soluk); font-size: 13px; }
+.kaynak-satiri a { color: inherit; text-underline-offset: 2px; }
 .eylemler { display: flex; flex-wrap: wrap; gap: 8px; }
 .eylemler .dugme { min-height: 38px; padding: 6px 12px; font-size: 14.5px; }
 
@@ -869,14 +871,21 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .leaflet-tooltip-right::before { border-right-color: var(--murekkep); }
 
 .sinir { fill-opacity: 1; stroke-opacity: 1; stroke-linejoin: round; }
-.sinir-komsu { fill: var(--h-kara-2); stroke: var(--h-cizgi); stroke-width: 1; }
-.sinir-ilce { fill: var(--h-kara); stroke: none; }
-.sinir-mahalle { fill: var(--h-kara); stroke: var(--h-cizgi); stroke-width: 1; }
+.sinir-ilce { fill: var(--h-kara); stroke: var(--h-cizgi); stroke-width: 1; }
+.sinir-mahalle { fill: var(--h-kara); stroke: var(--h-cizgi); stroke-width: .8; stroke-dasharray: 3 3; }
 .sinir-secili { fill: none; stroke: var(--vurgu-dolgu); stroke-width: 2.5; }
 .yer-adi span { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; color: var(--soluk); font: 500 12px/1 var(--yazi-dar); text-shadow: 0 0 3px var(--h-kara), 0 0 3px var(--h-kara), 0 0 3px var(--h-kara); }
-.yer-komsu span { font-weight: 600; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; text-shadow: 0 0 3px var(--h-kara-2), 0 0 3px var(--h-kara-2); }
-.yer-mahalle { display: none; }
+.yer-ilce span { font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.yer-mahalle, .uzak .yer-ilce, .yakin .yer-ilce { display: none; }
 .yakin .yer-mahalle { display: block; }
+
+/* iğne kümeleri (Leaflet.markercluster): yakın iğneler sayılı tek daireye toplanır */
+.leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow { transition: transform .3s ease-out, opacity .3s ease-in; }
+.leaflet-cluster-spider-leg { transition: stroke-dashoffset .3s ease-out, stroke-opacity .3s ease-in; }
+.kume { border: 0; background: none; }
+.kume span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 700 15px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; box-shadow: 0 0 0 3px var(--yuzey-2), 0 2px 8px rgb(0 0 0 / .35); }
+.kume:focus-visible { outline: 0; }
+.kume:focus-visible span { box-shadow: 0 0 0 3px var(--yuzey-2), 0 0 0 6px var(--vurgu); }
 
 .igne { border: 0; background: none; }
 .igne .levha { position: absolute; left: 1px; top: 1px; width: 28px; height: 28px; border-radius: 6px; font-size: 17px; box-shadow: 0 0 0 2px var(--yuzey-2), 0 2px 6px rgb(0 0 0 / .4); transform-origin: 50% 39px; transition: transform .12s; }
@@ -958,6 +967,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha512-OFs3W4DIZ5ZkrDhBFtsCP6JXtMEDGmhl0QPlmWYBJay40TT1n3gt2Xuw8Pf/iezgW9CdabjkNChRqozl/YADmg==" crossorigin="anonymous"></script>
 <script>
 window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}],"veritabani":{"url":"https://jnnawgcfrckmjgahimxd.supabase.co","anahtar":"sb_publishable_ob8hBUnU_NHSrXaMGaf7Rw_gutBWiBS"}}, { koordinatAraci: location.hash === '#koordinat' });
 </script>
@@ -974,6 +984,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   const $ = (s, k = document) => k.querySelector(s);
   const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const HARITA_VAR = typeof window.L !== 'undefined';
+  const KUME_VAR = HARITA_VAR && typeof window.L.markerClusterGroup === 'function';
+  const TUM = '*';   // bölge seçiminde "ilin tamamı"
   document.documentElement.lang = TR;
 
   function el(ad, oz, ...cocuklar) {
@@ -1024,7 +1036,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   // Kategori tanımı ve sınırlar dosyadan okunur. Mekanlar, ayarda veritabanı varsa oradan okunur
   // (yönetim sayfasında yapılan değişiklik hemen görünür). Veritabanına ulaşılamazsa ya da boş dönerse
   // depodaki son kopya (mekanlar.json) kullanılır.
-  const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi';
+  const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi,osm_ref';
 
   async function mekanlariVeritabanindanGetir(ms) {
     const { url, anahtar } = AYAR.veritabani;
@@ -1072,8 +1084,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   const filtreler = () => kategoriler[durum.kategori].filtreler;
   const bolgeMekanlari = () => mekanlar
-    .filter(m => m.kategori === durum.kategori && m.il === durum.il && m.ilce === durum.ilce)
+    .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.ilce === TUM || m.ilce === durum.ilce))
     .sort((a, b) => a.ad.localeCompare(b.ad, TR));
+  const bolgeAdi = () => (durum.ilce === TUM ? durum.il : durum.ilce);
   const aktifMi = (f, s) => f.tip === 'coklu' ? !!(s && s.size) : s != null && s !== false;
   const secenekEtiketi = (f, deger) => (f.secenekler.find(o => o.deger === deger) || { etiket: deger }).etiket;
 
@@ -1195,12 +1208,19 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   /* ---------- sonuç listesi ---------- */
   function ozetOgeleri(m) {
     const ogeler = [];
+    // Bilinmeyenler tek satırda toplanır (tek tek listesi ayrıntıda): kart kısa kalır, eksik bilgi yine görünür.
+    const bilinmeyen = filtreler().filter(f => m.ozellikler[f.alan] == null);
     for (const f of filtreler()) {
       const v = m.ozellikler[f.alan];
-      if (v == null) ogeler.push(el('li', { class: 'olgu bilinmiyor' }, simge('bilinmiyor'), `${f.etiket} bilinmiyor`));
+      if (v == null) continue;
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
       else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
       else if (f.tip === 'coklu') ogeler.push(el('li', { class: 'olgu', text: `${f.etiket}: ${v.length}` }));
+    }
+    if (bilinmeyen.length === 1) ogeler.push(el('li', { class: 'olgu bilinmiyor' }, simge('bilinmiyor'), `${bilinmeyen[0].etiket} bilinmiyor`));
+    else if (bilinmeyen.length > 1) {
+      ogeler.push(el('li', { class: 'olgu bilinmiyor', title: `Bilinmeyen: ${bilinmeyen.map(f => f.etiket).join(', ')}` },
+        simge('bilinmiyor'), `${bilinmeyen.length} bilgi eksik`));
     }
     if (!m.konum) ogeler.push(el('li', { class: 'olgu yersiz' }, simge('yersiz'), 'Haritada yeri yok'));
     return ogeler;
@@ -1242,10 +1262,16 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}` }, 'Yol tarifi', simge('dis')));
     const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'
       : bekleyen.has('konum') ? 'Haritadaki yeri yaklaşık olabilir, teyit bekliyor.' : null;
+    // OpenStreetMap'ten türetilen kayıtta kaynak ve lisans kaydın yanında gösterilir (ODbL atıf şartı).
+    const osm = /^(node|way|relation)\/\d+$/.test(m.osm_ref || '')
+      ? el('p', { class: 'kaynak-satiri' }, 'Kaynak: ',
+        el('a', { href: `https://www.openstreetmap.org/${m.osm_ref}`, target: '_blank', rel: 'noopener noreferrer', text: 'OpenStreetMap katkıcıları' }), ' (ODbL)')
+      : null;
     return el('div', { class: 'ayrinti', id: `ayr-${m.id}`, hidden: true },
       el('dl', { class: 'bilgi' }, satirlar),
       konumNotu && el('p', { class: 'uyari-not', text: konumNotu }),
-      el('div', { class: 'eylemler' }, eylemler));
+      eylemler.length ? el('div', { class: 'eylemler' }, eylemler) : null,
+      osm);
   }
 
   function kart(m, eksik) {
@@ -1285,7 +1311,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
     const liste = $('#liste');
     if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
-    else {
+    else if (!tum.length) {
+      liste.replaceChildren(el('li', { class: 'bos-durum' },
+        el('p', { text: `${bolgeAdi()} için bu kategoride henüz kayıt yok.` }),
+        el('p', { text: 'Başka bir bölge ya da kategori seçebilirsin.' })));
+    } else {
       const temizle = el('button', { class: 'dugme', type: 'button', text: 'Filtreleri temizle' });
       temizle.addEventListener('click', filtreleriTemizle);
       liste.replaceChildren(el('li', { class: 'bos-durum' },
@@ -1297,8 +1327,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   /* ---------- harita ---------- */
-  let harita = null, bolgeKatmani = null;
-  const igneler = new Map();
+  let harita = null, bolgeKatmani = null, kume = null;
+  const igneler = new Map();   // id → { igne, m, secili }
   const SINIR_ATIF = 'Sınırlar &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıcıları';
 
   function haritaNotu(metin) {
@@ -1307,13 +1337,21 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     n.hidden = !metin;
   }
 
+  // İlin sınır kutusu ([batı, güney, doğu, kuzey]) Leaflet sınırına çevrilir; pay: kenarlarda kaydırma payı (oran).
+  function ilKutusu(il, pay = 0) {
+    const k = sinirlar.iller && sinirlar.iller[il] && sinirlar.iller[il].kutu;
+    if (!k) return null;
+    const [b, g, d, n] = k;
+    const p = Math.max(d - b, n - g) * pay;
+    return L.latLngBounds([[g - p, b - p], [n + p, d + p]]);
+  }
+
   function haritaKur() {
     if (!HARITA_VAR) { haritaNotu('Harita yüklenemedi. Liste ve filtreler çalışıyor.'); return; }
-    const [bati, guney, dogu, kuzey] = sinirlar.kutu;
     harita = L.map('harita', {
       // Karo görselleri yalnızca tam yakınlık basamaklarında net durur; şematik zemin her basamakta nettir.
-      zoomControl: false, minZoom: 11, maxZoom: 18, zoomSnap: AYAR.altliklar.length ? 1 : 0.25, zoomDelta: AYAR.altliklar.length ? 1 : 0.5,
-      maxBounds: [[guney, bati], [kuzey, dogu]], maxBoundsViscosity: 0.9,
+      zoomControl: false, minZoom: 6, maxZoom: 18, zoomSnap: AYAR.altliklar.length ? 1 : 0.25, zoomDelta: AYAR.altliklar.length ? 1 : 0.5,
+      maxBoundsViscosity: 0.9,
     });
     harita.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
 
@@ -1328,12 +1366,26 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     }).addTo(harita);
     for (const f of sinirlar.features) {
       const p = f.properties;
-      if (p.tur === 'ilce' || !p.yazi) continue;
+      if (!p.yazi) continue;
       L.marker([p.yazi[1], p.yazi[0]], {
         pane: 'zeminYazi', interactive: false, keyboard: false,
         icon: L.divIcon({ className: `yer-adi yer-${p.tur}`, html: el('span', { text: p.ad }), iconSize: [0, 0] }),
       }).addTo(harita);
     }
+
+    // Yakın iğneler sayılı tek daireye toplanır; sokak ölçeğinde (16) kümeleme kalkar.
+    kume = KUME_VAR
+      ? L.markerClusterGroup({
+        showCoverageOnHover: false, maxClusterRadius: 40, disableClusteringAtZoom: 16, spiderfyOnMaxZoom: false,
+        animate: !azHareket, animateAddingMarkers: false,
+        iconCreateFunction: k => {
+          const n = k.getChildCount();
+          const boy = n < 10 ? 36 : n < 100 ? 42 : 48;
+          return L.divIcon({ className: 'kume', html: el('span', { text: n }), iconSize: [boy, boy] });
+        },
+      })
+      : L.layerGroup();
+    kume.addTo(harita);
 
     if (AYAR.altliklar.length) karoKur(0);
     else haritaNotu('Şematik harita: ilçe ve mahalle sınırları');
@@ -1352,7 +1404,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     });
     new Sigdir().addTo(harita);
 
-    const yakinlik = () => harita.getContainer().classList.toggle('yakin', harita.getZoom() >= 12.75);
+    // Şematik zeminde yazılar: uzakta yazı yok, ortada ilçe adları, yakında mahalle adları.
+    const yakinlik = () => {
+      const z = harita.getZoom(), kap = harita.getContainer();
+      kap.classList.toggle('uzak', z < 10.5);
+      kap.classList.toggle('yakin', z >= 12.75);
+    };
     harita.on('zoomend', yakinlik);
     new ResizeObserver(() => harita.invalidateSize({ pan: false })).observe(harita.getContainer());
 
@@ -1383,41 +1440,66 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     });
   }
 
+  // Seçili bölge: ilçe seçiliyse sınırı çizilir; harita seçili ilin içinde tutulur.
   function bolgeyiCiz() {
     if (!harita) return;
-    if (bolgeKatmani) bolgeKatmani.remove();
-    const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.ad === durum.ilce);
-    bolgeKatmani = ilce.length
-      ? L.geoJSON({ type: 'FeatureCollection', features: ilce }, { interactive: false, style: { className: 'sinir sinir-secili' } }).addTo(harita)
-      : null;
+    if (bolgeKatmani) { bolgeKatmani.remove(); bolgeKatmani = null; }
+    if (durum.ilce !== TUM) {
+      const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.il === durum.il && f.properties.ad === durum.ilce);
+      if (ilce.length) {
+        bolgeKatmani = L.geoJSON({ type: 'FeatureCollection', features: ilce }, { interactive: false, style: { className: 'sinir sinir-secili' } }).addTo(harita);
+      }
+    }
+    harita.setMaxBounds(null);
     bolgeyeSigdir(false);
+    const sinir = ilKutusu(durum.il, 0.15);
+    if (sinir) harita.setMaxBounds(sinir);
+  }
+
+  function bolgeKutusu() {
+    if (bolgeKatmani) return bolgeKatmani.getBounds();
+    const il = ilKutusu(durum.il);
+    if (durum.ilce === TUM && il) return il;
+    const konumlu = bolgeMekanlari().filter(m => m.konum).map(m => [m.konum.lat, m.konum.lng]);
+    if (konumlu.length) return L.latLngBounds(konumlu);
+    return il;
   }
 
   function bolgeyeSigdir(canli) {
     if (!harita) return;
-    const konumlu = bolgeMekanlari().filter(m => m.konum).map(m => [m.konum.lat, m.konum.lng]);
-    const kutu = bolgeKatmani ? bolgeKatmani.getBounds() : konumlu.length ? L.latLngBounds(konumlu) : null;
-    if (kutu) harita.fitBounds(kutu, { padding: [14, 14], animate: canli && !azHareket });
+    const kutu = bolgeKutusu();
+    if (kutu) harita.fitBounds(kutu, { padding: [14, 14], maxZoom: 16, animate: canli && !azHareket });
+  }
+
+  const harfi = () => kategoriler[durum.kategori].simge || kategoriler[durum.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
+  const igneIkonu = (harf, secili) => L.divIcon({ className: secili ? 'igne secili' : 'igne', html: el('span', { class: 'levha', text: harf }), iconSize: [30, 40], iconAnchor: [15, 40] });
+  // İğne öğesi kümeden çıkınca yeniden yaratılır; erişilebilirlik bilgisi her seferinde yeniden yazılır.
+  function igneyiEtiketle(k) {
+    const e = k.igne.getElement();
+    if (!e) return;
+    e.setAttribute('aria-label', k.m.ad);
+    e.dataset.id = k.m.id;
   }
 
   function igneleriCiz(uyan) {
     if (!harita) return;
     const olmali = new Map(uyan.filter(m => m.konum).map(m => [m.id, m]));
-    for (const [id, igne] of igneler) if (!olmali.has(id)) { igne.remove(); igneler.delete(id); }
-    const harf = kategoriler[durum.kategori].simge || kategoriler[durum.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
+    const cikan = [];
+    for (const [id, k] of igneler) if (!olmali.has(id)) { cikan.push(k.igne); igneler.delete(id); }
+    if (cikan.length) KUME_VAR ? kume.removeLayers(cikan) : cikan.forEach(i => kume.removeLayer(i));
+    const harf = harfi(), eklenen = [];
     for (const [id, m] of olmali) {
       if (igneler.has(id)) continue;
-      const igne = L.marker([m.konum.lat, m.konum.lng], {
-        keyboard: true, riseOnHover: true,
-        icon: L.divIcon({ className: 'igne', html: el('span', { class: 'levha', text: harf }), iconSize: [30, 40], iconAnchor: [15, 40] }),
-      }).addTo(harita);
+      const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false) });
+      const k = { igne, m, harf, secili: false };
       igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
       igne.on('click', () => sec(id, 'harita'));
-      const e = igne.getElement();
-      e.setAttribute('aria-label', m.ad);
-      e.dataset.id = id;
-      igneler.set(id, igne);
+      igne.on('add', () => igneyiEtiketle(k));
+      igneler.set(id, k);
+      eklenen.push(igne);
     }
+    if (eklenen.length) KUME_VAR ? kume.addLayers(eklenen) : eklenen.forEach(i => kume.addLayer(i));
+    harita.getContainer().dataset.igne = igneler.size;   // haritadaki (kümelenmiş olsa da) iğne sayısı
   }
 
   function koordinatAraciKur() {
@@ -1452,9 +1534,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     durum.secili = id;
     seciliyiUygula();
     if (!id) return;
-    const igne = igneler.get(id);
-    if (kaynak === 'liste' && igne && harita) {
-      harita.setView(igne.getLatLng(), Math.max(harita.getZoom(), 15), { animate: !azHareket });
+    const k = igneler.get(id);
+    if (kaynak === 'liste' && k && harita) {
+      const git = () => harita.setView(k.igne.getLatLng(), Math.max(harita.getZoom(), 16), { animate: !azHareket });
+      // Kümedeki iğne önce görünür hâle gelir (küme açılır), sonra haritada ortalanır.
+      if (KUME_VAR && kume.hasLayer(k.igne)) kume.zoomToShowLayer(k.igne, git);
+      else git();
     }
     if (kaynak === 'harita') {
       const k = kok.querySelector(`.kart[data-id="${id}"]`);
@@ -1469,10 +1554,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       k.querySelector('.kart-bas').setAttribute('aria-expanded', String(s));
       k.querySelector('.ayrinti').hidden = !s;
     }
-    for (const [id, igne] of igneler) {
+    for (const [id, k] of igneler) {
       const s = id === durum.secili;
-      igne.getElement().classList.toggle('secili', s);
-      igne.setZIndexOffset(s ? 1000 : 0);
+      if (k.secili !== s) {
+        // Simge değiştirilir (sınıf değil): iğne kümeden çıkıp yeniden çizilse de seçili görünür.
+        k.igne.setIcon(igneIkonu(k.harf, s));
+        k.secili = s;
+        igneyiEtiketle(k);
+      }
+      k.igne.setZIndexOffset(s ? 1000 : 0);
     }
   }
 
@@ -1499,7 +1589,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function baglamiYaz() {
     const kat = kategoriler[durum.kategori];
-    $('#baglam').textContent = `${durum.ilce} · ${kat.ad}`;
+    $('#baglam').textContent = `${bolgeAdi()} · ${kat.ad}`;
     const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
     not.textContent = kat.bilgi_notu || '';
     not.hidden = !kat.bilgi_notu;
@@ -1533,10 +1623,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       console.error(hata);
       return;
     }
-    const bolgeler = [...new Map(mekanlar.map(m => [`${m.il}|${m.ilce}`, m])).values()]
-      .sort((a, b) => `${a.il} ${a.ilce}`.localeCompare(`${b.il} ${b.ilce}`, TR));
+    // Bölge listesi: haritası açılan her il ("Tüm İl") ve altında kaydı olan ilçeler.
+    // Sınırı olmayan bir ilde kayıt varsa o il de listeye girer (harita kayıtlara sığdırılır).
+    const iller = Object.keys(sinirlar.iller || {});
+    for (const il of [...new Set(mekanlar.map(m => m.il))].sort((a, b) => a.localeCompare(b, TR))) if (!iller.includes(il)) iller.push(il);
     const bolgeSec = $('#bolgeSec'), kategoriSec = $('#kategoriSec');
-    bolgeSec.replaceChildren(...bolgeler.map(m => el('option', { value: `${m.il}|${m.ilce}`, text: `${m.il} · ${m.ilce}` })));
+    bolgeSec.replaceChildren(...iller.map(il => el('optgroup', { label: il },
+      el('option', { value: `${il}|${TUM}`, text: `Tüm ${il}` }),
+      [...new Set(mekanlar.filter(m => m.il === il).map(m => m.ilce))].sort((a, b) => a.localeCompare(b, TR))
+        .map(ilce => el('option', { value: `${il}|${ilce}`, text: ilce })))));
     kategoriSec.replaceChildren(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
     [durum.il, durum.ilce] = bolgeSec.value.split('|');
     durum.kategori = kategoriSec.value;
