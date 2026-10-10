@@ -814,6 +814,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .favori[aria-pressed="true"] { color: var(--uyari); }
 .favori[aria-pressed="true"] .simge path { fill: var(--secim); }
 .liste-dugme { right: 44px; }
+.not-satiri { display: block; }
+.not-satiri + .not-satiri { margin-top: 6px; }
+.kart-tur { display: block; margin-bottom: 3px; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .04em; text-transform: uppercase; }
 .liste-dugme[aria-pressed="true"] { color: var(--vurgu); }
 .liste-dugme[aria-pressed="true"] .simge path { fill: none; }
 .liste-grup { flex-direction: row; align-items: flex-end; gap: 10px; }
@@ -1220,14 +1223,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#bolgeSec').value = `${il}|${TUM}`; $('#kategoriSec').value = kategori;
     if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(); guncelle(); }
   }
-  // Seçili bölge ve kategoride listeden kayıt yoksa, listenin en kalabalık olduğu yere geçer.
+  // Favoriler ya da bir liste gösterilirken bölge, kategori ve filtreler uygulanmaz: listedeki her kayıt görünür.
   function gorunumeGec(g, ciz) {
     durum.gorunum = g;
-    const kume = gorunumKumesi();
-    if (kume) {
-      const gr = gruplar(kume);
-      if (gr.length && !gr.some(x => x.il === durum.il && x.kategori === durum.kategori)) { grubaGit(gr[0].il, gr[0].kategori, ciz); return; }
-    }
+    if (g) { durum.secimler = {}; durum.secili = null; }
     if (ciz) guncelle();
   }
   function gorunumuYaz() {
@@ -1360,7 +1359,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       el('p', { class: 'ipucu', text: 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas. Listeler yalnızca bu cihazda, bu tarayıcıda saklanır; paylaşılan bağlantı listenin o anki kopyasıdır.' }));
   }
 
-  const filtreler = () => kategoriler[durum.kategori].filtreler;
+  const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
   const bolgeMekanlari = () => mekanlar
     .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.ilce === TUM || m.ilce === durum.ilce))
     .sort((a, b) => a.ad.localeCompare(b.ad, TR));
@@ -1493,8 +1492,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   function ozetOgeleri(m) {
     const ogeler = [];
     // Bilinmeyenler tek satırda toplanır (tek tek listesi ayrıntıda): kart kısa kalır, eksik bilgi yine görünür.
-    const bilinmeyen = filtreler().filter(f => m.ozellikler[f.alan] == null);
-    for (const f of filtreler()) {
+    const bilinmeyen = filtreler(m.kategori).filter(f => m.ozellikler[f.alan] == null);
+    for (const f of filtreler(m.kategori)) {
       const v = m.ozellikler[f.alan];
       if (v == null) continue;
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
@@ -1514,7 +1513,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const bekleyen = new Set(m.dogrulanacak || []);
     const teyit = alan => bekleyen.has(alan) ? el('span', { class: 'teyit', text: 'teyit bekliyor' }) : null;
     const satirlar = [];
-    for (const f of filtreler()) {
+    for (const f of filtreler(m.kategori)) {
       const v = m.ozellikler[f.alan];
       const genis = f.tip === 'coklu' && v != null ? 'genis' : null;
       let dd;
@@ -1561,6 +1560,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   function kart(m, eksik) {
     const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
     const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-expanded': 'false', 'aria-controls': `ayr-${m.id}` },
+      durum.gorunum ? el('span', { class: 'kart-tur', text: kategoriler[m.kategori].ad }) : null,
       el('span', { class: 'kart-ad', text: m.ad }),
       el('span', { class: 'kart-adres' },
         uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
@@ -1577,7 +1577,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const aktif = aktifler();
     $('#sonucSayi').textContent = `${uyan.length} sonuç`;
     const notlar = [];
-    if (aktif.length) notlar.push(`${tum.length} kayıt içinden`);
+    if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);
+    if (durum.gorunum && tum.length) notlar.push('bütün kategoriler ve şehirler');
     const yersiz = uyan.filter(m => !m.konum).length;
     if (yersiz) notlar.push(`${yersiz} sonucun haritada yeri henüz yok`);
     if (konum.son && uyan.length > 1) notlar.push('sana yakınlığa göre sıralı');
@@ -1585,15 +1586,6 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     not.textContent = notlar.join(' · ');
     not.hidden = !notlar.length;
 
-    const diger = $('#digerYerler');
-    const kumeG = gorunumKumesi();
-    const baskaYer = kumeG ? gruplar(kumeG).filter(g => !(g.il === durum.il && g.kategori === durum.kategori)) : [];
-    diger.hidden = !baskaYer.length;
-    diger.replaceChildren(...(baskaYer.length ? ['Bu listede başka yerlerde de kayıt var:', ...baskaYer.map(g => {
-      const b = el('button', { class: 'bag', type: 'button', text: `${g.il} · ${kategoriler[g.kategori].ad} (${g.n})` });
-      b.addEventListener('click', () => grubaGit(g.il, g.kategori, true));
-      return b;
-    })] : []));
     paylasilaniYaz();
 
     const cipler = $('#cipler');
@@ -1616,7 +1608,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       hepsi.addEventListener('click', () => { durum.gorunum = ''; guncelle(); });
       const favori = durum.gorunum === 'favori';
       liste.replaceChildren(el('li', { class: 'bos-durum' },
-        el('p', { text: favori ? `${bolgeAdi()} için bu kategoride favorin yok.` : `Bu listede ${bolgeAdi()} için bu kategoride kayıt yok.` }),
+        el('p', { text: favori ? 'Henüz favorin yok.' : 'Bu listede henüz kayıt yok.' }),
         el('p', { text: favori ? 'Bir kaydı favoriye almak için kartındaki yıldıza bas. Favorilerin yalnızca bu cihazda, bu tarayıcıda saklanır.'
           : 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas.' }), hepsi));
     } else if (!tum.length) {
@@ -1753,7 +1745,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   function bolgeyiCiz() {
     if (!harita) return;
     if (bolgeKatmani) { bolgeKatmani.remove(); bolgeKatmani = null; }
-    if (durum.ilce !== TUM) {
+    if (durum.ilce !== TUM && !durum.gorunum) {
       const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.il === durum.il && f.properties.ad === durum.ilce);
       if (ilce.length) {
         bolgeKatmani = L.geoJSON({ type: 'FeatureCollection', features: ilce }, { interactive: false, style: { className: 'sinir sinir-secili' } }).addTo(harita);
@@ -1761,11 +1753,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     }
     harita.setMaxBounds(null);
     bolgeyeSigdir(false);
+    if (durum.gorunum) return;
     const sinir = ilKutusu(durum.il, 0.15);
     if (sinir) harita.setMaxBounds(sinir);
   }
 
   function bolgeKutusu() {
+    if (durum.gorunum) {
+      const kume = gorunumKumesi();
+      const yerler = kume ? kumedekiler(kume).filter(m => m.konum).map(m => [m.konum.lat, m.konum.lng]) : [];
+      return yerler.length ? L.latLngBounds(yerler).pad(0.15) : ilKutusu(durum.il);
+    }
     if (bolgeKatmani) return bolgeKatmani.getBounds();
     const il = ilKutusu(durum.il);
     if (durum.ilce === TUM && il) return il;
@@ -1796,9 +1794,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const cikan = [];
     for (const [id, k] of igneler) if (!olmali.has(id)) { cikan.push(k.igne); igneler.delete(id); }
     if (cikan.length) KUME_VAR ? kume.removeLayers(cikan) : cikan.forEach(i => kume.removeLayer(i));
-    const harf = harfi(), eklenen = [];
+    const eklenen = [];
     for (const [id, m] of olmali) {
       if (igneler.has(id)) continue;
+      const harf = kategoriler[m.kategori].simge || kategoriler[m.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
       const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false) });
       const k = { igne, m, harf, secili: false };
       igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
@@ -1876,13 +1875,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   /* ---------- ana döngü ---------- */
+  let sonHaritaAnahtari = '';
   function guncelle() {
     gorunumuYaz();
     const kume = gorunumKumesi();
-    const tum = kume ? bolgeMekanlari().filter(m => kume.has(m.id)) : bolgeMekanlari();
+    // Liste görünümü: listedeki bütün kayıtlar, kategori ve şehir ayırmadan; filtreler uygulanmaz.
+    const tum = kume ? kumedekiler(kume).filter(m => kategoriler[m.kategori]).sort((a, b) => a.ad.localeCompare(b.ad, TR)) : bolgeMekanlari();
+    document.querySelector('.panel .ikili').hidden = !!kume;
+    $('#filtreler').hidden = !!kume;
+    baglamiYaz(tum);
+    const haritaAnahtari = kume ? `L:${tum.map(m => m.id).join(',')}` : '';
+    if (haritaAnahtari !== sonHaritaAnahtari) { sonHaritaAnahtari = haritaAnahtari; bolgeyiCiz(); }
     const uyan = [], belirsiz = [];
     for (const m of tum) {
-      const d = degerlendir(m, durum.secimler);
+      const d = kume ? { sonuc: 'uyar', eksik: [] } : degerlendir(m, durum.secimler);
       if (d.sonuc === 'uyar') uyan.push(m);
       else if (d.sonuc === 'belirsiz') belirsiz.push({ m, eksik: d.eksik });
     }
@@ -1892,7 +1898,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       uyan.sort((a, b) => u(a) - u(b));
       belirsiz.sort((a, b) => u(a.m) - u(b.m));
     }
-    paneliEsle(tum);
+    if (!kume) paneliEsle(tum);
     listeyiCiz(tum, uyan, belirsiz);
     igneleriCiz(uyan);
     seciliyiUygula();
@@ -1904,10 +1910,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     guncelle();
   }
 
-  function baglamiYaz() {
+  function baglamiYaz(listedekiler) {
+    const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
+    if (durum.gorunum) {   // liste görünümü: listedeki her kategorinin notu
+      $('#baglam').textContent = gorunumAdi();
+      const notlar = [...new Set((listedekiler || []).map(m => kategoriler[m.kategori].bilgi_notu).filter(Boolean))];
+      not.replaceChildren(...notlar.map(n => el('span', { class: 'not-satiri', text: n })));
+      not.hidden = !notlar.length;
+      return;
+    }
     const kat = kategoriler[durum.kategori];
     $('#baglam').textContent = `${bolgeAdi()} · ${kat.ad}`;
-    const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
     not.textContent = kat.bilgi_notu || '';
     not.hidden = !kat.bilgi_notu;
   }
