@@ -807,13 +807,42 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .kart.secili { border-color: var(--vurgu); box-shadow: 0 0 0 1px var(--vurgu); }
 .kart-bas { display: block; width: 100%; padding: 12px 14px 2px; border: 0; border-radius: 8px 8px 0 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .kart { position: relative; }
-.kart-bas { padding-right: 52px; }
+.kart-bas { padding-right: 92px; }
 .favori { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: none; color: var(--soluk); cursor: pointer; }
 .favori:hover { background: var(--vurgu-soluk); color: var(--murekkep); }
 .favori .simge { width: 20px; height: 20px; stroke-width: 1.5; }
 .favori[aria-pressed="true"] { color: var(--uyari); }
 .favori[aria-pressed="true"] .simge path { fill: var(--secim); }
-.favori-grup { margin-block: 0; }
+.liste-dugme { right: 44px; }
+.liste-dugme[aria-pressed="true"] { color: var(--vurgu); }
+.liste-dugme[aria-pressed="true"] .simge path { fill: none; }
+.liste-grup { flex-direction: row; align-items: flex-end; gap: 10px; }
+.liste-grup .alan { flex: 1; }
+.liste-grup .bag { flex: none; min-height: 40px; }
+.paylasilan { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding: 12px 14px; border: 1px solid var(--vurgu); border-radius: 8px; background: var(--vurgu-soluk); }
+.paylasilan p { margin: 0; font: 500 15px/1.3 var(--yazi); overflow-wrap: anywhere; }
+.paylasilan .eylemler .dugme { min-height: 36px; }
+.diger-yerler { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; color: var(--soluk); font-size: 13.5px; }
+.diyalog { width: min(480px, calc(100vw - 24px)); max-height: min(640px, calc(100dvh - 24px)); padding: 0; border: 1px solid var(--cizgi-koyu); border-radius: 10px; background: var(--yuzey); color: var(--murekkep); box-shadow: var(--golge); }
+.diyalog::backdrop { background: rgb(0 0 0 / .45); }
+.diyalog-ic { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+.diyalog-bas { display: flex; align-items: flex-start; gap: 10px; }
+.diyalog-baslik { flex: 1; min-width: 0; margin: 0; font: 600 18px/1.25 var(--yazi-dar); overflow-wrap: anywhere; }
+.diyalog .ipucu { margin: 0; }
+.diyalog .kapat { display: grid; place-items: center; flex: none; margin: -6px -8px 0 0; }
+.liste-satirlari { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.liste-satirlari > li { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--cizgi); }
+.liste-satirlari label { display: flex; align-items: center; gap: 10px; min-height: 32px; cursor: pointer; }
+.liste-satirlari input[type=checkbox] { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--vurgu-dolgu); }
+.liste-ad { flex: 1; min-width: 0; font: 600 15.5px/1.25 var(--yazi-dar); overflow-wrap: anywhere; }
+.liste-ust { display: flex; align-items: baseline; gap: 8px; }
+.liste-eylem { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.liste-eylem .bag { padding: 4px 0; font-size: 13.5px; }
+.bag.tehlike { color: var(--uyari); }
+.yeni-liste { display: flex; gap: 8px; }
+.yeni-liste .ara { flex: 1; min-width: 0; }
+.paylas-kutu { display: flex; flex-direction: column; gap: 6px; }
+.paylas-kutu .ara { font-size: 13px; }
 .kart-ad { display: block; font: 600 17.5px/1.22 var(--yazi-dar); text-wrap: balance; }
 .kart-adres { display: block; margin-top: 4px; color: var(--soluk); font-size: 13.5px; line-height: 1.35; }
 .ozet { list-style: none; margin: 0; padding: 8px 14px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; font: 500 13.5px/1.2 var(--yazi-dar); }
@@ -948,6 +977,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <button class="dugme dugme-filtre" id="filtreAc" type="button" aria-controls="panel" aria-expanded="false">Filtrele <span class="rozet" id="filtreSayisi" hidden>0</span></button>
   </header>
 
+  <dialog class="diyalog" id="diyalog" aria-labelledby="diyalogBaslik"></dialog>
   <aside class="panel" id="panel" aria-label="Filtreler">
     <div class="panel-bas">
       <h2 class="baslik-kucuk">Filtreler</h2>
@@ -959,9 +989,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
         <div class="alan"><label for="bolgeSec">Bölge</label><select id="bolgeSec"></select></div>
         <div class="alan"><label for="kategoriSec">Kategori</label><select id="kategoriSec"></select></div>
       </div>
-      <div class="grup anahtar favori-grup">
-        <label for="favoriSec">Yalnızca favorilerim</label><span class="adet" id="favoriAdet">0</span>
-        <input type="checkbox" role="switch" class="anahtar-giris" id="favoriSec">
+      <div class="grup liste-grup">
+        <div class="alan"><label for="gorunumSec">Göster</label><select id="gorunumSec"></select></div>
+        <button class="bag" id="listeYonet" type="button">Listelerim</button>
       </div>
       <div id="filtreler" class="grup filtreler"></div>
     </div>
@@ -970,9 +1000,11 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 
   <main class="sonuclar" id="sonuclar" aria-label="Sonuçlar">
     <div class="sonuc-bas">
+      <div class="paylasilan" id="paylasilan" hidden></div>
       <p class="sonuc-sayi" id="sonucSayi" role="status" aria-live="polite">Yükleniyor</p>
       <p class="sonuc-not" id="sonucNot" hidden></p>
       <ul class="cipler" id="cipler" aria-label="Seçili filtreler" hidden></ul>
+      <div class="diger-yerler" id="digerYerler" hidden></div>
     </div>
     <ul class="liste" id="liste"></ul>
     <details class="belirsiz" id="belirsiz" open hidden>
@@ -1032,6 +1064,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     yersiz: 'M8 14s4-3.6 4-7a4 4 0 0 0-8 0c0 3.4 4 7 4 7zM3 2.5l10 11',
     dis: 'M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5',
     cerceve: 'M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10',
+    liste: 'M2.5 4h8M2.5 8h6M2.5 12h4M12 8.5v5M9.5 11h5',
     yildiz: 'M8 1.9l1.85 3.85 4.2.6-3.05 2.95.72 4.2L8 11.5l-3.72 2 .72-4.2L1.95 6.35l4.2-.6z',
     konum: 'M8 1.5v2.2M8 12.3v2.2M1.5 8h2.2M12.3 8h2.2M8 4.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 1 0 0-6.8z',
   };
@@ -1108,7 +1141,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   let kategoriler, mekanlar, sinirlar;
-  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, yalnizFavori: false };
+  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '' };   // gorunum: '' (tüm kayıtlar) | 'favori' | 'l:<liste kimliği>' | 'paylasilan'
 
   /* ---------- favoriler ---------- */
   // Hesap yok: favoriler yalnızca bu tarayıcıda (localStorage) durur, sunucuya gönderilmez.
@@ -1129,14 +1162,202 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     d.addEventListener('click', () => {
       if (favoriler.has(m.id)) favoriler.delete(m.id); else favoriler.add(m.id);
       favoriKaydet();
-      if (durum.yalnizFavori) guncelle(); else { yaz(); favoriSayisiniYaz(); }
+      if (durum.gorunum === 'favori') guncelle(); else { yaz(); gorunumuYaz(); }
     });
     return d;
   }
-  function favoriSayisiniYaz() {
-    const gecerli = mekanlar ? mekanlar.filter(m => favoriler.has(m.id)).length : favoriler.size;
-    $('#favoriAdet').textContent = gecerli;
-    $('#favoriSec').checked = durum.yalnizFavori;
+
+  /* ---------- listeler ---------- */
+  // Adlandırılmış listeler de yalnızca bu tarayıcıda durur. Liste mekanı kopyalamaz, kimliğini tutar.
+  // Paylaşım: liste adı ve kimlikler bağlantının "#liste=" parçasına yazılır (bu parça sunucuya gönderilmez).
+  // Paylaşılan bağlantı o anki kopyadır; sonradan yapılan değişiklik karşı tarafa gitmez.
+  const LISTE_ANAHTAR = 'kesif.listeler', AD_SINIRI = 60, KIMLIK_KALIBI = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  let listeler = [];   // { id, ad, mekanlar: [mekan kimliği] }
+  let paylasilan = null;   // bağlantıyla gelen liste: { ad, idler: [..], bilinmeyen: sayı }
+  try {
+    for (const l of JSON.parse(localStorage.getItem(LISTE_ANAHTAR) || '[]')) {
+      if (l && typeof l.id === 'string' && typeof l.ad === 'string' && Array.isArray(l.mekanlar)) {
+        listeler.push({ id: l.id, ad: l.ad.slice(0, AD_SINIRI), mekanlar: l.mekanlar.filter(x => typeof x === 'string') });
+      }
+    }
+  } catch (e) { /* saklama yok ya da bozuk */ }
+  function listeKaydet() { try { localStorage.setItem(LISTE_ANAHTAR, JSON.stringify(listeler)); } catch (e) { /* bellekte kalır */ } }
+  const adDuzelt = ad => ad.replace(/\s+/g, ' ').trim().slice(0, AD_SINIRI);
+  function listeOlustur(ad, mekanIdleri) {
+    let a = adDuzelt(ad) || 'Adsız liste';
+    for (let n = 2; listeler.some(l => l.ad === a); n++) a = `${adDuzelt(ad).slice(0, AD_SINIRI - 5)} (${n})`;
+    const l = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ad: a, mekanlar: [...new Set(mekanIdleri || [])] };
+    listeler.push(l); listeKaydet();
+    return l;
+  }
+  const seciliListe = () => (durum.gorunum.startsWith('l:') ? listeler.find(l => l.id === durum.gorunum.slice(2)) : null);
+  function gorunumKumesi(g = durum.gorunum) {
+    if (g === 'favori') return favoriler;
+    if (g === 'paylasilan') return paylasilan ? new Set(paylasilan.idler) : null;
+    if (g.startsWith('l:')) { const l = listeler.find(x => x.id === g.slice(2)); return l ? new Set(l.mekanlar) : null; }
+    return null;
+  }
+  function gorunumAdi() {
+    if (durum.gorunum === 'favori') return 'Favorilerim';
+    if (durum.gorunum === 'paylasilan') return paylasilan ? `Paylaşılan: ${paylasilan.ad}` : '';
+    const l = seciliListe();
+    return l ? `Liste: ${l.ad}` : '';
+  }
+  const kumedekiler = kume => mekanlar.filter(m => kume.has(m.id));
+  // Bir kümenin (liste) kayıtlarını il ve kategoriye göre sayar; en kalabalık grup başta.
+  function gruplar(kume) {
+    const g = new Map();
+    for (const m of kumedekiler(kume)) {
+      const k = `${m.il}|${m.kategori}`;
+      if (!kategoriler[m.kategori]) continue;
+      g.set(k, (g.get(k) || 0) + 1);
+    }
+    return [...g].map(([k, n]) => ({ il: k.split('|')[0], kategori: k.split('|')[1], n })).sort((a, b) => b.n - a.n);
+  }
+  function grubaGit(il, kategori, ciz) {
+    durum.il = il; durum.ilce = TUM; durum.kategori = kategori;
+    durum.secimler = {}; durum.secili = null;
+    $('#bolgeSec').value = `${il}|${TUM}`; $('#kategoriSec').value = kategori;
+    if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(); guncelle(); }
+  }
+  // Seçili bölge ve kategoride listeden kayıt yoksa, listenin en kalabalık olduğu yere geçer.
+  function gorunumeGec(g, ciz) {
+    durum.gorunum = g;
+    const kume = gorunumKumesi();
+    if (kume) {
+      const gr = gruplar(kume);
+      if (gr.length && !gr.some(x => x.il === durum.il && x.kategori === durum.kategori)) { grubaGit(gr[0].il, gr[0].kategori, ciz); return; }
+    }
+    if (ciz) guncelle();
+  }
+  function gorunumuYaz() {
+    if (durum.gorunum.startsWith('l:') && !seciliListe()) durum.gorunum = '';
+    if (durum.gorunum === 'paylasilan' && !paylasilan) durum.gorunum = '';
+    const say = kume => kumedekiler(kume).length;
+    const sec = $('#gorunumSec');
+    sec.replaceChildren(
+      el('option', { value: '', text: 'Tüm kayıtlar' }),
+      el('option', { value: 'favori', text: `Favorilerim (${say(favoriler)})` }),
+      listeler.length ? el('optgroup', { label: 'Listelerim' }, listeler.map(l => el('option', { value: `l:${l.id}`, text: `${l.ad} (${say(new Set(l.mekanlar))})` }))) : null,
+      paylasilan ? el('option', { value: 'paylasilan', text: `Paylaşılan: ${paylasilan.ad} (${paylasilan.idler.length})` }) : null);
+    sec.value = durum.gorunum;
+  }
+  function listeDugmesi(m) {
+    const icinde = listeler.some(l => l.mekanlar.includes(m.id));
+    const d = el('button', { class: 'favori liste-dugme', type: 'button', 'aria-pressed': icinde ? 'true' : 'false',
+      'aria-label': `${m.ad}: listeye ekle`, title: icinde ? 'Listelerini düzenle' : 'Listeye ekle' }, simge('liste'));
+    d.addEventListener('click', () => listeEkleDiyalogu(m));
+    return d;
+  }
+
+  /* ---------- liste pencereleri ---------- */
+  function diyalogAc(baslik, ...govde) {
+    const d = $('#diyalog');
+    const kapat = el('button', { class: 'kapat', type: 'button', 'aria-label': 'Kapat' }, simge('yok'));
+    kapat.addEventListener('click', () => d.close());
+    d.replaceChildren(el('div', { class: 'diyalog-ic' },
+      el('div', { class: 'diyalog-bas' }, el('h2', { class: 'diyalog-baslik', id: 'diyalogBaslik', text: baslik }), kapat), govde));
+    if (!d.open) d.showModal();
+  }
+  function yeniListeFormu(dugmeMetni, olusunca) {
+    const giris = el('input', { type: 'text', class: 'ara', maxlength: AD_SINIRI, placeholder: 'Yeni liste adı', 'aria-label': 'Yeni liste adı', autocomplete: 'off' });
+    const form = el('form', { class: 'yeni-liste' }, giris, el('button', { class: 'dugme', type: 'submit', text: dugmeMetni }));
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      if (!adDuzelt(giris.value)) { giris.focus(); return; }
+      olusunca(giris.value);
+    });
+    return form;
+  }
+  function listeEkleDiyalogu(m) {
+    const satirlar = listeler.map(l => {
+      const kutu = el('input', { type: 'checkbox' });
+      kutu.checked = l.mekanlar.includes(m.id);
+      kutu.addEventListener('change', () => {
+        if (kutu.checked) { if (!l.mekanlar.includes(m.id)) l.mekanlar.push(m.id); } else l.mekanlar = l.mekanlar.filter(x => x !== m.id);
+        listeKaydet();
+      });
+      return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }), el('span', { class: 'adet', text: `${l.mekanlar.length} kayıt` })));
+    });
+    diyalogAc(`Listeye ekle: ${m.ad}`,
+      listeler.length ? el('ul', { class: 'liste-satirlari' }, satirlar) : el('p', { class: 'ipucu', text: 'Henüz listen yok. Aşağıdan bir ad verip ilk listeni oluştur.' }),
+      yeniListeFormu('Oluştur ve ekle', ad => { listeOlustur(ad, [m.id]); listeEkleDiyalogu(m); }),
+      el('p', { class: 'ipucu', text: 'Listelerin yalnızca bu cihazda, bu tarayıcıda saklanır.' }));
+  }
+  const b64 = { yaz: s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+    oku: s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))) };
+  function paylasimBaglantisi(ad, idler) {
+    const gecerli = idler.filter(id => mekanlar.some(m => m.id === id));
+    return `${location.href.split('#')[0]}#liste=${b64.yaz(JSON.stringify({ v: 1, a: ad, m: gecerli }))}`;
+  }
+  function paylasimiOku() {
+    const h = location.hash;
+    if (!h.startsWith('#liste=')) return null;
+    try {
+      const v = JSON.parse(b64.oku(h.slice(7)));
+      if (!v || typeof v.a !== 'string' || !Array.isArray(v.m)) return null;
+      const idler = [...new Set(v.m.filter(x => typeof x === 'string' && x.length <= 120 && KIMLIK_KALIBI.test(x)))].slice(0, 500);
+      const bilinen = idler.filter(id => mekanlar.some(m => m.id === id));
+      return { ad: adDuzelt(v.a) || 'Adsız liste', idler: bilinen, bilinmeyen: idler.length - bilinen.length };
+    } catch (e) { return null; }
+  }
+  function paylasimiKapat() {
+    paylasilan = null;
+    if (durum.gorunum === 'paylasilan') durum.gorunum = '';
+    if (location.hash.startsWith('#liste=')) history.replaceState(null, '', location.pathname + location.search);
+  }
+  function paylasilaniYaz() {
+    const kap = $('#paylasilan');
+    kap.hidden = !paylasilan;
+    if (!paylasilan) { kap.replaceChildren(); return; }
+    const kaydet = el('button', { class: 'dugme', type: 'button', text: 'Listelerime kaydet' });
+    kaydet.addEventListener('click', () => { const l = listeOlustur(paylasilan.ad, paylasilan.idler); paylasimiKapat(); gorunumeGec(`l:${l.id}`, true); });
+    const goster = durum.gorunum === 'paylasilan' ? null : el('button', { class: 'dugme', type: 'button', text: 'Listeyi göster' });
+    if (goster) goster.addEventListener('click', () => gorunumeGec('paylasilan', true));
+    const kapat = el('button', { class: 'dugme', type: 'button', text: 'Kapat' });
+    kapat.addEventListener('click', () => { paylasimiKapat(); guncelle(); });
+    kap.replaceChildren(
+      el('p', null, 'Seninle paylaşılan liste: ', el('strong', { text: paylasilan.ad }), ` · ${paylasilan.idler.length} kayıt`,
+        paylasilan.bilinmeyen ? ` (${paylasilan.bilinmeyen} kayıt artık yok)` : ''),
+      el('div', { class: 'eylemler' }, kaydet, goster, kapat));
+  }
+  function listelerDiyalogu(paylasimi) {
+    const satir = (anahtar, ad, idler, liste) => {
+      const adYeri = el('span', { class: 'liste-ad', text: ad });
+      const eylem = (metin, is, sinif) => { const b = el('button', { class: sinif || 'bag', type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+      const eylemler = el('div', { class: 'liste-eylem' },
+        eylem('Göster', () => { $('#diyalog').close(); gorunumeGec(anahtar, true); }),
+        eylem('Paylaş', async () => {
+          const bag = paylasimBaglantisi(ad, idler);
+          let durumu = 'Bağlantıyı kopyalayıp gönderebilirsin.';
+          try { await navigator.clipboard.writeText(bag); durumu = 'Bağlantı kopyalandı. Açan kişi listeyi görür ve kendi listelerine kaydedebilir.'; } catch (e) { /* elle kopyalanır */ }
+          listelerDiyalogu({ anahtar, bag, durumu });
+        }));
+      if (liste) {
+        eylemler.append(
+          eylem('Adını değiştir', () => {
+            const giris = el('input', { type: 'text', class: 'ara', maxlength: AD_SINIRI, value: liste.ad, 'aria-label': 'Liste adı' });
+            const form = el('form', { class: 'yeni-liste' }, giris, el('button', { class: 'dugme', type: 'submit', text: 'Kaydet' }));
+            form.addEventListener('submit', e => { e.preventDefault(); const a = adDuzelt(giris.value); if (a) { liste.ad = a; listeKaydet(); } listelerDiyalogu(); });
+            adYeri.replaceWith(form); giris.focus(); giris.select();
+          }),
+          eylem('Sil', e => {
+            const onay = eylem('Evet, sil', () => { listeler = listeler.filter(x => x !== liste); listeKaydet(); listelerDiyalogu(); }, 'bag tehlike');
+            const vazgec = eylem('Vazgeç', () => listelerDiyalogu());
+            e.target.replaceWith(el('span', { class: 'ipucu', text: 'Liste silinsin mi? ' }), onay, vazgec);
+          }));
+      }
+      const paylas = paylasimi && paylasimi.anahtar === anahtar
+        ? el('div', { class: 'paylas-kutu' }, el('p', { class: 'ipucu', role: 'status', text: paylasimi.durumu }),
+          el('input', { type: 'text', class: 'ara', readonly: true, value: paylasimi.bag, 'aria-label': 'Paylaşım bağlantısı' }))
+        : null;
+      if (paylas) paylas.lastChild.addEventListener('focus', e => e.target.select());
+      return el('li', null, el('div', { class: 'liste-ust' }, adYeri, el('span', { class: 'adet', text: `${kumedekiler(new Set(idler)).length} kayıt` })), eylemler, paylas);
+    };
+    diyalogAc('Listelerim',
+      el('ul', { class: 'liste-satirlari' }, satir('favori', 'Favorilerim', [...favoriler], null), listeler.map(l => satir(`l:${l.id}`, l.ad, l.mekanlar, l))),
+      yeniListeFormu('Liste oluştur', ad => { listeOlustur(ad, []); listelerDiyalogu(); }),
+      el('p', { class: 'ipucu', text: 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas. Listeler yalnızca bu cihazda, bu tarayıcıda saklanır; paylaşılan bağlantı listenin o anki kopyasıdır.' }));
   }
 
   const filtreler = () => kategoriler[durum.kategori].filtreler;
@@ -1257,7 +1478,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function aktifler() {
     const a = [];
-    if (durum.yalnizFavori) a.push({ etiket: 'Favorilerim', kaldir: () => { durum.yalnizFavori = false; } });
+    if (durum.gorunum) a.push({ etiket: gorunumAdi(), kaldir: () => { durum.gorunum = ''; } });
     for (const f of filtreler()) {
       const s = durum.secimler[f.alan];
       if (!aktifMi(f, s)) continue;
@@ -1346,7 +1567,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
         m.adres));
     bas.addEventListener('click', () => sec(m.id, 'liste'));
     return el('li', { class: 'kart', 'data-id': m.id },
-      bas, favoriDugmesi(m),
+      bas, favoriDugmesi(m), listeDugmesi(m),
       el('ul', { class: 'ozet' }, ozetOgeleri(m)),
       eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null,
       ayrinti(m));
@@ -1364,6 +1585,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     not.textContent = notlar.join(' · ');
     not.hidden = !notlar.length;
 
+    const diger = $('#digerYerler');
+    const kumeG = gorunumKumesi();
+    const baskaYer = kumeG ? gruplar(kumeG).filter(g => !(g.il === durum.il && g.kategori === durum.kategori)) : [];
+    diger.hidden = !baskaYer.length;
+    diger.replaceChildren(...(baskaYer.length ? ['Bu listede başka yerlerde de kayıt var:', ...baskaYer.map(g => {
+      const b = el('button', { class: 'bag', type: 'button', text: `${g.il} · ${kategoriler[g.kategori].ad} (${g.n})` });
+      b.addEventListener('click', () => grubaGit(g.il, g.kategori, true));
+      return b;
+    })] : []));
+    paylasilaniYaz();
+
     const cipler = $('#cipler');
     cipler.replaceChildren(...aktif.map(a => {
       const kaldir = el('button', { type: 'button', 'aria-label': `${a.etiket} filtresini kaldır` }, simge('yok'));
@@ -1379,12 +1611,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
     const liste = $('#liste');
     if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
-    else if (!tum.length && durum.yalnizFavori) {
+    else if (!tum.length && durum.gorunum) {
       const hepsi = el('button', { class: 'dugme', type: 'button', text: 'Tüm kayıtları göster' });
-      hepsi.addEventListener('click', () => { durum.yalnizFavori = false; guncelle(); });
+      hepsi.addEventListener('click', () => { durum.gorunum = ''; guncelle(); });
+      const favori = durum.gorunum === 'favori';
       liste.replaceChildren(el('li', { class: 'bos-durum' },
-        el('p', { text: `${bolgeAdi()} için bu kategoride favorin yok.` }),
-        el('p', { text: 'Bir kaydı favoriye almak için kartındaki yıldıza bas. Favorilerin yalnızca bu cihazda, bu tarayıcıda saklanır.' }), hepsi));
+        el('p', { text: favori ? `${bolgeAdi()} için bu kategoride favorin yok.` : `Bu listede ${bolgeAdi()} için bu kategoride kayıt yok.` }),
+        el('p', { text: favori ? 'Bir kaydı favoriye almak için kartındaki yıldıza bas. Favorilerin yalnızca bu cihazda, bu tarayıcıda saklanır.'
+          : 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas.' }), hepsi));
     } else if (!tum.length) {
       liste.replaceChildren(el('li', { class: 'bos-durum' },
         el('p', { text: `${bolgeAdi()} için bu kategoride henüz kayıt yok.` }),
@@ -1643,8 +1877,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   /* ---------- ana döngü ---------- */
   function guncelle() {
-    const tum = durum.yalnizFavori ? bolgeMekanlari().filter(m => favoriler.has(m.id)) : bolgeMekanlari();
-    favoriSayisiniYaz();
+    gorunumuYaz();
+    const kume = gorunumKumesi();
+    const tum = kume ? bolgeMekanlari().filter(m => kume.has(m.id)) : bolgeMekanlari();
     const uyan = [], belirsiz = [];
     for (const m of tum) {
       const d = degerlendir(m, durum.secimler);
@@ -1665,7 +1900,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function filtreleriTemizle() {
     durum.secimler = {};
-    durum.yalnizFavori = false;
+    durum.gorunum = '';
     guncelle();
   }
 
@@ -1871,7 +2106,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       baglamiYaz(); filtreleriCiz(); guncelle();
     });
     $('#temizle').addEventListener('click', filtreleriTemizle);
-    $('#favoriSec').addEventListener('change', e => { durum.yalnizFavori = e.target.checked; guncelle(); });
+    $('#gorunumSec').addEventListener('change', e => gorunumeGec(e.target.value, true));
+    $('#listeYonet').addEventListener('click', () => listelerDiyalogu());
+    const diyalog = $('#diyalog');
+    diyalog.addEventListener('click', e => { if (e.target === diyalog) diyalog.close(); });   // dışına tıklayınca kapanır
+    diyalog.addEventListener('close', guncelle);
+    window.addEventListener('hashchange', () => { const p = paylasimiOku(); if (p) { paylasilan = p; gorunumeGec('paylasilan', true); } });
+    paylasilan = paylasimiOku();
+    if (paylasilan) gorunumeGec('paylasilan', false);
     $('#filtreAc').addEventListener('click', () => paneliAyarla(true, true));
     $('#panelKapat').addEventListener('click', () => paneliAyarla(false, true));
     $('#panelUygula').addEventListener('click', () => paneliAyarla(false, true));
