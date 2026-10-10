@@ -1,6 +1,6 @@
 # Keşif
 
-Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları ve AVM'ler.
+Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları; İstanbul ve Mersin'deki AVM'ler.
 
 Site: https://albayrak21.github.io/kesif/
 Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici hesapları)
