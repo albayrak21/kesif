@@ -1051,9 +1051,11 @@ dialog.diyalog::backdrop { background: var(--perde); }
                     <input class="giris-alani" id="konumMetni" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="40.93686, 29.13531" aria-describedby="hata-konumMetni">
                   </div>
                   <button class="dugme" id="konumGit" type="button">Haritada göster</button>
+                  <button class="dugme" id="konumBurasi" type="button" hidden>Bulunduğum yeri kullan</button>
                   <button class="dugme" id="konumKaldir" type="button">Konumu kaldır</button>
                 </div>
                 <p class="alan-hata" id="hata-konumMetni" hidden></p>
+                <p class="ipucu" id="konumBilgi" role="status" hidden></p>
               </section>
 
               <section class="bolum" aria-labelledby="b-oz">
@@ -1508,6 +1510,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     const teyitler = new Set(m.dogrulanacak || []);
     for (const a of ['adres', 'telefon', 'konum']) $(`#teyit-${a}`).checked = teyitler.has(a);
     $('#konumMetni').value = m.lat == null ? '' : `${sayiYaz(m.lat)}, ${sayiYaz(m.lng)}`;
+    konumBilgisi(null);
     ozellikleriCiz(m.kategori, m.ozellikler || {}, teyitler);
     teyitDurumlari();
 
@@ -2065,8 +2068,15 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   }
   function igneyiKaldir() { if (igne && harita && harita.hasLayer(igne)) igne.remove(); }
 
+  function konumBilgisi(ileti) {
+    const p = $('#konumBilgi');
+    p.textContent = ileti || '';
+    p.hidden = !ileti;
+  }
+
   function konumuAyarla(lat, lng, basamak, ortala) {
-    if (kaydediliyor || !d.ham) return;
+    if (kaydediliyor || !d.ham) return false;
+    konumBilgisi(null);
     const la = Number(lat.toFixed(basamak)), ln = Number(lng.toFixed(basamak));
     $('#konumMetni').value = `${sayiYaz(la)}, ${sayiYaz(ln)}`;
     alanHatasi('konumMetni', null);
@@ -2074,6 +2084,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     if (ortala && harita) harita.setView([la, ln], Math.max(harita.getZoom() || 0, 17));
     teyitDurumlari();
     kirliGoster();
+    return true;
   }
 
   // Seçili ilçenin sınırı (sinirlar.json'da varsa) haritada ince çizgiyle gösterilir.
@@ -2178,11 +2189,38 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     $('#konumGit').addEventListener('click', konumuMetindenAl);
     $('#konumKaldir').addEventListener('click', () => {
       $('#konumMetni').value = '';
+      konumBilgisi(null);
       igneyiKaldir();
       alanHatasi('konumMetni', null);
       teyitDurumlari();
       kirliGoster();
     });
+    // Mekandayken kendi konumunla işaretleme: konum yalnızca bu alana yazılır, kaydedince mekanın konumu olur.
+    const burasi = $('#konumBurasi');
+    if ('geolocation' in navigator && window.isSecureContext) {
+      burasi.hidden = false;
+      burasi.addEventListener('click', () => {
+        const eski = burasi.textContent;
+        const bitir = () => { burasi.disabled = false; burasi.textContent = eski; };
+        burasi.disabled = true;
+        burasi.textContent = 'Konum alınıyor…';
+        alanHatasi('konumMetni', null);
+        navigator.geolocation.getCurrentPosition(p => {
+          bitir();
+          if (!konumuAyarla(p.coords.latitude, p.coords.longitude, 6, true)) return;
+          const sapma = Math.max(1, Math.round(p.coords.accuracy || 0));
+          if (sapma > 50) { $('#teyit-konum').checked = true; kirliGoster(); }   // kaba konum "yaklaşık" sayılır
+          konumBilgisi(sapma > 50
+            ? `Konumun yaklaşık ${sapma} m sapmayla alındı ve "teyit bekliyor" işaretlendi. İğneyi mekanın girişine sürükleyerek düzeltebilirsin.`
+            : `Konumun yaklaşık ${sapma} m sapmayla alındı.`);
+        }, h => {
+          bitir();
+          alanHatasi('konumMetni', h.code === 1
+            ? 'Konum izni verilmedi. Tarayıcı ayarlarından bu siteye konum izni verebilirsin.'
+            : 'Konumun alınamadı. Yeniden dene ya da haritada işaretle.');
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+      });
+    }
     $('#kaynakEkle').addEventListener('click', () => {
       const s = kaynakSatiri(null);
       $('#kaynakListe').append(s);

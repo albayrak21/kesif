@@ -852,6 +852,18 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .koor-kutu { position: absolute; z-index: 1; left: 12px; bottom: 30px; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 24px); padding: 6px 8px 6px 12px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey); box-shadow: var(--golge); font: 500 14px/1.2 var(--yazi-dar); }
 .koor-kutu output { font: 600 15px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; user-select: all; -webkit-user-select: all; }
 .koor-modu { cursor: crosshair !important; }
+.konum-not { top: auto; bottom: 30px; max-width: calc(100% - 66px); }
+
+/* ziyaretçinin konumu: mavi nokta, doğruluk dairesi; konum yalnızca tarayıcıda kullanılır */
+.konum-nokta { border: 0; background: none; }
+.konum-nokta span { position: absolute; inset: 0; border: 3px solid #fff; border-radius: 50%; background: var(--vurgu-dolgu); box-shadow: 0 0 0 1px rgb(0 0 0 / .2), 0 1px 5px rgb(0 0 0 / .35); }
+.konum-nokta span::after { content: ""; position: absolute; inset: -9px; border: 2px solid var(--vurgu-dolgu); border-radius: 50%; opacity: 0; animation: konum-dalga 2s ease-out infinite; }
+@keyframes konum-dalga { from { transform: scale(.4); opacity: .7; } to { transform: scale(1.2); opacity: 0; } }
+.konum-daire { fill: var(--vurgu-dolgu); fill-opacity: .1; stroke: var(--vurgu-dolgu); stroke-opacity: .45; stroke-width: 1; }
+.leaflet-bar .konum-dugme[aria-pressed="true"] { background: var(--vurgu-soluk); color: var(--vurgu); }
+.konum-dugme.bekliyor .simge { animation: konum-bekle .9s ease-in-out infinite alternate; }
+@keyframes konum-bekle { to { opacity: .3; } }
+.uzaklik { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 4px; background: var(--vurgu-soluk); color: var(--vurgu); font: 600 12.5px/1.4 var(--yazi-dar); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .leaflet-container { background: var(--h-deniz); font: inherit; }
 .leaflet-container a { color: var(--vurgu); }
@@ -915,7 +927,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
   .sonuc-sayi { font-size: 21px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .uyg *, .uyg *::before, .uyg *::after { transition: none !important; }
+  .uyg *, .uyg *::before, .uyg *::after { transition: none !important; animation: none !important; }
 }
 </style>
 </head>
@@ -961,6 +973,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
   <section class="harita-kap" aria-label="Harita">
     <div id="harita"></div>
     <p class="harita-not" id="haritaNot" hidden></p>
+    <p class="harita-not konum-not" id="konumNot" role="status" aria-live="polite" hidden></p>
     <div class="koor-kutu" id="koorKutu" hidden><span>Koordinat</span><output id="koorDeger"></output><button class="bag" id="koorKopya" type="button">Kopyala</button></div>
   </section>
   <div class="perde" id="perde" hidden></div>
@@ -1006,6 +1019,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     yersiz: 'M8 14s4-3.6 4-7a4 4 0 0 0-8 0c0 3.4 4 7 4 7zM3 2.5l10 11',
     dis: 'M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5',
     cerceve: 'M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10',
+    konum: 'M8 1.5v2.2M8 12.3v2.2M1.5 8h2.2M12.3 8h2.2M8 4.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 1 0 0-6.8z',
   };
   function simge(ad) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1275,8 +1289,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   function kart(m, eksik) {
+    const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
     const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-expanded': 'false', 'aria-controls': `ayr-${m.id}` },
-      el('span', { class: 'kart-ad', text: m.ad }), el('span', { class: 'kart-adres', text: m.adres }));
+      el('span', { class: 'kart-ad', text: m.ad }),
+      el('span', { class: 'kart-adres' },
+        uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
+        m.adres));
     bas.addEventListener('click', () => sec(m.id, 'liste'));
     return el('li', { class: 'kart', 'data-id': m.id },
       bas,
@@ -1292,6 +1310,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (aktif.length) notlar.push(`${tum.length} kayıt içinden`);
     const yersiz = uyan.filter(m => !m.konum).length;
     if (yersiz) notlar.push(`${yersiz} sonucun haritada yeri henüz yok`);
+    if (konum.son && uyan.length > 1) notlar.push('sana yakınlığa göre sıralı');
     const not = $('#sonucNot');
     not.textContent = notlar.join(' · ');
     not.hidden = !notlar.length;
@@ -1403,6 +1422,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       },
     });
     new Sigdir().addTo(harita);
+    konumDugmesiKur();
 
     // Şematik zeminde yazılar: uzakta yazı yok, ortada ilçe adları, yakında mahalle adları.
     const yakinlik = () => {
@@ -1576,6 +1596,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       else if (d.sonuc === 'belirsiz') belirsiz.push({ m, eksik: d.eksik });
     }
     if (durum.secili && !uyan.some(m => m.id === durum.secili) && !belirsiz.some(b => b.m.id === durum.secili)) durum.secili = null;
+    if (konum.son) {   // konum açıksa en yakın üstte; haritada yeri olmayanlar sonda
+      const u = m => (m.konum ? uzaklik(konum.son, m.konum) : Infinity);
+      uyan.sort((a, b) => u(a) - u(b));
+      belirsiz.sort((a, b) => u(a.m) - u(b.m));
+    }
     paneliEsle(tum);
     listeyiCiz(tum, uyan, belirsiz);
     igneleriCiz(uyan);
@@ -1593,6 +1618,148 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
     not.textContent = kat.bilgi_notu || '';
     not.hidden = !kat.bilgi_notu;
+  }
+
+  /* ---------- ziyaretçinin konumu ---------- */
+  // Konum yalnızca bu sayfada, tarayıcının içinde kullanılır: hiçbir sunucuya gönderilmez, kaydedilmez.
+  // İzin, ziyaretçi "Konumum" düğmesine basınca istenir. Sayfa açıkken konum canlı güncellenir.
+  const konum = { aktif: false, izleme: null, son: null, ilk: true, listeKonumu: null, nokta: null, daire: null, dugme: null, zamanlayici: null };
+
+  function uzaklik(a, b) {   // kuş uçuşu, metre
+    const R = 6371000, r = x => (x * Math.PI) / 180;
+    const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  const uzaklikYaz = m => (m < 975 ? `${Math.max(50, Math.round(m / 50) * 50)} m`
+    : m < 9950 ? `${(m / 1000).toFixed(1).replace('.', ',')} km` : `${Math.round(m / 1000)} km`);
+
+  function konumMesaji(metin, sure) {
+    const n = $('#konumNot');
+    clearTimeout(konum.zamanlayici);
+    n.textContent = metin || '';
+    n.hidden = !metin;
+    if (metin && sure) konum.zamanlayici = setTimeout(() => { n.hidden = true; }, sure);
+  }
+
+  function halkaIcinde(x, y, h) {
+    let ic = false;
+    for (let i = 0, j = h.length - 1; i < h.length; j = i++) {
+      const [x1, y1] = h[i], [x2, y2] = h[j];
+      if ((y1 > y) !== (y2 > y) && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) ic = !ic;
+    }
+    return ic;
+  }
+  // Noktanın bulunduğu il ve ilçe (sınır verisi olan iller içinde).
+  function yerBul(lat, lng) {
+    for (const f of sinirlar.features) {
+      if (f.properties.tur !== 'ilce') continue;
+      const g = f.geometry;
+      for (const c of g.type === 'MultiPolygon' ? g.coordinates : [g.coordinates]) {
+        if (halkaIcinde(lng, lat, c[0]) && !c.slice(1).some(d => halkaIcinde(lng, lat, d))) return { il: f.properties.il, ilce: f.properties.ad };
+      }
+    }
+    for (const [il, v] of Object.entries(sinirlar.iller || {})) {   // kıyıda, suda: ilin kutusu yeter
+      const [b, g, d, n] = v.kutu || [];
+      if (lng >= b && lng <= d && lat >= g && lat <= n) return { il, ilce: null };
+    }
+    return null;
+  }
+
+  function konumDugmesiKur() {
+    if (!('geolocation' in navigator) || !window.isSecureContext) return;   // desteklenmiyorsa düğme hiç çıkmaz
+    const Konum = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd() {
+        const kap = el('div', { class: 'leaflet-bar' });
+        konum.dugme = el('button', { type: 'button', class: 'konum-dugme', 'aria-pressed': 'false', title: 'Konumumu göster (yalnızca bu cihazda kullanılır)', 'aria-label': 'Konumumu göster' }, simge('konum'));
+        konum.dugme.addEventListener('click', () => (konum.aktif ? konumuKapat() : konumuAc()));
+        L.DomEvent.disableClickPropagation(kap);
+        kap.append(konum.dugme);
+        return kap;
+      },
+    });
+    new Konum().addTo(harita);
+    // Sekme arka plana geçince izleme durur (pil), öne gelince sürer.
+    document.addEventListener('visibilitychange', () => {
+      if (!konum.aktif) return;
+      if (document.hidden) izlemeyiDurdur(); else izlemeyiBaslat();
+    });
+  }
+
+  function izlemeyiBaslat() {
+    if (konum.izleme !== null) return;
+    konum.izleme = navigator.geolocation.watchPosition(konumGeldi, konumHatasi, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+  }
+  function izlemeyiDurdur() {
+    if (konum.izleme !== null) navigator.geolocation.clearWatch(konum.izleme);
+    konum.izleme = null;
+  }
+
+  function konumuAc() {
+    konum.aktif = true;
+    konum.ilk = true;
+    konum.dugme.setAttribute('aria-pressed', 'true');
+    konum.dugme.classList.add('bekliyor');
+    konumMesaji('Konumun bulunuyor…');
+    izlemeyiBaslat();
+  }
+
+  function konumuKapat(not) {
+    izlemeyiDurdur();
+    konum.aktif = false;
+    konum.son = null;
+    konum.listeKonumu = null;
+    for (const k of ['nokta', 'daire']) if (konum[k]) { konum[k].remove(); konum[k] = null; }
+    if (konum.dugme) {
+      konum.dugme.setAttribute('aria-pressed', 'false');
+      konum.dugme.classList.remove('bekliyor');
+    }
+    konumMesaji(not || '', not ? 9000 : 0);
+    guncelle();
+  }
+
+  function konumGeldi(p) {
+    if (!konum.aktif) return;
+    const yeni = { lat: p.coords.latitude, lng: p.coords.longitude };
+    const dogruluk = Math.min(p.coords.accuracy || 0, 5000);
+    konum.son = yeni;
+    konum.dugme.classList.remove('bekliyor');
+    if (!konum.nokta) {
+      konum.daire = L.circle([yeni.lat, yeni.lng], { radius: dogruluk, className: 'konum-daire', interactive: false }).addTo(harita);
+      konum.nokta = L.marker([yeni.lat, yeni.lng], {
+        interactive: false, keyboard: false, zIndexOffset: 2000,
+        icon: L.divIcon({ className: 'konum-nokta', html: el('span'), iconSize: [18, 18], iconAnchor: [9, 9] }),
+      }).addTo(harita);
+    } else {
+      konum.nokta.setLatLng([yeni.lat, yeni.lng]);
+      konum.daire.setLatLng([yeni.lat, yeni.lng]).setRadius(dogruluk);
+    }
+    if (konum.ilk) {
+      konum.ilk = false;
+      const yer = yerBul(yeni.lat, yeni.lng);
+      const bolgeSec = $('#bolgeSec'), hedef = yer && `${yer.il}|${TUM}`;
+      if (yer && yer.il !== durum.il && [...bolgeSec.options].some(o => o.value === hedef)) {   // başka bir ildeysen o ilin tamamına geçilir
+        bolgeSec.value = hedef;
+        bolgeSec.dispatchEvent(new Event('change'));
+      }
+      if (yer) harita.setView([yeni.lat, yeni.lng], Math.max(harita.getZoom(), 14), { animate: !azHareket });
+      konumMesaji(yer ? 'Konumun yalnızca bu cihazda kullanılır, kaydedilmez.'
+        : 'Bulunduğun yer, haritası açık illerin dışında. Sonuçlar yine de sana yakınlığa göre sıralı.', 7000);
+    }
+    // Liste her küçük kıpırtıda değil, 100 metreden fazla yer değişince yeniden sıralanır.
+    if (!konum.listeKonumu || uzaklik(konum.listeKonumu, yeni) > 100) {
+      konum.listeKonumu = yeni;
+      guncelle();
+    }
+  }
+
+  function konumHatasi(h) {
+    if (!konum.aktif) return;
+    if (h.code !== 1 && konum.son) return;   // konum bir kez bulunduysa geçici hatalarda son konumla devam edilir
+    const not = h.code === 1 ? 'Konum izni verilmedi. İstersen tarayıcı ayarlarından bu siteye konum izni verebilirsin.'
+      : h.code === 2 ? 'Konumun bulunamadı. Cihazında konum servislerinin açık olduğundan emin ol.'
+      : 'Konum zamanında alınamadı. Yeniden dene.';
+    konumuKapat(not);
   }
 
   /* ---------- çekmece (dar ekranda filtre paneli) ---------- */
