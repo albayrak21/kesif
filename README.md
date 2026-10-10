@@ -27,3 +27,8 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - "Konumum" düğmesine basılınca tarayıcı konum izni ister. İzin verilirse konum haritada gösterilir ve sonuçlar yakınlığa göre sıralanır.
 - Konum yalnızca tarayıcıda, sayfa açıkken kullanılır: veritabanına ya da başka bir sunucuya gönderilmez, kaydedilmez. Harita karoları, her harita kullanımında olduğu gibi, görüntülenen bölge için karo sunucusundan indirilir.
 - Yönetim sayfasındaki "Bulunduğum yeri kullan" düğmesi, yöneticinin konumunu yalnızca koordinat alanına yazar; kaydedilirse mekanın konumu olur. Sokak haritası karoları OpenStreetMap verisinden üretilir.
+
+## Favoriler
+
+- Kartlardaki yıldıza basılınca kayıt favorilere eklenir; "Yalnızca favorilerim" anahtarı listeyi ve haritayı favorilerle sınırlar.
+- Hesap yoktur: favoriler yalnızca o tarayıcıda (localStorage) saklanır, sunucuya gönderilmez. Başka cihazda ya da tarayıcı verisi silinince görünmez.

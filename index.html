@@ -806,6 +806,14 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .kart { min-width: 0; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey-2); }
 .kart.secili { border-color: var(--vurgu); box-shadow: 0 0 0 1px var(--vurgu); }
 .kart-bas { display: block; width: 100%; padding: 12px 14px 2px; border: 0; border-radius: 8px 8px 0 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.kart { position: relative; }
+.kart-bas { padding-right: 52px; }
+.favori { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: none; color: var(--soluk); cursor: pointer; }
+.favori:hover { background: var(--vurgu-soluk); color: var(--murekkep); }
+.favori .simge { width: 20px; height: 20px; stroke-width: 1.5; }
+.favori[aria-pressed="true"] { color: var(--uyari); }
+.favori[aria-pressed="true"] .simge path { fill: var(--secim); }
+.favori-grup { margin-block: 0; }
 .kart-ad { display: block; font: 600 17.5px/1.22 var(--yazi-dar); text-wrap: balance; }
 .kart-adres { display: block; margin-top: 4px; color: var(--soluk); font-size: 13.5px; line-height: 1.35; }
 .ozet { list-style: none; margin: 0; padding: 8px 14px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 12px; font: 500 13.5px/1.2 var(--yazi-dar); }
@@ -951,6 +959,10 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
         <div class="alan"><label for="bolgeSec">Bölge</label><select id="bolgeSec"></select></div>
         <div class="alan"><label for="kategoriSec">Kategori</label><select id="kategoriSec"></select></div>
       </div>
+      <div class="grup anahtar favori-grup">
+        <label for="favoriSec">Yalnızca favorilerim</label><span class="adet" id="favoriAdet">0</span>
+        <input type="checkbox" role="switch" class="anahtar-giris" id="favoriSec">
+      </div>
       <div id="filtreler" class="grup filtreler"></div>
     </div>
     <div class="panel-alt"><button class="dugme dugme-dolu" id="panelUygula" type="button">Sonuçları göster</button></div>
@@ -1020,6 +1032,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     yersiz: 'M8 14s4-3.6 4-7a4 4 0 0 0-8 0c0 3.4 4 7 4 7zM3 2.5l10 11',
     dis: 'M9 3h4v4M13 3L7.5 8.5M11 9.5V13H3V5h3.5',
     cerceve: 'M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10',
+    yildiz: 'M8 1.9l1.85 3.85 4.2.6-3.05 2.95.72 4.2L8 11.5l-3.72 2 .72-4.2L1.95 6.35l4.2-.6z',
     konum: 'M8 1.5v2.2M8 12.3v2.2M1.5 8h2.2M12.3 8h2.2M8 4.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 1 0 0-6.8z',
   };
   function simge(ad) {
@@ -1095,7 +1108,36 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   let kategoriler, mekanlar, sinirlar;
-  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null };
+  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, yalnizFavori: false };
+
+  /* ---------- favoriler ---------- */
+  // Hesap yok: favoriler yalnızca bu tarayıcıda (localStorage) durur, sunucuya gönderilmez.
+  // Mekan kimliği kalıcı olduğu için liste kimliklerden oluşur. Saklama kapalıysa (gizli sekme vb.) sayfa açıkken bellekte tutulur.
+  const FAVORI_ANAHTAR = 'kesif.favoriler';
+  const favoriler = new Set();
+  try { for (const id of JSON.parse(localStorage.getItem(FAVORI_ANAHTAR) || '[]')) if (typeof id === 'string') favoriler.add(id); } catch (e) { /* saklama yok ya da bozuk */ }
+  function favoriKaydet() { try { localStorage.setItem(FAVORI_ANAHTAR, JSON.stringify([...favoriler])); } catch (e) { /* bellekte kalır */ } }
+  function favoriDugmesi(m) {
+    const d = el('button', { class: 'favori', type: 'button' }, simge('yildiz'));
+    const yaz = () => {
+      const var_ = favoriler.has(m.id);
+      d.setAttribute('aria-pressed', var_ ? 'true' : 'false');
+      const metin = var_ ? `${m.ad}: favorilerden çıkar` : `${m.ad}: favorilere ekle`;
+      d.setAttribute('aria-label', metin); d.title = var_ ? 'Favorilerden çıkar' : 'Favorilere ekle';
+    };
+    yaz();
+    d.addEventListener('click', () => {
+      if (favoriler.has(m.id)) favoriler.delete(m.id); else favoriler.add(m.id);
+      favoriKaydet();
+      if (durum.yalnizFavori) guncelle(); else { yaz(); favoriSayisiniYaz(); }
+    });
+    return d;
+  }
+  function favoriSayisiniYaz() {
+    const gecerli = mekanlar ? mekanlar.filter(m => favoriler.has(m.id)).length : favoriler.size;
+    $('#favoriAdet').textContent = gecerli;
+    $('#favoriSec').checked = durum.yalnizFavori;
+  }
 
   const filtreler = () => kategoriler[durum.kategori].filtreler;
   const bolgeMekanlari = () => mekanlar
@@ -1215,6 +1257,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function aktifler() {
     const a = [];
+    if (durum.yalnizFavori) a.push({ etiket: 'Favorilerim', kaldir: () => { durum.yalnizFavori = false; } });
     for (const f of filtreler()) {
       const s = durum.secimler[f.alan];
       if (!aktifMi(f, s)) continue;
@@ -1303,7 +1346,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
         m.adres));
     bas.addEventListener('click', () => sec(m.id, 'liste'));
     return el('li', { class: 'kart', 'data-id': m.id },
-      bas,
+      bas, favoriDugmesi(m),
       el('ul', { class: 'ozet' }, ozetOgeleri(m)),
       eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null,
       ayrinti(m));
@@ -1336,7 +1379,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
     const liste = $('#liste');
     if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
-    else if (!tum.length) {
+    else if (!tum.length && durum.yalnizFavori) {
+      const hepsi = el('button', { class: 'dugme', type: 'button', text: 'Tüm kayıtları göster' });
+      hepsi.addEventListener('click', () => { durum.yalnizFavori = false; guncelle(); });
+      liste.replaceChildren(el('li', { class: 'bos-durum' },
+        el('p', { text: `${bolgeAdi()} için bu kategoride favorin yok.` }),
+        el('p', { text: 'Bir kaydı favoriye almak için kartındaki yıldıza bas. Favorilerin yalnızca bu cihazda, bu tarayıcıda saklanır.' }), hepsi));
+    } else if (!tum.length) {
       liste.replaceChildren(el('li', { class: 'bos-durum' },
         el('p', { text: `${bolgeAdi()} için bu kategoride henüz kayıt yok.` }),
         el('p', { text: 'Başka bir bölge ya da kategori seçebilirsin.' })));
@@ -1594,7 +1643,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   /* ---------- ana döngü ---------- */
   function guncelle() {
-    const tum = bolgeMekanlari();
+    const tum = durum.yalnizFavori ? bolgeMekanlari().filter(m => favoriler.has(m.id)) : bolgeMekanlari();
+    favoriSayisiniYaz();
     const uyan = [], belirsiz = [];
     for (const m of tum) {
       const d = degerlendir(m, durum.secimler);
@@ -1615,6 +1665,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function filtreleriTemizle() {
     durum.secimler = {};
+    durum.yalnizFavori = false;
     guncelle();
   }
 
@@ -1820,6 +1871,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       baglamiYaz(); filtreleriCiz(); guncelle();
     });
     $('#temizle').addEventListener('click', filtreleriTemizle);
+    $('#favoriSec').addEventListener('change', e => { durum.yalnizFavori = e.target.checked; guncelle(); });
     $('#filtreAc').addEventListener('click', () => paneliAyarla(true, true));
     $('#panelKapat').addEventListener('click', () => paneliAyarla(false, true));
     $('#panelUygula').addEventListener('click', () => paneliAyarla(false, true));
