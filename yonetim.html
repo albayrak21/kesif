@@ -836,6 +836,7 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 .bilinmiyor-sec input { width: 18px; height: 18px; margin: 0; accent-color: var(--murekkep); }
 .secili-sayi { color: var(--vurgu); font: 600 13px/1 var(--yazi-dar); }
 .cok-izgara { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 18px; }
+.cok-izgara.uzun { max-height: 340px; overflow-y: auto; border: 1px solid var(--cizgi); border-radius: 6px; padding: 6px; }
 .cok-izgara label { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 4px 2px; border-bottom: 1px solid var(--cizgi); font: 400 15px/1.25 var(--yazi); cursor: pointer; }
 .cok-izgara input { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--vurgu-dolgu); cursor: pointer; }
 .cok-izgara.pasif { opacity: .45; }
@@ -1581,7 +1582,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
           el('div', { class: 'cok-ust' },
             el('label', { class: 'bilinmiyor-sec' }, bilinmiyor, 'Bilinmiyor (liste henüz yok)'),
             el('span', { class: 'secili-sayi' })),
-          el('ul', { class: 'cok-izgara', role: 'group', 'aria-labelledby': baslikId }, f.secenekler.map(o => {
+          el('ul', { class: f.secenekler.length > 60 ? 'cok-izgara uzun' : 'cok-izgara', role: 'group', 'aria-labelledby': baslikId }, f.secenekler.map(o => {
             const g = el('input', { type: 'checkbox', 'data-coklu': f.alan, value: o.deger });
             g.checked = Array.isArray(v) && v.includes(o.deger);
             return el('li', null, el('label', null, g, el('span', { text: o.etiket })));

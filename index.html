@@ -827,6 +827,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .teyit { display: inline-block; margin-left: 4px; padding: 1px 6px; border: 1px dashed var(--uyari); border-radius: 4px; color: var(--uyari); font: 500 12px/1.3 var(--yazi-dar); white-space: nowrap; }
 .dallar { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .dallar li { padding: 3px 7px 2px; border: 1px solid var(--cizgi); border-radius: 4px; font: 500 13px/1.2 var(--yazi-dar); }
+.dallar.uzun { max-height: 172px; overflow-y: auto; padding: 6px; border: 1px solid var(--cizgi); border-radius: 6px; }
 .dallar li.aranan { border-color: var(--vurgu); background: var(--vurgu-soluk); font-weight: 600; }
 .tel { color: inherit; font-variant-numeric: tabular-nums; text-decoration: none; user-select: all; -webkit-user-select: all; }
 .kopya { margin-left: 8px; padding: 2px 2px; font-size: 13px; }
@@ -1161,24 +1162,29 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
           });
           const kutu = el('li', { class: 'cok-oge' }, el('label', null, giris, el('span', { class: 'cok-ad', text: o.etiket }), adet));
           girdiler.push({ f, deger: o.deger, giris, kutu, adet });
-          return { kutu, anahtar: duz(o.etiket) };
+          return { kutu, giris, one: !!o.one_cikan, anahtar: duz(o.etiket) };
         });
+        // Uzun listede (ör. mağazalar) arama yazılmadıkça yalnızca öne çıkanlar ve seçili olanlar görünür.
+        const uzun = f.secenekler.length > 40;
         const seciliSayi = el('span', { class: 'secili-sayi', id: `ss-${f.alan}` });
         const yok = el('p', { class: 'ipucu', text: 'Bu adla bir seçenek yok.', hidden: true });
         let ara = null;
         if (f.secenekler.length > 8) {
           ara = el('input', { type: 'search', class: 'ara', id: `ara-${f.alan}`, placeholder: `${f.etiket} içinde ara`, 'aria-label': `${f.etiket} içinde ara`, autocomplete: 'off' });
-          ara.addEventListener('input', () => {
+          const suz = () => {
             const q = duz(ara.value);
             let gorunen = 0;
-            for (const o of ogeler) { const g = !q || o.anahtar.includes(q); o.kutu.hidden = !g; if (g) gorunen++; }
+            for (const o of ogeler) { const g = q ? o.anahtar.includes(q) : (!uzun || o.one || o.giris.checked); o.kutu.hidden = !g; if (g) gorunen++; }
             yok.hidden = gorunen > 0;
-          });
+          };
+          ara.addEventListener('input', suz);
+          suz();
         }
         kap.append(el('div', { class: 'grup', role: 'group', 'aria-labelledby': bid },
           el('div', { class: 'grup-bas' }, el('h3', { class: 'baslik-kucuk', id: bid, text: f.etiket }), seciliSayi),
           el('p', { class: 'ipucu', text: f.eslesme === 'herhangi' ? 'Seçtiklerinden en az birini sunanlar gösterilir.' : 'Seçtiklerinin hepsini sunanlar gösterilir.' }),
-          ara, el('ul', { class: 'cok' }, ogeler.map(o => o.kutu)), yok));
+          ara, uzun ? el('p', { class: 'ipucu', text: `${f.secenekler.length} seçenek var; en yaygın olanlar listeleniyor. Diğerleri için adını yaz.` }) : null,
+          el('ul', { class: 'cok' }, ogeler.map(o => o.kutu)), yok));
       }
     }
   }
@@ -1253,7 +1259,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       else if (f.tip === 'evet_hayir') dd = el('dd', { text: v ? 'var' : 'yok' });
       else {
         const aranan = durum.secimler[f.alan] || new Set();
-        dd = el('dd', { class: genis }, el('ul', { class: 'dallar' },
+        dd = el('dd', { class: genis }, el('ul', { class: v.length > 40 ? 'dallar uzun' : 'dallar' },
           f.secenekler.filter(o => v.includes(o.deger)).map(o => el('li', { class: aranan.has(o.deger) ? 'aranan' : null, text: o.etiket }))));
       }
       const dt = el('dt', { class: genis, text: genis ? `${f.etiket} (${v.length})` : f.etiket });
