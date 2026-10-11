@@ -760,7 +760,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .panel-alt { display: none; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--cizgi); background: var(--yuzey); }
 .grup { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .filtreler { gap: 20px; }
-.ikili { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 10px 8px; }
+.ikili { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; }
+.ikili .genis { grid-column: 1 / -1; }
 .alan { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .alan label { color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
 .alan select, .ara { width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 500 15px/1.2 var(--yazi); }
@@ -989,8 +990,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     </div>
     <div class="panel-govde">
       <div class="grup ikili">
-        <div class="alan"><label for="bolgeSec">Bölge</label><select id="bolgeSec"></select></div>
-        <div class="alan"><label for="kategoriSec">Kategori</label><select id="kategoriSec"></select></div>
+        <div class="alan"><label for="ilSec">İl</label><select id="ilSec"></select></div>
+        <div class="alan"><label for="ilceSec">İlçe</label><select id="ilceSec"></select></div>
+        <div class="alan genis"><label for="kategoriSec">Kategori</label><select id="kategoriSec"></select></div>
       </div>
       <div class="grup liste-grup">
         <div class="alan"><label for="gorunumSec">Göster</label><select id="gorunumSec"></select></div>
@@ -1217,10 +1219,21 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     }
     return [...g].map(([k, n]) => ({ il: k.split('|')[0], kategori: k.split('|')[1], n })).sort((a, b) => b.n - a.n);
   }
+  // İlçe seçimi: seçili il ve kategoride kaydı olan ilçeler, yanında kayıt sayısı. Seçili ilçe listede yoksa "Tüm ilçeler"e dönülür.
+  function ilceleriCiz() {
+    const say = new Map();
+    for (const m of mekanlar) if (m.il === durum.il && m.kategori === durum.kategori) say.set(m.ilce, (say.get(m.ilce) || 0) + 1);
+    const ilceler = [...say.keys()].sort((a, b) => a.localeCompare(b, TR));
+    if (durum.ilce !== TUM && !say.has(durum.ilce)) durum.ilce = TUM;
+    const sec = $('#ilceSec');
+    sec.replaceChildren(el('option', { value: TUM, text: 'Tüm ilçeler' }), ...ilceler.map(i => el('option', { value: i, text: `${i} (${say.get(i)})` })));
+    sec.value = durum.ilce;
+    sec.disabled = !ilceler.length;
+  }
   function grubaGit(il, kategori, ciz) {
     durum.il = il; durum.ilce = TUM; durum.kategori = kategori;
     durum.secimler = {}; durum.secili = null;
-    $('#bolgeSec').value = `${il}|${TUM}`; $('#kategoriSec').value = kategori;
+    $('#ilSec').value = il; $('#kategoriSec').value = kategori; ilceleriCiz();
     if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(); guncelle(); }
   }
   // Favoriler ya da bir liste gösterilirken bölge, kategori ve filtreler uygulanmaz: listedeki her kayıt görünür.
@@ -2042,10 +2055,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (konum.ilk) {
       konum.ilk = false;
       const yer = yerBul(yeni.lat, yeni.lng);
-      const bolgeSec = $('#bolgeSec'), hedef = yer && `${yer.il}|${TUM}`;
-      if (yer && yer.il !== durum.il && [...bolgeSec.options].some(o => o.value === hedef)) {   // başka bir ildeysen o ilin tamamına geçilir
-        bolgeSec.value = hedef;
-        bolgeSec.dispatchEvent(new Event('change'));
+      const ilSec = $('#ilSec');
+      if (yer && yer.il !== durum.il && [...ilSec.options].some(o => o.value === yer.il)) {   // başka bir ildeysen o ilin tamamına geçilir
+        ilSec.value = yer.il;
+        ilSec.dispatchEvent(new Event('change'));
       }
       if (yer) harita.setView([yeni.lat, yeni.lng], Math.max(harita.getZoom(), 14), { animate: !azHareket });
       konumMesaji(yer ? 'Konumun yalnızca bu cihazda kullanılır, kaydedilmez.'
@@ -2095,28 +2108,35 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       console.error(hata);
       return;
     }
-    // Bölge listesi: haritası açılan her il ("Tüm İl") ve altında kaydı olan ilçeler.
-    // Sınırı olmayan bir ilde kayıt varsa o il de listeye girer (harita kayıtlara sığdırılır).
+    // İl listesi: haritası açılan her il. Sınırı olmayan bir ilde kayıt varsa o il de listeye girer (harita kayıtlara sığdırılır).
+    // İlçe listesi ayrı bir seçimdir; seçili il ve kategoride kaydı olan ilçeleri gösterir (bkz. ilceleriCiz).
     const iller = Object.keys(sinirlar.iller || {});
     for (const il of [...new Set(mekanlar.map(m => m.il))].sort((a, b) => a.localeCompare(b, TR))) if (!iller.includes(il)) iller.push(il);
-    const bolgeSec = $('#bolgeSec'), kategoriSec = $('#kategoriSec');
-    bolgeSec.replaceChildren(...iller.map(il => el('optgroup', { label: il },
-      el('option', { value: `${il}|${TUM}`, text: `Tüm ${il}` }),
-      [...new Set(mekanlar.filter(m => m.il === il).map(m => m.ilce))].sort((a, b) => a.localeCompare(b, TR))
-        .map(ilce => el('option', { value: `${il}|${ilce}`, text: ilce })))));
+    const ilSec = $('#ilSec'), ilceSec = $('#ilceSec'), kategoriSec = $('#kategoriSec');
+    ilSec.replaceChildren(...iller.map(il => el('option', { value: il, text: il })));
     kategoriSec.replaceChildren(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
-    [durum.il, durum.ilce] = bolgeSec.value.split('|');
+    durum.il = ilSec.value; durum.ilce = TUM;
     durum.kategori = kategoriSec.value;
+    ilceleriCiz();
 
-    bolgeSec.addEventListener('change', () => {
-      [durum.il, durum.ilce] = bolgeSec.value.split('|');
+    ilSec.addEventListener('change', () => {
+      durum.il = ilSec.value; durum.ilce = TUM;   // il değişince ilçe seçimi sıfırlanır
+      durum.secili = null;
+      ilceleriCiz(); baglamiYaz(); bolgeyiCiz(); guncelle();
+    });
+    ilceSec.addEventListener('change', () => {
+      durum.ilce = ilceSec.value;
       durum.secili = null;
       baglamiYaz(); bolgeyiCiz(); guncelle();
     });
     kategoriSec.addEventListener('change', () => {
       durum.kategori = kategoriSec.value;
       durum.secimler = {}; durum.secili = null;
-      baglamiYaz(); filtreleriCiz(); guncelle();
+      const onceki = durum.ilce;
+      ilceleriCiz();   // seçili ilçede bu kategoriden kayıt yoksa "Tüm ilçeler"e döner
+      baglamiYaz(); filtreleriCiz();
+      if (onceki !== durum.ilce) bolgeyiCiz();
+      guncelle();
     });
     $('#temizle').addEventListener('click', filtreleriTemizle);
     $('#gorunumSec').addEventListener('change', e => gorunumeGec(e.target.value, true));
