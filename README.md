@@ -20,7 +20,7 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Hastane bilgileri hastanelerin kendi sitelerinden ve resmi kaynaklardan derlenmiştir. Doğrulama sürüyor; bilinmeyen değerler boş bırakılır.
 - `osm_ref` alanı boş olan spor salonu kayıtları OpenStreetMap'ten değil, proje sahibinin derlediği bilgilerden gelir ve teyit bekler; bunlar ODbL kapsamında değildir.
 - Çiçekçi, spor salonu ve AVM kayıtları OpenStreetMap'ten türetilmiştir: © OpenStreetMap katkıcıları, ODbL 1.0 (https://www.openstreetmap.org/copyright). `mekanlar.json` içinde `osm_ref` alanı dolu olan kayıtlar bu türetilmiş veritabanıdır ve ODbL 1.0 ile kullanılabilir.
-- Bazı kayıtların konumu Overture Maps Foundation'ın Places verisinden alınmıştır (overturemaps.org; kaynakları Meta, Foursquare, Microsoft ve diğerleri; CDLA-Permissive-2.0 ve Apache-2.0).
+- Mersin'deki spor salonu ve tekel büfesi kayıtlarının çoğu ile bazı kayıtların konumu Overture Maps Foundation'ın Places verisinden alınmıştır (overturemaps.org; kaynakları Meta, Foursquare, Microsoft ve diğerleri; CDLA-Permissive-2.0 ve Apache-2.0).
 - Sınırlar: © OpenStreetMap katkıcıları, ODbL 1.0.
 - Harita: Leaflet ve Leaflet.markercluster.
 
