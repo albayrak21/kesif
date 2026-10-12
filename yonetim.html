@@ -1418,9 +1418,20 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   }
 
   /* ---------- mekan listesi ---------- */
+  // Veritabanı tek yanıtta en fazla 1000 satır döndürür: liste kimlik sırasıyla sayfa sayfa okunur.
+  async function tumMekanlar() {
+    const SAYFA = 1000, tum = [];
+    for (let i = 0; ; i += SAYFA) {
+      const { data, error, count } = await db.from('mekan').select('*', { count: 'exact' }).order('id').range(i, i + SAYFA - 1);
+      if (error) return { data: null, error };
+      tum.push(...data);
+      if (!data.length || (count != null ? tum.length >= count : data.length < SAYFA)) return { data: tum, error: null };
+      i = tum.length - SAYFA;   // sunucu daha küçük sayfa döndürdüyse kaldığı yerden devam
+    }
+  }
   async function mekanlariYukle() {
     yukleniyor('Mekanlar yükleniyor…');
-    const { data, error } = await db.from('mekan').select('*');
+    const { data, error } = await tumMekanlar();
     if (error) {
       mesajGoster('Mekanlar yüklenemedi', hataMetni(error), { etiket: 'Tekrar dene', is: () => mekanlariYukle() });
       return;
@@ -1434,7 +1445,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   async function listeyiYenile() {
     const b = $('#yenile');
     b.disabled = true; b.textContent = 'Yenileniyor…';
-    const { data, error } = await db.from('mekan').select('*');
+    const { data, error } = await tumMekanlar();
     b.disabled = false; b.textContent = 'Listeyi yenile';
     if (error) { $('#listeSayi').textContent = 'Liste yenilenemedi'; return; }
     mekanlar = data;
@@ -1635,7 +1646,29 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
         govde,
         el('p', { class: 'alan-hata', id: `hata-oz-${f.alan}`, hidden: true })));
     }
+    // Bilgiler: süzmede kullanılmayan, yalnızca gösterilen alanlar (tarife, kapasite…). Boş bırakılan bilinmiyor sayılır.
+    for (const b of kat.bilgiler || []) {
+      const v = oz[b.alan] ?? null;
+      const gid = `oz-${b.alan}`;
+      const teyit = el('input', { type: 'checkbox', 'data-teyit': b.alan, id: `teyit-${b.alan}` });
+      teyit.checked = teyitler.has(b.alan);
+      let giris;
+      if (b.tip === 'liste') {
+        giris = el('textarea', { class: 'giris-alani', id: gid, rows: 4, 'data-bilgi': b.alan });
+        giris.value = Array.isArray(v) ? v.join('\n') : '';
+      } else {
+        giris = el('input', { class: 'giris-alani', id: gid, type: b.tip === 'sayi' ? 'number' : 'text', 'data-bilgi': b.alan, ...(b.tip === 'sayi' ? { min: 0, step: 1, inputmode: 'numeric' } : {}) });
+        giris.value = v == null ? '' : String(v);
+      }
+      giris.addEventListener('input', () => ozellikDurumu(b.alan));
+      kap.append(el('div', { class: 'oz', 'data-alan': b.alan, 'data-tip': `bilgi-${b.tip || 'metin'}` },
+        el('div', { class: 'oz-bas' }, el('label', { class: 'oz-ad', for: gid, text: `${b.etiket}${b.birim ? ` (${b.birim})` : ''}` }), el('label', { class: 'teyit-sec' }, teyit, 'Teyit bekliyor')),
+        b.tip === 'liste' ? el('p', { class: 'ipucu', text: 'Her satıra bir kalem. Boş bırakılırsa bilinmiyor sayılır.' }) : null,
+        giris,
+        el('p', { class: 'alan-hata', id: `hata-${gid}`, hidden: true })));
+    }
     for (const f of kat.filtreler) ozellikDurumu(f.alan);
+    for (const b of kat.bilgiler || []) ozellikDurumu(b.alan);
   }
 
   function ozellikDegeri(alan) {
@@ -1649,6 +1682,12 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     if (tip === 'secim' || tip === 'evet_hayir') {
       const g = $$(`input[name="oz-${esc(alan)}"]`, kutu).find(x => x.checked);
       return g ? JSON.parse(g.dataset.deger) : null;
+    }
+    if (tip.startsWith('bilgi-')) {
+      const g = $('[data-bilgi]', kutu), ham = g.value.trim();
+      if (tip === 'bilgi-liste') { const satirlar = g.value.split('\n').map(metin).filter(Boolean); return satirlar.length ? satirlar : null; }
+      if (tip === 'bilgi-sayi') return ham === '' ? null : Number(ham);
+      return metin(ham) || null;
     }
     return (d.ham.ozellikler || {})[alan] ?? null;   // düzenlenemeyen tip: olduğu gibi kalır
   }
@@ -1681,7 +1720,8 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   function mekanOku() {
     const kat = kategoriler[$('#kategori').value];
     const ozellikler = { ...(d.ham.ozellikler || {}) };   // tanımda olmayan alanlar korunur
-    if (kat) for (const f of kat.filtreler) if (ozKutusu(f.alan)) ozellikler[f.alan] = ozellikDegeri(f.alan);
+    if (kat) for (const f of [...kat.filtreler, ...(kat.bilgiler || [])]) if (ozKutusu(f.alan)) ozellikler[f.alan] = ozellikDegeri(f.alan);
+    for (const a of Object.keys(ozellikler)) if (ozellikler[a] === null && kat && (kat.bilgiler || []).some(b => b.alan === a)) delete ozellikler[a];   // boş bilgi saklanmaz
     const kutular = $$('[data-teyit]', $('#form'));
     const yonetilen = new Set(kutular.map(g => g.dataset.teyit));
     const dogrulanacak = [...kutular.filter(g => g.checked && !g.disabled).map(g => g.dataset.teyit),
@@ -1846,6 +1886,12 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     if (kat) for (const f of kat.filtreler) {
       const v = m.ozellikler[f.alan];
       if (f.tip === 'coklu' && Array.isArray(v) && !v.length) isaretle(`oz-${f.alan}`, 'En az bir seçenek işaretle ya da "Bilinmiyor"u seç.');
+    }
+    if (kat) for (const b of kat.bilgiler || []) {
+      const v = m.ozellikler[b.alan];
+      if (b.tip === 'sayi' && v != null && !(Number.isInteger(v) && v >= 0 && v <= 1000000)) isaretle(`oz-${b.alan}`, 'Sıfır ya da pozitif bir tam sayı yaz.');
+      if (b.tip !== 'liste' && b.tip !== 'sayi' && typeof v === 'string' && v.length > 200) isaretle(`oz-${b.alan}`, 'En fazla 200 karakter.');
+      if (b.tip === 'liste' && Array.isArray(v) && (v.length > 40 || v.some(x => x.length > 120))) isaretle(`oz-${b.alan}`, 'En fazla 40 satır, satır başına 120 karakter.');
     }
     for (const s of $$('.kaynak')) {
       const url = $('.kaynak-url', s), kapsam = $('.kaynak-kapsam', s), p = $('.alan-hata', s);
@@ -2167,11 +2213,11 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       cikti.push(`${ALAN_ETIKETI[a]}: ${bicim(e[a])} → ${bicim(y[a])}`);
     }
     const kat = kategoriler[y.kategori || e.kategori];
-    const filtre = alan => (kat ? kat.filtreler.find(f => f.alan === alan) : null);
+    const filtre = alan => (kat ? kat.filtreler.find(f => f.alan === alan) || (kat.bilgiler || []).find(b => b.alan === alan) : null);
     const ozDeger = (f, v) => {
       if (v == null) return 'bilinmiyor';
       if (typeof v === 'boolean') return v ? 'var' : 'yok';
-      if (Array.isArray(v)) return `${v.length} seçenek`;
+      if (Array.isArray(v)) return f && f.tip === 'liste' ? `${v.length} satır` : `${v.length} seçenek`;
       if (f && f.secenekler) return (f.secenekler.find(o => o.deger === v) || { etiket: String(v) }).etiket;
       return yaz(v);
     };

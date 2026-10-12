@@ -1052,6 +1052,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .ms-satir.genis { grid-template-columns: minmax(0, 1fr); }
 .ms-satir.genis .ms-satir-ad { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
 .ms-cipler { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ms-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.ms-liste li { padding: 2px 0; }
 .ms-cipler li { padding: 5px 9px 4px; border: 1px solid var(--cizgi); border-radius: 6px; font: 500 14px/1.2 var(--yazi-dar); }
 .ms-cipler li.aranan { border-color: var(--vurgu); background: var(--vurgu-soluk); font-weight: 600; }
 .ms-cipler.uzun { max-height: 232px; overflow-y: auto; padding: 8px; border: 1px solid var(--cizgi); border-radius: 8px; }
@@ -1338,18 +1340,33 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   // depodaki son kopya (mekanlar.json) kullanılır.
   const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi,osm_ref';
 
+  // Veritabanı tek yanıtta en fazla 1000 satır döndürür; listeler sayfa sayfa okunur.
+  // Toplam, "Content-Range: 0-999/1234" başlığından alınır; başlık yoksa eksik sayfa gelince durulur.
+  const SAYFA_BOYU = 1000;
+  async function sayfaliGetir(iste, ad) {
+    const tum = [];
+    for (let atla = 0; ; ) {
+      const y = await iste(atla);
+      if (!y.ok) throw new Error(`${ad}: ${y.status} ${await y.text().catch(() => '')}`);
+      const sayfa = await y.json();
+      if (!Array.isArray(sayfa)) throw new Error(`${ad}: yanıt liste değil`);
+      tum.push(...sayfa);
+      atla += sayfa.length;
+      const t = /\/(\d+)$/.exec(y.headers.get('content-range') || '');
+      if (!sayfa.length || (t ? atla >= Number(t[1]) : sayfa.length < SAYFA_BOYU)) return tum;
+      if (tum.length > 200000) throw new Error(`${ad}: beklenmedik kadar çok satır`);
+    }
+  }
+
   async function mekanlariVeritabanindanGetir(ms) {
     const { url, anahtar } = AYAR.veritabani;
     const iptal = new AbortController();
     const sayac = setTimeout(() => iptal.abort(), ms);
     try {
       // Herkese açık anahtar yalnızca "apikey" başlığında gider; okuma izni veritabanındaki kurallarla sınırlı.
-      const y = await fetch(`${url}/rest/v1/mekan?select=${MEKAN_ALANLARI}&durum=eq.acik`, {
-        headers: { apikey: anahtar, Accept: 'application/json' }, signal: iptal.signal,
-      });
-      if (!y.ok) throw new Error(`veritabanı yanıtı: ${y.status}`);
-      const satirlar = await y.json();
-      if (!Array.isArray(satirlar)) throw new Error('veritabanı yanıtı liste değil');
+      const satirlar = await sayfaliGetir(atla => fetch(`${url}/rest/v1/mekan?select=${MEKAN_ALANLARI}&durum=eq.acik&order=id&limit=${SAYFA_BOYU}&offset=${atla}`, {
+        headers: { apikey: anahtar, Accept: 'application/json', Prefer: 'count=exact' }, signal: iptal.signal,
+      }), 'mekan');
       return satirlar
         .filter(m => m && m.id && m.ad && m.kategori && m.il && m.ilce && m.ozellikler)
         .map(({ lat, lng, ...m }) => ({ ...m, konum: lat == null || lng == null ? null : { lat, lng } }));
@@ -1450,6 +1467,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     })
       .finally(() => clearTimeout(sayac_));
   }
+  // Mekan başına satır döndüren fonksiyonlar (sayımlar, eklenme tarihleri) 1000 satırı aşabilir: sayfa sayfa okunur.
+  function rpcHepsi(ad) {
+    const { url, anahtar } = AYAR.veritabani;
+    const iptal = new AbortController();
+    const sayac_ = setTimeout(() => iptal.abort(), 12000);
+    return sayfaliGetir(atla => fetch(`${url}/rest/v1/rpc/${ad}?order=mekan_id&limit=${SAYFA_BOYU}&offset=${atla}`, {
+      method: 'POST', signal: iptal.signal,
+      headers: { apikey: anahtar, 'Content-Type': 'application/json', Accept: 'application/json', Prefer: 'count=exact' },
+      body: '{}',
+    }), ad).finally(() => clearTimeout(sayac_));
+  }
   // durum: 'bos' | 'yukleniyor' | 'tamam' | 'hata'. Veriler bayatlayınca (favori 30 sn, eklenme 5 dk) Keşfet açılırken yenilenir.
   const sayac = {
     favori: { harita: null, zaman: 0, durum: 'bos', tekrar: false, omur: 30000, rpc: 'favori_sayilari', alan: 'sayi', donustur: x => Number(x.sayi) || 0 },
@@ -1465,8 +1493,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (!zorla && s.harita && Date.now() - s.zaman < s.omur) return;
     s.durum = 'yukleniyor';
     try {
-      const satirlar = await rpc(s.rpc);
-      if (!Array.isArray(satirlar)) throw new Error(`${s.rpc}: liste değil`);
+      const satirlar = await rpcHepsi(s.rpc);
       s.harita = new Map(satirlar.filter(x => x && typeof x.mekan_id === 'string' && x[s.alan] != null)
         .map(x => [x.mekan_id, s.donustur(x)]));
       s.zaman = Date.now();
@@ -1779,6 +1806,16 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
+  // Bilgiler: süzmede kullanılmayan, yalnızca gösterilen alanlar (tarife, kapasite, çalışma saatleri…). Kategori tanımından gelir.
+  // Biçim: { alan, etiket, tip: 'metin' | 'sayi' | 'liste', birim?, kartta?, aranir? }. Bilinmeyen bilgi gösterilmez.
+  const bilgiler = kat => kategoriler[kat].bilgiler || [];
+  const sayiBicim = new Intl.NumberFormat('tr-TR');
+  function bilgiYaz(b, v) {
+    if (v == null || v === '') return null;
+    if (b.tip === 'liste') return Array.isArray(v) && v.length ? v.map(String) : null;
+    if (b.tip === 'sayi') return typeof v === 'number' && Number.isFinite(v) ? `${sayiBicim.format(v)}${b.birim ? ` ${b.birim}` : ''}` : null;
+    return String(v);
+  }
   // "Bu alanı tara" seçiliyse ilçe yerine haritadaki alan geçerlidir: alanın içinde konumu olan kayıtlar (seçili ilde).
   const alanda = m => !!(m.konum && durum.alan && durum.alan.contains([m.konum.lat, m.konum.lng]));
   const bolgeMekanlari = () => mekanlar
@@ -1923,7 +1960,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       if (v == null) continue;
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
       else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
+      // Az seçenekli çoklu alan (ör. otopark işletmecisi) adlarıyla, uzun olan (ör. dersler) sayısıyla gösterilir.
+      else if (f.tip === 'coklu' && f.secenekler.length <= 3) for (const d of v) ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, d) }));
       else if (f.tip === 'coklu') ogeler.push(el('li', { class: 'olgu', text: `${f.etiket}: ${v.length}` }));
+    }
+    for (const b of bilgiler(m.kategori)) {
+      const y = b.kartta && b.tip !== 'liste' ? bilgiYaz(b, m.ozellikler[b.alan]) : null;
+      if (y) ogeler.push(el('li', { class: 'olgu', title: b.etiket }, el('span', { class: 'gorunmez', text: `${b.etiket}: ` }), y));
     }
     if (bilinmeyen.length === 1) ogeler.push(el('li', { class: 'olgu bilinmiyor' }, simge('bilinmiyor'), `${bilinmeyen[0].etiket} bilinmiyor`));
     else if (bilinmeyen.length > 1) {
@@ -2642,7 +2685,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   let aramaDizini = null;
   function dizinKur() {
     aramaDizini = mekanlar.filter(m => kategoriler[m.kategori])
-      .map(m => ({ m, ad: duz(m.ad), hepsi: duz(`${m.ad} ${m.ilce} ${m.il} ${m.adres || ''}`) }));
+      .map(m => ({ m, ad: duz(m.ad), hepsi: duz(`${m.ad} ${m.ilce} ${m.il} ${m.adres || ''} ${bilgiler(m.kategori).filter(b => b.aranir).map(b => m.ozellikler[b.alan] || '').join(' ')}`) }));
   }
   const kelimeBasi = (metin, q) => metin.startsWith(q) || metin.includes(` ${q}`);
   function eslesir(m, o) {
@@ -2876,8 +2919,19 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
           el('p', { text: 'İşletme sahipleri yakında sayfalarını sahiplenip açıklama, çalışma saatleri ve fotoğraf ekleyebilecek. Bu bilgiler "İşletme beyanı" etiketiyle, aşağıdaki derlenmiş bilgilerden ayrı görünecek.' })));
     }
 
-    // Özellikler: kategori tanımından
-    const satirlar = filtreler(m.kategori).map(f => {
+    // Özellikler: kategori tanımından. Önce bilinen bilgiler (tarife, kapasite…), sonra filtre alanları.
+    const bilgiSatirlari = bilgiler(m.kategori).map(b => {
+      const y = bilgiYaz(b, m.ozellikler[b.alan]);
+      if (!y) return null;
+      if (Array.isArray(y)) return el('li', { class: 'ms-satir genis' },
+        el('span', { class: 'ms-satir-ad' }, el('strong', { text: b.etiket }), teyit(b.alan)),
+        el('ul', { class: 'ms-liste' }, y.map(s => el('li', { text: s }))));
+      const deger = el('span', { class: 'ms-satir-deger', text: y });
+      const t = teyit(b.alan);
+      if (t) deger.append(t);
+      return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: b.etiket }), deger);
+    }).filter(Boolean);
+    const satirlar = bilgiSatirlari.concat(filtreler(m.kategori).map(f => {
       const v = m.ozellikler[f.alan];
       if (f.tip === 'coklu' && v != null && v.length) {
         const aranan = durum.secimler[f.alan] || new Set();
@@ -2899,7 +2953,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       const t = teyit(f.alan);
       if (t) deger.append(t);
       return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: f.etiket }), deger);
-    });
+    }));
     const ozellikler = satirlar.length
       ? bolum('Özellikler', el('span', { class: 'ms-etiket', text: 'Keşif derledi' }), el('ul', { class: 'ms-satirlar' }, satirlar))
       : null;

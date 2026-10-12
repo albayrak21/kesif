@@ -1,6 +1,6 @@
 # Keşif
 
-Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları; İstanbul ve Mersin'deki AVM'ler.
+Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları ve tekel büfeleri; İstanbul ve Mersin'deki AVM'ler; İstanbul'un otoparkları.
 
 Site: https://albayrak21.github.io/kesif/
 Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici hesapları)
@@ -21,6 +21,8 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - `osm_ref` alanı boş olan spor salonu kayıtları OpenStreetMap'ten değil, proje sahibinin derlediği bilgilerden gelir ve teyit bekler; bunlar ODbL kapsamında değildir.
 - Çiçekçi, spor salonu ve AVM kayıtları OpenStreetMap'ten türetilmiştir: © OpenStreetMap katkıcıları, ODbL 1.0 (https://www.openstreetmap.org/copyright). `mekanlar.json` içinde `osm_ref` alanı dolu olan kayıtlar bu türetilmiş veritabanıdır ve ODbL 1.0 ile kullanılabilir.
 - Mersin'deki spor salonu ve tekel büfesi kayıtlarının çoğu ile bazı kayıtların konumu Overture Maps Foundation'ın Places verisinden alınmıştır (overturemaps.org; kaynakları Meta, Foursquare, Microsoft ve diğerleri; CDLA-Permissive-2.0 ve Apache-2.0).
+- İSPARK otopark kayıtları (`ispark-` ile başlayan kimlikler) İBB Açık Veri Portalı'nın İSPARK servisinden alınmıştır: İstanbul Büyükşehir Belediyesi / İSPARK A.Ş., İBB Açık Veri Lisansı (https://data.ibb.gov.tr). Ad, konum, tür, kapasite, saatler, ücretsiz süre, aylık abonelik ve tarife bu kaynaktandır; değişebilir.
+- Diğer otopark kayıtları (`otopark-` ile başlayan kimlikler) OpenStreetMap'ten türetilmiştir (© OpenStreetMap katkıcıları, ODbL 1.0). Adı OSM'de olmayanların adı türünden üretilmiştir ve teyit bekler.
 - Sınırlar: © OpenStreetMap katkıcıları, ODbL 1.0.
 - Harita: Leaflet ve Leaflet.markercluster.
 
@@ -57,6 +59,14 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Fotoğraflar işletme sayfasında gösterilir; büyük görünümde ok tuşlarıyla gezilir.
 - Şimdilik yöneticiler yönetim sayfasından yükler. Yer başına hak varsayılan 5'tir, yönetimden artırılabilir (0–50).
 - Yüklemeden önce tarayıcıda en uzun kenarı 1600 piksele (ve 480 piksellik küçük boya) küçültülür, webp'ye çevrilir; konum dahil dosya bilgileri silinir. Dosyalar Supabase'in `mekan-foto` deposunda herkese açık olarak durur.
+
+## Otoparklar
+
+- İstanbul'un bütün ilçelerinde: İSPARK'ın resmi listesindeki otoparklar ve OpenStreetMap'te kayıtlı, herkese açık görünen diğer otoparklar (özel, personel, site, TIR ve müşteri otoparkları ayıklandı; İSPARK ile aynı yerdeki OSM kayıtları atıldı).
+- "İşletmeci" filtresi: İSPARK, İlçe belediyesi, Özel ve diğer. Belli bir belediyenin otoparkları için ilçeyi seçip "İlçe belediyesi"ni işaretle.
+- Diğer filtreler: tür (kapalı/katlı, açık alan, yol üstü), ücret, 7/24, ilk dakikalar ücretsiz, aylık abonelik.
+- Tarife, kapasite, çalışma saatleri ve işleten kurum "bilgi" alanlarıdır (`kategoriler.json`'da `bilgiler`): süzmede kullanılmaz, işletme sayfasında gösterilir, yönetimden düzenlenir.
+- Anlık doluluk henüz yok. İSPARK'ın servisi tarayıcıdan doğrudan okunamıyor; ileride sunucu tarafında bir ara katmanla eklenebilir.
 
 ## Keşfet
 
