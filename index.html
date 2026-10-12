@@ -1004,12 +1004,73 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .tara-dugme:hover { border-color: var(--vurgu); }
 .harita-not:not([hidden]) ~ .tara-dugme { top: 48px; }
 .tara-dugme .simge { width: 15px; height: 15px; stroke-width: 2.2; }
+/* ---------- işletme sayfası ---------- */
+/* Telefonda tam ekran; geniş ekranda filtre paneli ve listenin yerini alır, harita yanında açık kalır. */
+.uyg.sayfada { grid-template-areas: "ust ust ust" "sayfa sayfa harita"; }
+.uyg.sayfada .panel, .uyg.sayfada .sonuclar, .uyg.sayfada .kesfet { display: none; }
+.mekan-sayfa { grid-area: sayfa; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--zemin); border-right: 1px solid var(--cizgi); }
+.ms-ust { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; min-height: 52px; padding: 6px 8px; background: var(--yuzey); border-bottom: 1px solid var(--cizgi); }
+.ms-geri { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border: 0; border-radius: 8px; background: none; color: var(--murekkep); cursor: pointer; }
+.ms-geri:hover { background: var(--vurgu-soluk); }
+.ms-geri .simge { width: 20px; height: 20px; stroke-width: 2; }
+.ms-ust-ad { flex: 1; min-width: 0; margin: 0; font: 600 16px/1.2 var(--yazi-dar); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms-eylem { display: flex; flex: none; gap: 2px; }
+.ms-eylem .favori { position: static; }
+.ms-govde { width: min(720px, 100%); margin: 0 auto; padding: 20px 16px 36px; display: flex; flex-direction: column; gap: 16px; }
+.ms-bas { display: flex; flex-direction: column; gap: 8px; }
+.ms-tur { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--soluk); font: 600 13px/1.2 var(--yazi-dar); letter-spacing: .05em; text-transform: uppercase; }
+.ms-tur .levha { width: 26px; height: 26px; border-radius: 6px; font-size: 15px; letter-spacing: 0; text-transform: none; }
+.ms-ad { margin: 0; font: 700 29px/1.1 var(--yazi-dar); text-wrap: balance; overflow-wrap: anywhere; }
+.ms-ad:focus { outline: none; }
+.ms-yer { margin: 0; color: var(--soluk); font-size: 14.5px; line-height: 1.4; }
+.ms-hizli { display: flex; gap: 8px; }
+.ms-hizli > * { flex: 1 1 0; min-width: 0; }
+.ms-hizli-dugme { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 66px; padding: 10px 4px; border: 1px solid var(--cizgi-koyu); border-radius: 10px; background: var(--yuzey-2); color: var(--vurgu); font: 600 14px/1.1 var(--yazi-dar); text-align: center; text-decoration: none; cursor: pointer; }
+.ms-hizli-dugme:hover { border-color: var(--vurgu); }
+.ms-hizli-dugme .simge { width: 20px; height: 20px; stroke-width: 1.8; }
+.ms-bolum { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); }
+.ms-bolum-bas { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; }
+.ms-bolum h3 { margin: 0; font: 700 19px/1.2 var(--yazi-dar); }
+.ms-etiket { padding: 2px 7px 1px; border-radius: 4px; background: var(--vurgu-soluk); color: var(--vurgu); font: 600 12px/1.4 var(--yazi-dar); white-space: nowrap; }
+.ms-etiket.beyan { background: var(--secim); color: var(--secim-ustu); }
+.ms-bos { margin: 0; padding: 14px; border: 1px dashed var(--cizgi-koyu); border-radius: 8px; color: var(--soluk); }
+.ms-bos p { margin: 0; }
+.ms-bos p + p { margin-top: 6px; font-size: 13.5px; }
+.ms-aciklama { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.ms-kutular { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.ms-kutu { padding: 12px; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey); }
+.ms-kutu h4 { margin: 0 0 4px; color: var(--soluk); font: 600 13px/1.2 var(--yazi-dar); letter-spacing: .04em; text-transform: uppercase; }
+.ms-kutu p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.ms-not { margin: 0; color: var(--soluk); font-size: 13px; }
+.ms-satirlar { list-style: none; margin: 0; padding: 0; }
+.ms-satir { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--cizgi); }
+.ms-satir:first-child { padding-top: 2px; }
+.ms-satir:last-child { padding-bottom: 2px; border-bottom: 0; }
+.ms-satir-ad { font: 500 15px/1.3 var(--yazi); }
+.ms-satir-deger { display: inline-flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 4px 6px; font: 600 15px/1.3 var(--yazi-dar); text-align: right; }
+.ms-satir-deger .simge { width: 15px; height: 15px; }
+.ms-satir.genis { grid-template-columns: minmax(0, 1fr); }
+.ms-satir.genis .ms-satir-ad { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.ms-cipler { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ms-cipler li { padding: 5px 9px 4px; border: 1px solid var(--cizgi); border-radius: 6px; font: 500 14px/1.2 var(--yazi-dar); }
+.ms-cipler li.aranan { border-color: var(--vurgu); background: var(--vurgu-soluk); font-weight: 600; }
+.ms-cipler.uzun { max-height: 232px; overflow-y: auto; padding: 8px; border: 1px solid var(--cizgi); border-radius: 8px; }
+.ms-iletisim { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 16px; margin: 0; font-size: 15px; }
+.ms-iletisim dt { color: var(--soluk); font: 500 14px/1.45 var(--yazi-dar); }
+.ms-iletisim dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.ms-iletisim a { color: var(--vurgu); text-underline-offset: 3px; }
+.ms-kaynak { display: flex; flex-direction: column; gap: 4px; padding: 0 4px; color: var(--soluk); font-size: 13px; }
+.ms-kaynak p { margin: 0; }
+.ms-kaynak a { color: inherit; text-underline-offset: 2px; }
+.ms-yakin .satirlar { border-radius: 8px; }
+
 .tara-alan { fill: var(--vurgu-dolgu); fill-opacity: .05; stroke: var(--vurgu-dolgu); stroke-opacity: .8; stroke-width: 2; stroke-dasharray: 6 5; }
 
 /* ---------- dar ekran: panel çekmece olur ---------- */
 @media (max-width: 1099.98px) {
   .uyg { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "ust ust" "sonuc harita"; }
   .uyg.kesfette { grid-template-areas: "ust ust" "kesfet kesfet"; }
+  .uyg.sayfada { grid-template-areas: "ust ust" "sayfa harita"; }
   .dugme-filtre { display: inline-flex; }
   .panel { position: fixed; z-index: 30; inset: 0 auto 0 0; width: min(380px, 100%); padding-top: env(safe-area-inset-top, 0px); box-shadow: var(--golge); transform: translateX(-104%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
   .panel.acik { transform: none; visibility: visible; transition: transform .2s ease; }
@@ -1021,6 +1082,13 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 @media (max-width: 719.98px) {
   .uyg { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(200px, 42%) minmax(0, 1fr) auto; grid-template-areas: "ust" "harita" "sonuc" "sekme"; }
   .uyg.kesfette { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "ust" "kesfet" "sekme"; }
+  .uyg.sayfada { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "sayfa" "sekme"; }
+  .uyg.sayfada .ust, .uyg.sayfada .harita-kap { display: none; }
+  .mekan-sayfa { border-right: 0; }
+  .ms-govde { padding: 16px 12px 28px; gap: 14px; }
+  .ms-ad { font-size: 25px; }
+  .ms-hizli { gap: 6px; }
+  .ms-bolum { padding: 14px; }
   .ust { gap: 8px; padding: 8px 12px; }
   .sekmeler-ust { display: none; }
   .ara-dugme { padding: 8px 11px; }
@@ -1099,6 +1167,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <div class="koor-kutu" id="koorKutu" hidden><span>Koordinat</span><output id="koorDeger"></output><button class="bag" id="koorKopya" type="button">Kopyala</button></div>
   </section>
 
+  <section class="mekan-sayfa" id="mekanSayfa" aria-labelledby="msAd" hidden></section>
+
   <section class="kesfet" id="kesfet" aria-label="Keşfet" hidden>
     <div class="kesfet-ic">
       <form class="arama" id="aramaForm" role="search">
@@ -1162,6 +1232,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     ara: 'M7 2.3a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 1 0 0-9.4zM10.4 10.4l3.3 3.3',
     harita: 'M1.8 3.6l4-1.6 4.4 1.8 4-1.6v10.2l-4 1.6-4.4-1.8-4 1.6zM5.8 2v10.2M10.2 3.8V14',
     pusula: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM10.7 5.3L9.2 9.2 5.3 10.7 6.8 6.8z',
+    geri: 'M13 8H3.5M7.5 3.5L3 8l4.5 4.5',
+    paylas: 'M8 1.8v8.4M5 4.6l3-2.8 3 2.8M3.2 8.6v5.4h9.6V8.6',
+    tel: 'M5.4 2.2l1.5 3-1.2 1.3a7.6 7.6 0 0 0 3.8 3.8l1.3-1.2 3 1.5-.5 2.4c-5.8.3-10.6-4.5-10.3-10.3z',
+    yol: 'M8 1.4L14.6 8 8 14.6 1.4 8zM6.2 10V7.6h3.6M8.6 6.2l1.4 1.4-1.4 1.4',
+    web: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM1.6 8h12.8M8 1.6c2.1 2.1 2.1 10.7 0 12.8M8 1.6c-2.1 2.1-2.1 10.7 0 12.8',
   };
   function simge(ad) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1238,7 +1313,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   let kategoriler, mekanlar, sinirlar;
   // gorunum: '' (tüm kayıtlar) | 'favori' | 'l:<liste kimliği>' | 'paylasilan'
   // sekme: 'harita' | 'kesfet'. alan: "Bu alanı tara" ile seçilen harita alanı (Leaflet sınırı) ya da null.
-  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '', sekme: 'harita', alan: null };
+  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '', sekme: 'harita', alan: null, sayfa: null };   // sayfa: açık işletme sayfasının kimliği
 
   /* ---------- favoriler ---------- */
   // Hesap yok: favoriler bu tarayıcıda (localStorage) durur. "En çok favorilenenler" sayımı için favori listesi,
@@ -1263,7 +1338,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       if (favoriler.has(m.id)) favoriler.delete(m.id); else favoriler.add(m.id);
       favoriKaydet();
       favoriEsitle();
-      if (durum.gorunum === 'favori' && durum.sekme === 'harita') guncelle(); else { yaz(); gorunumuYaz(); }
+      yaz();
+      if (durum.gorunum === 'favori' && durum.sekme === 'harita' && !durum.sayfa) guncelle(); else gorunumuYaz();
     });
     return d;
   }
@@ -1693,68 +1769,19 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     return ogeler;
   }
 
-  function ayrinti(m) {
-    const bekleyen = new Set(m.dogrulanacak || []);
-    const teyit = alan => bekleyen.has(alan) ? el('span', { class: 'teyit', text: 'teyit bekliyor' }) : null;
-    const satirlar = [];
-    for (const f of filtreler(m.kategori)) {
-      const v = m.ozellikler[f.alan];
-      const genis = f.tip === 'coklu' && v != null ? 'genis' : null;
-      let dd;
-      if (v == null) dd = el('dd', { class: 'bilinmiyor', text: 'bilinmiyor' });
-      else if (f.tip === 'secim') dd = el('dd', { text: secenekEtiketi(f, v) });
-      else if (f.tip === 'evet_hayir') dd = el('dd', { text: v ? 'var' : 'yok' });
-      else {
-        const aranan = durum.secimler[f.alan] || new Set();
-        dd = el('dd', { class: genis }, el('ul', { class: v.length > 40 ? 'dallar uzun' : 'dallar' },
-          f.secenekler.filter(o => v.includes(o.deger)).map(o => el('li', { class: aranan.has(o.deger) ? 'aranan' : null, text: o.etiket }))));
-      }
-      const dt = el('dt', { class: genis, text: genis ? `${f.etiket} (${v.length})` : f.etiket });
-      const t = teyit(f.alan);
-      if (t) (genis ? dt : dd).append(' ', t);
-      satirlar.push(dt, dd);
-    }
-    satirlar.push(el('dt', { text: 'Adres' }), el('dd', null, m.adres, teyit('adres')));
-    if (m.telefon) {
-      const no = el('a', { class: 'tel', href: `tel:${m.telefon.replace(/\s/g, '')}`, text: m.telefon });
-      const kopya = el('button', { class: 'bag kopya', type: 'button', text: 'Kopyala' });
-      kopya.addEventListener('click', () => kopyala(m.telefon, kopya, no));
-      satirlar.push(el('dt', { text: 'Telefon' }), el('dd', null, no, kopya, teyit('telefon')));
-    }
-    satirlar.push(el('dt', { text: 'Bilgi tarihi' }), el('dd', { text: tarihYaz(m.dogrulama_tarihi) }));
-
-    const eylemler = [];
-    if (/^https:\/\//.test(m.web || '')) eylemler.push(el('a', { class: 'dugme', href: m.web, target: '_blank', rel: 'noopener noreferrer' }, 'Web sitesi', simge('dis')));
-    if (m.konum) eylemler.push(el('a', { class: 'dugme', target: '_blank', rel: 'noopener noreferrer',
-      href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}` }, 'Yol tarifi', simge('dis')));
-    const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'
-      : bekleyen.has('konum') ? 'Haritadaki yeri yaklaşık olabilir, teyit bekliyor.' : null;
-    // OpenStreetMap'ten türetilen kayıtta kaynak ve lisans kaydın yanında gösterilir (ODbL atıf şartı).
-    const osm = /^(node|way|relation)\/\d+$/.test(m.osm_ref || '')
-      ? el('p', { class: 'kaynak-satiri' }, 'Kaynak: ',
-        el('a', { href: `https://www.openstreetmap.org/${m.osm_ref}`, target: '_blank', rel: 'noopener noreferrer', text: 'OpenStreetMap katkıcıları' }), ' (ODbL)')
-      : null;
-    return el('div', { class: 'ayrinti', id: `ayr-${m.id}`, hidden: true },
-      el('dl', { class: 'bilgi' }, satirlar),
-      konumNotu && el('p', { class: 'uyari-not', text: konumNotu }),
-      eylemler.length ? el('div', { class: 'eylemler' }, eylemler) : null,
-      osm);
-  }
-
   function kart(m, eksik) {
     const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
-    const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-expanded': 'false', 'aria-controls': `ayr-${m.id}` },
+    const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-label': `${m.ad}: işletme sayfasını aç` },
       durum.gorunum ? el('span', { class: 'kart-tur', text: kategoriler[m.kategori].ad }) : null,
       el('span', { class: 'kart-ad', text: m.ad }),
       el('span', { class: 'kart-adres' },
         uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
         m.adres));
-    bas.addEventListener('click', () => sec(m.id, 'liste'));
+    bas.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'liste' }));
     return el('li', { class: 'kart', 'data-id': m.id },
       bas, favoriDugmesi(m), listeDugmesi(m),
       el('ul', { class: 'ozet' }, ozetOgeleri(m)),
-      eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null,
-      ayrinti(m));
+      eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null);
   }
 
   function listeyiCiz(tum, uyan, belirsiz) {
@@ -1995,7 +2022,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false) });
       const k = { igne, m, harf, secili: false };
       igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
-      igne.on('click', () => sec(id, 'harita'));
+      igne.on('click', () => mekanSayfasiniAc(m, { kaynak: 'harita' }));
       igne.on('add', () => igneyiEtiketle(k));
       igneler.set(id, k);
       eklenen.push(igne);
@@ -2067,30 +2094,22 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   /* ---------- seçim: liste ve harita birlikte ---------- */
-  function sec(id, kaynak) {
-    if (kaynak === 'liste' && durum.secili === id) id = null;   // açık karta ikinci tık kapatır
-    durum.secili = id;
-    seciliyiUygula();
-    if (!id) return;
+  // Seçili kayıt haritada görünür hâle getirilir: kümedeyse küme açılır, sonra iğne ortalanır.
+  // Programla yapılan bu kaydırma "Bu alanı tara"yı çıkarmaz.
+  function haritadaOrtala(id) {
     const k = igneler.get(id);
-    if (kaynak === 'liste' && k && harita) {
-      const git = () => harita.setView(k.igne.getLatLng(), Math.max(harita.getZoom(), 16), { animate: !azHareket });
-      // Kümedeki iğne önce görünür hâle gelir (küme açılır), sonra haritada ortalanır.
-      if (KUME_VAR && kume.hasLayer(k.igne)) kume.zoomToShowLayer(k.igne, git);
-      else git();
-    }
-    if (kaynak === 'harita') {
-      const k = kok.querySelector(`.kart[data-id="${id}"]`);
-      if (k) k.scrollIntoView({ block: 'nearest', behavior: azHareket ? 'auto' : 'smooth' });
-    }
+    if (!k || !harita || !harita.getContainer().offsetWidth) return false;
+    const git = () => { kullaniciAni = 0; harita.setView(k.igne.getLatLng(), Math.max(harita.getZoom(), 16), { animate: !azHareket }); };
+    kullaniciAni = 0;
+    if (KUME_VAR && kume.hasLayer(k.igne)) kume.zoomToShowLayer(k.igne, git);
+    else git();
+    return true;
   }
 
   function seciliyiUygula() {
     for (const k of kok.querySelectorAll('.kart')) {
       const s = k.dataset.id === durum.secili;
       k.classList.toggle('secili', s);
-      k.querySelector('.kart-bas').setAttribute('aria-expanded', String(s));
-      k.querySelector('.ayrinti').hidden = !s;
     }
     for (const [id, k] of igneler) {
       const s = id === durum.secili;
@@ -2134,6 +2153,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     alaniCiz();
     seciliyiUygula();
     if (durum.sekme === 'kesfet') kesfetCiz();
+    if (durum.sayfa) {   // açık sayfadaki liste ve favori düğmeleri güncel kalsın (ör. liste penceresi kapanınca)
+      const m = mekanBul(durum.sayfa), yer = $('#msEylem');
+      if (m && yer) yer.replaceChildren(...sayfaEylemleri(m));
+    }
   }
 
   function filtreleriTemizle() {
@@ -2338,7 +2361,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
           uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, uzaklikYaz(uzak)) : null,
           `${kategoriler[m.kategori].ad} · ${m.ilce}, ${m.il}`)),
       olcu);
-    ac.addEventListener('click', () => haritadaGoster(m));
+    ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: raf === 'yakin' ? 'yakin' : 'kesfet' }));
     return el('li', { class: 'satir', 'data-id': m.id, 'data-raf': raf }, ac, favoriDugmesi(m));
   }
   const levhaSol = (metin, ek) => el('span', { class: `levha satir-sol${ek ? ` ${ek}` : ''}`, 'aria-hidden': 'true', text: metin });
@@ -2497,26 +2520,237 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#aramaSonuc').replaceChildren(...ogeler);
   }
 
-  /* ---------- Keşfet'ten haritaya ---------- */
+  /* ---------- işletme sayfası ---------- */
+  // Her kaydın kendi sayfası ve adresi var: <site>#mekan=<kimlik>. Paylaşılabilir, tarayıcının geri tuşu çalışır.
+  // Sayfa kategori tanımından çizilir (kategoriye özel kod yok). İşletme sahibinin girdiği bilgiler ayrı bir katmandır,
+  // "İşletme beyanı" etiketiyle gösterilir ve doğrulanmış bilgiyi hiçbir zaman değiştirmez.
+  const sayfa = { donus: 'harita', odakGeri: null, sonra: null, ortalanacak: null, baslik: document.title };
+  const MEKAN_HASH = /^#mekan=([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+  const mekanHashi = () => { const e = location.hash.match(MEKAN_HASH); return e ? e[1] : null; };
+  const mekanBul = id => mekanlar.find(m => m.id === id && kategoriler[m.kategori]);
+  const mekanBaglantisi = id => `${location.href.split('#')[0]}#mekan=${id}`;
+
+  // İşletme beyanı için tek giriş noktası. Sahiplenme ve hesaplar gelince veritabanından okunacak (bkz. claude/isletme-sayfasi.md).
+  // Biçim: { aciklama, saatler: [{ gun, saat }], alanlar: [{ baslik, metin }], guncellenme }
+  function beyanGetir(m) {
+    const b = window.KESIF_BEYAN && window.KESIF_BEYAN[m.id];
+    return b && typeof b === 'object' ? b : null;
+  }
+
   // Kayıt haritadaki seçime uyuyorsa seçim korunur; uymuyorsa kaydın il ve kategorisine geçilir (filtreler temizlenir).
-  function haritadaGoster(m) {
+  function kapsamaAl(m) {
     const kume = gorunumKumesi();
     const icinde = kume ? kume.has(m.id)
       : m.il === durum.il && m.kategori === durum.kategori
         && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce))
         && degerlendir(m, durum.secimler).sonuc !== 'uymaz';
-    sekmeyeGec('harita');
-    if (!icinde) {
-      durum.gorunum = '';
-      grubaGit(m.il, m.kategori, false);
-      baglamiYaz(); filtreleriCiz(); bolgeyiCiz();
-      guncelle();
-    }
-    durum.secili = null;
-    sec(m.id, 'liste');
-    const k = kok.querySelector(`#sonuclar .kart[data-id="${m.id}"]`);
-    if (k) { k.scrollIntoView({ block: 'start' }); k.querySelector('.kart-bas').focus({ preventScroll: true }); }
+    if (icinde) return;
+    durum.gorunum = '';
+    grubaGit(m.il, m.kategori, false);
+    baglamiYaz(); filtreleriCiz(); bolgeyiCiz();
+    guncelle();
   }
+
+  // kaynak: 'liste' | 'harita' | 'kesfet' | 'yakin' | 'baglanti' | 'gecmis'. gecmis: tarayıcı geçmişine yeni adım eklensin mi.
+  function mekanSayfasiniAc(m, { kaynak = 'liste', gecmis = true } = {}) {
+    if (!m) return;
+    if (!durum.sayfa) {
+      sayfa.donus = durum.sekme;
+      sayfa.odakGeri = document.activeElement;
+    }
+    if (kaynak !== 'harita') kapsamaAl(m);
+    if (durum.sekme !== 'harita') sekmeyeGec('harita');
+    durum.sayfa = m.id;
+    durum.secili = m.id;
+    kok.classList.add('sayfada');
+    $('#mekanSayfa').hidden = false;
+    if (dar.matches && panel.classList.contains('acik')) paneliAyarla(false, false);
+    seciliyiUygula();
+    mekanSayfasiniCiz(m);
+    if (gecmis && mekanHashi() !== m.id) history.pushState({ kesifMekan: m.id }, '', `#mekan=${m.id}`);
+    document.title = `${m.ad} · Keşif`;
+    if (harita) harita.invalidateSize({ pan: false });
+    // İğneye basılınca harita kıpırdamaz; başka yerden açılınca kayıt haritada ortalanır (telefonda harita gizliyse kapanınca).
+    sayfa.ortalanacak = null;
+    if (kaynak !== 'harita' && !haritadaOrtala(m.id)) sayfa.ortalanacak = m.id;
+    $('#mekanSayfa').scrollTop = 0;
+    $('#msAd').focus({ preventScroll: true });
+  }
+
+  // Kapatma tarayıcı geçmişiyle yapılır: sayfayı biz açtıysak bir adım geri gidilir (hashchange kapatır), bağlantıyla
+  // gelindiyse adres temizlenir. sonra: kapandıktan sonra çalışacak iş (ör. başka sekmeye geçmek).
+  function sayfayiKapat(sonra) {
+    if (!durum.sayfa) { if (sonra) sonra(); return; }
+    sayfa.sonra = sonra || null;
+    if (history.state && history.state.kesifMekan) { history.back(); return; }
+    history.replaceState(null, '', location.pathname + location.search);
+    sayfaKapandi();
+  }
+  function sayfaKapandi() {
+    if (!durum.sayfa) return;
+    const id = durum.sayfa;
+    durum.sayfa = null;
+    kok.classList.remove('sayfada');
+    $('#mekanSayfa').hidden = true;
+    $('#mekanSayfa').replaceChildren();
+    document.title = sayfa.baslik;
+    const sonra = sayfa.sonra; sayfa.sonra = null;
+    if (sayfa.donus === 'kesfet' && !sonra) sekmeyeGec('kesfet');
+    else { if (harita) harita.invalidateSize({ pan: false }); guncelle(); }
+    if (sayfa.ortalanacak) { haritadaOrtala(sayfa.ortalanacak); sayfa.ortalanacak = null; }
+    if (sonra) { sonra(); return; }
+    const geri = sayfa.odakGeri && sayfa.odakGeri.isConnected ? sayfa.odakGeri : kok.querySelector(`.kart[data-id="${id}"] .kart-bas`);
+    if (geri) {
+      geri.focus({ preventScroll: true });
+      const kart = geri.closest('.kart');
+      if (kart) kart.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function bolum(baslik, etiket, ...govde) {
+    return el('section', { class: 'ms-bolum', 'aria-label': baslik },
+      el('div', { class: 'ms-bolum-bas' }, el('h3', { text: baslik }), etiket), govde);
+  }
+  function hizliDugme(metin, simgeAdi, oz, is) {
+    const d = el(oz.href ? 'a' : 'button', { class: 'ms-hizli-dugme', ...(oz.href ? {} : { type: 'button' }), ...oz }, simge(simgeAdi), metin);
+    if (is) d.addEventListener('click', is);
+    return d;
+  }
+  function sayfaEylemleri(m) {
+    const paylas = el('button', { class: 'favori', type: 'button', title: 'Bağlantıyı kopyala', 'aria-label': `${m.ad}: sayfa bağlantısını kopyala` }, simge('paylas'));
+    paylas.addEventListener('click', async () => {
+      let metin = 'Bağlantıyı adres çubuğundan kopyalayabilirsin.';
+      try { await navigator.clipboard.writeText(mekanBaglantisi(m.id)); metin = 'Sayfa bağlantısı kopyalandı.'; } catch (e) { /* adres çubuğunda zaten var */ }
+      $('#msDurum').textContent = metin;
+      setTimeout(() => { const d = $('#msDurum'); if (d) d.textContent = ''; }, 2500);
+    });
+    return [listeDugmesi(m), favoriDugmesi(m), paylas];
+  }
+
+  function mekanSayfasiniCiz(m) {
+    const kat = kategoriler[m.kategori];
+    const bekleyen = new Set(m.dogrulanacak || []);
+    const teyit = alan => (bekleyen.has(alan) ? el('span', { class: 'teyit', text: 'teyit bekliyor' }) : null);
+    const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
+
+    const geri = el('button', { class: 'ms-geri', type: 'button', 'aria-label': 'Geri', title: 'Geri' }, simge('geri'));
+    geri.addEventListener('click', () => sayfayiKapat());
+    const ust = el('div', { class: 'ms-ust' }, geri, el('p', { class: 'ms-ust-ad', 'aria-hidden': 'true', text: m.ad }),
+      el('div', { class: 'ms-eylem', id: 'msEylem' }, sayfaEylemleri(m)));
+
+    // Başlık
+    const bas = el('header', { class: 'ms-bas' },
+      el('p', { class: 'ms-tur' }, el('span', { class: 'levha', 'aria-hidden': 'true', text: kategoriHarfi(m.kategori) }), kat.ad),
+      el('h2', { class: 'ms-ad', id: 'msAd', tabindex: '-1', text: m.ad }),
+      el('p', { class: 'ms-yer' },
+        uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
+        `${m.ilce}, ${m.il}`),
+      el('p', { class: 'gorunmez', id: 'msDurum', role: 'status', 'aria-live': 'polite' }));
+
+    // Hızlı eylemler
+    const hizli = [];
+    if (m.telefon) hizli.push(hizliDugme('Ara', 'tel', { href: `tel:${m.telefon.replace(/\s/g, '')}` }));
+    if (m.konum) hizli.push(hizliDugme('Yol tarifi', 'yol', { href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}`, target: '_blank', rel: 'noopener noreferrer' }));
+    if (/^https:\/\//.test(m.web || '')) hizli.push(hizliDugme('Web sitesi', 'web', { href: m.web, target: '_blank', rel: 'noopener noreferrer' }));
+    if (m.konum) hizli.push(hizliDugme('Haritada', 'harita', {}, () => {
+      if (harita && harita.getContainer().offsetWidth) haritadaOrtala(m.id);
+      else { sayfa.ortalanacak = m.id; sayfayiKapat(() => sekmeyeGec('harita')); }
+    }));
+
+    // İşletmenin anlattıkları (işletme beyanı)
+    const beyan = beyanGetir(m);
+    let beyanBolumu;
+    if (beyan) {
+      const kutular = (Array.isArray(beyan.alanlar) ? beyan.alanlar : [])
+        .filter(a => a && typeof a.baslik === 'string' && typeof a.metin === 'string' && a.metin.trim())
+        .map(a => el('div', { class: 'ms-kutu' }, el('h4', { text: a.baslik.slice(0, 60) }), el('p', { text: a.metin.slice(0, 1000) })));
+      const saatler = (Array.isArray(beyan.saatler) ? beyan.saatler : []).filter(s => s && typeof s.gun === 'string' && typeof s.saat === 'string');
+      beyanBolumu = bolum('İşletmenin anlattıkları', el('span', { class: 'ms-etiket beyan', text: 'İşletme beyanı' }),
+        typeof beyan.aciklama === 'string' && beyan.aciklama.trim() ? el('p', { class: 'ms-aciklama', text: beyan.aciklama.slice(0, 2000) }) : null,
+        saatler.length ? el('div', { class: 'ms-kutu' }, el('h4', { text: 'Çalışma saatleri' }),
+          el('ul', { class: 'ms-satirlar' }, saatler.map(s => el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: s.gun }), el('span', { class: 'ms-satir-deger', text: s.saat }))))) : null,
+        kutular.length ? el('div', { class: 'ms-kutular' }, kutular) : null,
+        el('p', { class: 'ms-not', text: `Bu bölümü işletme doldurdu${beyan.guncellenme ? ` (${tarihYaz(beyan.guncellenme)})` : ''}; Keşif bu bilgileri doğrulamadı.` }));
+    } else {
+      beyanBolumu = bolum('İşletmenin anlattıkları', null,
+        el('div', { class: 'ms-bos' },
+          el('p', { text: 'Bu sayfa henüz işletme tarafından doldurulmadı.' }),
+          el('p', { text: 'İşletme sahipleri yakında sayfalarını sahiplenip açıklama, çalışma saatleri ve fotoğraf ekleyebilecek. Bu bilgiler "İşletme beyanı" etiketiyle, aşağıdaki derlenmiş bilgilerden ayrı görünecek.' })));
+    }
+
+    // Özellikler: kategori tanımından
+    const satirlar = filtreler(m.kategori).map(f => {
+      const v = m.ozellikler[f.alan];
+      if (f.tip === 'coklu' && v != null && v.length) {
+        const aranan = durum.secimler[f.alan] || new Set();
+        const secenekler = f.secenekler.filter(o => v.includes(o.deger));
+        const liste = el('ul', { class: secenekler.length > 40 ? 'ms-cipler uzun' : 'ms-cipler' },
+          secenekler.map(o => el('li', { class: aranan.has(o.deger) ? 'aranan' : null, text: o.etiket })));
+        let ara = null;
+        if (secenekler.length > 40) {
+          ara = el('input', { type: 'search', class: 'ara', placeholder: `${f.etiket} içinde ara`, 'aria-label': `${f.etiket} içinde ara`, autocomplete: 'off' });
+          ara.addEventListener('input', () => { const q = duz(ara.value); for (const li of liste.children) li.hidden = !!q && !duz(li.textContent).includes(q); });
+        }
+        return el('li', { class: 'ms-satir genis' },
+          el('span', { class: 'ms-satir-ad' }, el('strong', { text: `${f.etiket} (${secenekler.length})` }), teyit(f.alan)), ara, liste);
+      }
+      let deger;
+      if (v == null || (f.tip === 'coklu' && !v.length)) deger = el('span', { class: 'ms-satir-deger olgu bilinmiyor' }, simge('bilinmiyor'), 'bilinmiyor');
+      else if (f.tip === 'secim') deger = el('span', { class: 'ms-satir-deger', text: secenekEtiketi(f, v) });
+      else deger = el('span', { class: `ms-satir-deger olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), v ? 'var' : 'yok');
+      const t = teyit(f.alan);
+      if (t) deger.append(t);
+      return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: f.etiket }), deger);
+    });
+    const ozellikler = satirlar.length
+      ? bolum('Özellikler', el('span', { class: 'ms-etiket', text: 'Keşif derledi' }), el('ul', { class: 'ms-satirlar' }, satirlar))
+      : null;
+
+    // İletişim ve konum
+    const iletisim = [el('dt', { text: 'Adres' }), el('dd', null, m.adres || el('span', { class: 'bilinmiyor', text: 'bilinmiyor' }), teyit('adres'))];
+    if (m.telefon) {
+      const no = el('a', { class: 'tel', href: `tel:${m.telefon.replace(/\s/g, '')}`, text: m.telefon });
+      const kopya = el('button', { class: 'bag kopya', type: 'button', text: 'Kopyala' });
+      kopya.addEventListener('click', () => kopyala(m.telefon, kopya, no));
+      iletisim.push(el('dt', { text: 'Telefon' }), el('dd', null, no, kopya, teyit('telefon')));
+    }
+    if (/^https:\/\//.test(m.web || '')) {
+      let gorunen = m.web;
+      try { gorunen = new URL(m.web).hostname.replace(/^www\./, ''); } catch (e) { /* olduğu gibi */ }
+      iletisim.push(el('dt', { text: 'Web' }), el('dd', null, el('a', { href: m.web, target: '_blank', rel: 'noopener noreferrer', text: gorunen }), teyit('web')));
+    }
+    iletisim.push(el('dt', { text: 'Bölge' }), el('dd', { text: `${m.ilce}, ${m.il}` }));
+    const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'
+      : bekleyen.has('konum') ? 'Haritadaki yeri yaklaşık olabilir, teyit bekliyor.' : null;
+    const iletisimBolumu = bolum('İletişim ve konum', null, el('dl', { class: 'ms-iletisim' }, iletisim),
+      konumNotu ? el('p', { class: 'uyari-not', text: konumNotu }) : null);
+
+    // Yakındaki benzer yerler: aynı kategoride, bu kayda en yakın 5 yer
+    let yakinBolumu = null;
+    if (m.konum) {
+      const yakinlar = mekanlar.filter(x => x.id !== m.id && x.kategori === m.kategori && x.konum)
+        .map(x => ({ x, d: uzaklik(m.konum, x.konum) })).sort((a, b) => a.d - b.d).slice(0, 5);
+      if (yakinlar.length) {
+        yakinBolumu = el('section', { class: 'raf ms-yakin', 'aria-label': `Yakındaki ${kat.ad.toLocaleLowerCase(TR)}` },
+          el('h3', { class: 'raf-baslik', text: 'Yakındaki benzer yerler' }),
+          el('ul', { class: 'satirlar' }, yakinlar.map(({ x, d }) => satir(x, levhaSol(kategoriHarfi(x.kategori), 'harf'),
+            el('span', { class: 'olcu', title: `${m.ad} kaydına kuş uçuşu uzaklık` }, uzaklikYaz(d)), 'yakin'))));
+      }
+    }
+
+    // Kaynak
+    const osm = /^(node|way|relation)\/\d+$/.test(m.osm_ref || '')
+      ? el('p', null, 'Kaynak: ', el('a', { href: `https://www.openstreetmap.org/${m.osm_ref}`, target: '_blank', rel: 'noopener noreferrer', text: 'OpenStreetMap katkıcıları' }), ' (ODbL)')
+      : null;
+    const kaynak = el('footer', { class: 'ms-kaynak' },
+      el('p', { text: `Bilgi tarihi: ${tarihYaz(m.dogrulama_tarihi)}` }), osm,
+      kat.bilgi_notu ? el('p', { text: kat.bilgi_notu }) : null);
+
+    $('#mekanSayfa').replaceChildren(ust, el('div', { class: 'ms-govde' },
+      bas, hizli.length ? el('div', { class: 'ms-hizli' }, hizli) : null,
+      beyanBolumu, ozellikler, iletisimBolumu, yakinBolumu, kaynak));
+  }
+
   function oneriUygula(o) {
     const sayim = new Map();
     for (const m of mekanlar) if (eslesir(m, o)) sayim.set(m.il, (sayim.get(m.il) || 0) + 1);
@@ -2543,7 +2777,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#filtreAc').setAttribute('aria-expanded', String(gorunur));
     if (cekmece) { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); }
     else { panel.removeAttribute('role'); panel.removeAttribute('aria-modal'); }
-    for (const b of [$('.ust'), $('#sonuclar'), $('.harita-kap'), $('#kesfet'), $('.sekmeler-alt')]) b.inert = gorunur;
+    for (const b of [$('.ust'), $('#sonuclar'), $('.harita-kap'), $('#kesfet'), $('#mekanSayfa'), $('.sekmeler-alt')]) b.inert = gorunur;
     if (odakla) (gorunur ? $('#panelKapat') : $('#filtreAc')).focus();
   }
 
@@ -2595,22 +2829,39 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const diyalog = $('#diyalog');
     diyalog.addEventListener('click', e => { if (e.target === diyalog) diyalog.close(); });   // dışına tıklayınca kapanır
     diyalog.addEventListener('close', guncelle);
-    window.addEventListener('hashchange', () => { const p = paylasimiOku(); if (p) { paylasilan = p; gorunumeGec('paylasilan', true); } });
+    // Adres değişimi: #mekan=<kimlik> işletme sayfasını açar (geri/ileri tuşları dahil), #liste= paylaşılan listeyi.
+    window.addEventListener('hashchange', () => {
+      const id = mekanHashi();
+      if (id) {
+        const m = mekanBul(id);
+        if (m && id !== durum.sayfa) mekanSayfasiniAc(m, { kaynak: 'gecmis', gecmis: false });
+        if (!m) { history.replaceState(null, '', location.pathname + location.search); if (durum.sayfa) sayfaKapandi(); }
+        return;
+      }
+      if (durum.sayfa) sayfaKapandi();
+      const p = paylasimiOku();
+      if (p && (!paylasilan || JSON.stringify(p) !== JSON.stringify(paylasilan))) { paylasilan = p; gorunumeGec('paylasilan', true); }
+    });
     paylasilan = paylasimiOku();
     if (paylasilan) gorunumeGec('paylasilan', false);
     $('#filtreAc').addEventListener('click', () => paneliAyarla(true, true));
     $('#panelKapat').addEventListener('click', () => paneliAyarla(false, true));
     $('#panelUygula').addEventListener('click', () => paneliAyarla(false, true));
     $('#perde').addEventListener('click', () => paneliAyarla(false, true));
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('acik')) paneliAyarla(false, true); });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (panel.classList.contains('acik')) paneliAyarla(false, true);
+      else if (durum.sayfa && !$('#diyalog').open && !(e.target.matches && e.target.matches('input') && e.target.value)) sayfayiKapat();
+    });
     dar.addEventListener('change', () => paneliAyarla(false, false));
 
     // Sekmeler, arama ve Keşfet
     for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge(b.dataset.sekme === 'kesfet' ? 'pusula' : 'harita'));
     $('#araAc').prepend(simge('ara'));
     $('#aramaForm').prepend(simge('ara'));
-    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sekmeyeGec(b.dataset.sekme));
-    $('#araAc').addEventListener('click', () => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); });
+    // Sayfa açıkken sekmeye ya da aramaya basılınca önce sayfa kapanır (geçmişten bir adım geri), sonra istenen yere geçilir.
+    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => sekmeyeGec(b.dataset.sekme)));
+    $('#araAc').addEventListener('click', () => sayfayiKapat(() => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }));
     let aramaBekliyor = null;
     $('#aramaGir').addEventListener('input', () => { clearTimeout(aramaBekliyor); aramaBekliyor = setTimeout(kesfetCiz, 120); });
     $('#aramaGir').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value) { e.preventDefault(); e.target.value = ''; kesfetCiz(); } });
@@ -2622,6 +2873,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     filtreleriCiz();
     haritaKur();
     guncelle();
+    // Bağlantıyla gelindiyse (#mekan=<kimlik>) işletme sayfası açılır; kimlik bilinmiyorsa adres temizlenir.
+    const ilkId = mekanHashi();
+    if (ilkId) {
+      const m = mekanBul(ilkId);
+      if (m) mekanSayfasiniAc(m, { kaynak: 'baglanti', gecmis: false });
+      else history.replaceState(null, '', location.pathname + location.search);
+    }
   }
   baslat();
 })();

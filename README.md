@@ -38,6 +38,13 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Hesap yoktur: favoriler ve listeler o tarayıcıda (localStorage) saklanır. Başka cihazda ya da tarayıcı verisi silinince görünmez.
 - Listeler sunucuya gönderilmez. Favoriler, "En çok favorilenenler" sayımı için tarayıcıya özel rastgele bir cihaz numarasıyla veritabanına da gönderilir (yalnızca cihaz numarası ve mekan kimlikleri; ad, e-posta, konum gönderilmez). Veritabanı dışarıya yalnızca mekan başına toplam sayıyı verir. Bu, test aşaması çözümüdür; canlıda sayım hesaplara bağlanacaktır.
 
+## İşletme sayfası
+
+- Her kaydın kendi sayfası ve adresi var: `https://albayrak21.github.io/kesif/#mekan=<kimlik>`. Kart, iğne, Keşfet ya da arama sonucuna basınca açılır; bağlantı paylaşılabilir, tarayıcının geri tuşu çalışır.
+- Telefonda tam ekran açılır; geniş ekranda filtre paneli ve listenin yerini alır, harita yanında açık kalır.
+- Bölümler: hızlı eylemler (Ara, Yol tarifi, Web sitesi, Haritada), "İşletmenin anlattıkları", "Özellikler" (kategori tanımından), "İletişim ve konum", "Yakındaki benzer yerler", kaynak.
+- "İşletmenin anlattıkları" işletme sahibinin gireceği bilgilerdir ("İşletme beyanı" etiketiyle, Keşif'in derlediği bilgilerden ayrı gösterilir ve onları değiştirmez). Sahiplenme henüz yok; şimdilik bu bölüm boş görünür.
+
 ## Keşfet
 
 - Telefonda alttaki, geniş ekranda üstteki sekmelerle Harita ve Keşfet arasında geçilir.
