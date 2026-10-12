@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self' https://jnnawgcfrckmjgahimxd.supabase.co; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://jnnawgcfrckmjgahimxd.supabase.co; connect-src 'self' https://jnnawgcfrckmjgahimxd.supabase.co; base-uri 'none'; form-action 'none'">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E5AA7'/%3E%3Crect x='4.5' y='4.5' width='23' height='23' rx='4' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Cpath d='M12 9v14M21 9l-8.5 7.5L21 23' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -849,6 +849,25 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 .kucuk-dugme { display: grid; place-items: center; min-width: 38px; height: 38px; padding: 0 8px; border: 1px solid var(--cizgi-koyu); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 600 13.5px/1 var(--yazi-dar); text-decoration: none; cursor: pointer; }
 .kucuk-dugme[aria-disabled="true"] { opacity: .4; pointer-events: none; }
 .bolum.ic { background: var(--yuzey); border-style: dashed; }
+/* fotoğraflar: seçildiği anda yüklenir, Kaydet'ten bağımsız */
+.foto-bas { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; }
+.foto-sayac { font: 600 15px/1.2 var(--yazi-dar); font-variant-numeric: tabular-nums; }
+.foto-sayac.dolu { color: var(--uyari); }
+.foto-hak { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: var(--soluk); font: 500 13.5px/1.2 var(--yazi-dar); }
+.foto-hak input { width: 72px; }
+.foto-izgara { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.foto-oge { display: flex; flex-direction: column; gap: 6px; padding: 6px; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey); }
+.foto-oge img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 5px; background: var(--zemin); }
+.foto-oge.yukleniyor img { opacity: .5; }
+.foto-eylem { display: flex; align-items: center; gap: 4px; }
+.foto-eylem .bag { padding: 4px 2px; font-size: 13px; }
+.foto-eylem .sil { margin-left: auto; color: var(--hata); }
+.foto-durum { margin: 0; font: 500 12.5px/1.3 var(--yazi-dar); color: var(--soluk); }
+.foto-durum.hata { color: var(--hata); }
+.foto-ekle { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.foto-ekle .dugme.pasif { opacity: .5; cursor: default; pointer-events: none; }
+.foto-ekle input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.foto-ekle input[type=file]:focus-visible + label { outline: 2px solid var(--vurgu); outline-offset: 2px; }
 
 .gecmis > summary { cursor: pointer; }
 .gecmis-liste { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -1063,6 +1082,22 @@ dialog.diyalog::backdrop { background: var(--perde); }
                 <h2 id="b-oz">Özellikler</h2>
                 <p class="ipucu">Emin olmadığın bilgide "Bilinmiyor"u seç. Sitede bilinmeyen bilgi "yok" sayılmaz, ayrıca gösterilir.</p>
                 <div class="ozellikler" id="ozellikler"></div>
+              </section>
+
+              <section class="bolum" aria-labelledby="b-foto" id="fotoBolumu">
+                <div class="bolum-bas foto-bas">
+                  <h2 id="b-foto">Fotoğraflar</h2>
+                  <span class="foto-sayac" id="fotoSayac" aria-live="polite"></span>
+                  <label class="foto-hak" for="fotoHakki">Hak <input class="giris-alani" id="fotoHakki" type="number" min="0" max="50" step="1" inputmode="numeric" aria-describedby="hata-fotoHakki"></label>
+                </div>
+                <p class="alan-hata" id="hata-fotoHakki" hidden></p>
+                <p class="ipucu">Fotoğraflar seçildiği anda yüklenir, Kaydet düğmesinden bağımsızdır. Yüklemeden önce bu tarayıcıda en uzun kenarı 1600 piksele küçültülür ve konum dahil dosya bilgileri silinir. Hak sayısı (varsayılan 5) Kaydet ile kaydedilir; ek hak işletmenin paketine göre artırılır.</p>
+                <ul class="foto-izgara" id="fotoIzgara"></ul>
+                <div class="foto-ekle">
+                  <input type="file" id="fotoSec" accept="image/*" multiple>
+                  <label class="dugme" for="fotoSec" id="fotoSecEtiket">Fotoğraf ekle</label>
+                  <p class="ipucu" id="fotoBilgi" role="status"></p>
+                </div>
               </section>
 
               <section class="bolum ic" aria-labelledby="b-ic">
@@ -1464,6 +1499,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       id: '', kategori: Object.keys(kategoriler)[0], ad: '', lat: null, lng: null, adres: '',
       il: kaynak ? kaynak.il : enCok('il'), ilce: kaynak ? kaynak.ilce : enCok('ilce'),
       telefon: null, web: '', ozellikler: {}, dogrulanacak: [], dogrulama_tarihi: bugun(), durum: 'acik',
+      ...(mekanlar.some(m => 'foto_hakki' in m) ? { foto_hakki: 5 } : {}),
     };
     gorunum('duzen');
     formuKur(taslak, true);
@@ -1514,6 +1550,9 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     konumBilgisi(null);
     ozellikleriCiz(m.kategori, m.ozellikler || {}, teyitler);
     teyitDurumlari();
+    $('#fotoHakki').value = m.foto_hakki ?? 5;
+    $('#fotoHakki').disabled = !('foto_hakki' in m);   // veritabanında sütun yoksa düzenlenemez
+    fotolariYukle(yeni ? null : m.id);
 
     icDoldur(null);
     $('#gecmis').open = false;
@@ -1664,6 +1703,8 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       dogrulanacak,
       dogrulama_tarihi: $('#tarih').value,
       durum: ($('input[name="durum"]:checked') || { value: 'acik' }).value,
+      // Fotoğraf hakkı yalnızca veritabanında sütun varsa okunur (yeni kayıtta varsayılan 5).
+      ...(d.ham && 'foto_hakki' in d.ham ? { foto_hakki: $('#fotoHakki').value.trim() === '' ? NaN : Number($('#fotoHakki').value) } : {}),
     };
   }
 
@@ -1800,6 +1841,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     else if (m.dogrulama_tarihi > bugun()) isaretle('tarih', 'Gelecekteki bir tarih olamaz.');
     const k = konumOku($('#konumMetni').value);
     if (k && k.hata) isaretle('konumMetni', k.hata);
+    if ('foto_hakki' in m && !(Number.isInteger(m.foto_hakki) && m.foto_hakki >= 0 && m.foto_hakki <= 50)) isaretle('fotoHakki', 'Fotoğraf hakkı 0 ile 50 arasında bir tam sayı olmalı.');
     const kat = kategoriler[m.kategori];
     if (kat) for (const f of kat.filtreler) {
       const v = m.ozellikler[f.alan];
@@ -1885,6 +1927,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     listeyiCiz();
     oneriListeleri();
     digerleriniCiz();
+    if (yeniydi) fotolariYukle(satir.id); else fotolariCiz();
   }
 
   // Güncelleme hiçbir satırı değiştirmediyse nedenini bulur: başkası mı kaydetti, yetki mi yok?
@@ -1925,8 +1968,153 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     kayitDurumu('Değişiklikler geri alındı.', '');
   }
 
+  /* ---------- fotoğraflar ---------- */
+  // Dosyalar "mekan-foto" deposunda (herkese açık okuma), kayıtları mekan_foto tablosunda. Her fotoğraf iki boyda yüklenir:
+  // büyük (en uzun kenar 1600 px) ve küçük (480 px), ikisi de webp. Tuval üzerinden yeniden kodlandığı için konum (EXIF)
+  // dahil dosya bilgileri silinir. Hak sınırı veritabanında da denetlenir (foto_hakki_doldu).
+  const DEPO = 'mekan-foto';
+  const foto = { mekanId: null, liste: [], yukleniyor: 0, hata: null };
+  const fotoAdresi = yol => db.storage.from(DEPO).getPublicUrl(yol).data.publicUrl;
+  const fotoHakki = () => {
+    const v = Number($('#fotoHakki').value);
+    const kayitli = d.ham && Number.isInteger(d.ham.foto_hakki) ? d.ham.foto_hakki : 5;
+    return d.ham && 'foto_hakki' in d.ham ? kayitli : (Number.isInteger(v) ? v : 5);
+  };
+
+  async function fotolariYukle(id) {
+    foto.mekanId = id; foto.liste = []; foto.hata = null;
+    fotolariCiz();
+    if (!id) return;
+    const { data, error } = await db.from('mekan_foto').select('*').eq('mekan_id', id).order('sira').order('eklenme');
+    if (foto.mekanId !== id) return;
+    if (error) { foto.hata = error.code === '42P01' || /mekan_foto/.test(error.message || '') ? 'Fotoğraf tablosu veritabanında yok.' : hataMetni(error); }
+    else foto.liste = data;
+    fotolariCiz();
+  }
+
+  function fotolariCiz() {
+    const yeni = !foto.mekanId;
+    const hak = fotoHakki();
+    const n = foto.liste.length;
+    const sayac = $('#fotoSayac');
+    sayac.textContent = yeni ? '' : `${n} / ${hak}`;
+    sayac.classList.toggle('dolu', n >= hak);
+    const bilgi = $('#fotoBilgi');
+    const sec = $('#fotoSec');
+    let ileti = '';
+    if (yeni) ileti = 'Fotoğraf eklemek için önce mekanı kaydet.';
+    else if (foto.hata) ileti = foto.hata;
+    else if (foto.yukleniyor) ileti = `${foto.yukleniyor} fotoğraf yükleniyor…`;
+    else if (n >= hak) ileti = n > hak ? `Hak ${hak}; ${n - hak} fotoğraf fazla. Yeni fotoğraf için hakkı artır ya da birini sil.` : 'Fotoğraf hakkı doldu. Yeni fotoğraf için hakkı artır ya da birini sil.';
+    bilgi.textContent = ileti;
+    sec.disabled = yeni || !!foto.hata || foto.yukleniyor > 0 || n >= hak;
+    $('#fotoSecEtiket').classList.toggle('pasif', sec.disabled);
+    $('#fotoSecEtiket').setAttribute('aria-disabled', String(sec.disabled));
+    $('#fotoIzgara').replaceChildren(...foto.liste.map((f, i) => {
+      const eylem = (metin, etiket, is, sinif) => {
+        const b = el('button', { class: `bag${sinif ? ` ${sinif}` : ''}`, type: 'button', text: metin, 'aria-label': etiket });
+        b.addEventListener('click', is);
+        return b;
+      };
+      return el('li', { class: 'foto-oge', 'data-id': f.id },
+        el('img', { src: fotoAdresi(f.kucuk_yol), alt: `${i + 1}. fotoğraf`, loading: 'lazy', width: 480, height: 360 }),
+        el('div', { class: 'foto-eylem' },
+          i > 0 ? eylem('◀', `${i + 1}. fotoğrafı öne al`, () => fotoTasi(i, -1)) : null,
+          i < n - 1 ? eylem('▶', `${i + 1}. fotoğrafı geriye al`, () => fotoTasi(i, 1)) : null,
+          eylem('Sil', `${i + 1}. fotoğrafı sil`, e => {
+            const onay = eylem('Evet, sil', `${i + 1}. fotoğrafı silmeyi onayla`, () => fotoSil(f), 'sil');
+            const vazgec = eylem('Vazgeç', 'Silmekten vazgeç', () => fotolariCiz());
+            e.target.replaceWith(onay, vazgec);
+            onay.focus();
+          }, 'sil')),
+        el('p', { class: 'foto-durum', text: f.kaynak === 'isletme' ? 'İşletme yükledi' : 'Keşif yükledi' }));
+    }));
+  }
+
+  // Dosyayı tuvale çizip webp olarak yeniden kodlar (EXIF silinir). Webp üretemeyen tarayıcıda hata verir.
+  async function fotoHazirla(dosya, enUzun, kalite) {
+    const bmp = await createImageBitmap(dosya, { imageOrientation: 'from-image' });
+    const oran = Math.min(1, enUzun / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width * oran)), h = Math.max(1, Math.round(bmp.height * oran));
+    const tuval = document.createElement('canvas');
+    tuval.width = w; tuval.height = h;
+    tuval.getContext('2d').drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise(r => tuval.toBlob(r, 'image/webp', kalite));
+    if (!blob || blob.type !== 'image/webp') throw new Error('webp');
+    return { blob, w, h };
+  }
+
+  async function fotoEkle(dosyalar) {
+    const id = foto.mekanId;
+    if (!id) return;
+    const kalan = Math.max(0, fotoHakki() - foto.liste.length);
+    const secilen = [...dosyalar].filter(f => /^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name));
+    const alinan = secilen.slice(0, kalan);
+    const notlar = [];
+    if (secilen.length > kalan) notlar.push(`${secilen.length - kalan} fotoğraf hak dolduğu için alınmadı.`);
+    if (secilen.length < dosyalar.length) notlar.push(`${dosyalar.length - secilen.length} dosya görsel değil.`);
+    foto.yukleniyor = alinan.length;
+    fotolariCiz();
+    let sira = foto.liste.reduce((s, f) => Math.max(s, f.sira), 0);
+    for (const dosya of alinan) {
+      const uuid = crypto.randomUUID();
+      const yol = `${id}/${uuid}.webp`, kucukYol = `${id}/${uuid}-k.webp`;
+      try {
+        if (dosya.size > 25 * 1024 * 1024) throw new Error('buyuk');
+        const buyuk = await fotoHazirla(dosya, 1600, 0.82);
+        const kucuk = await fotoHazirla(dosya, 480, 0.78);
+        const depo = db.storage.from(DEPO);
+        const y1 = await depo.upload(yol, buyuk.blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false });
+        if (y1.error) throw y1.error;
+        const y2 = await depo.upload(kucukYol, kucuk.blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false });
+        if (y2.error) { await depo.remove([yol]); throw y2.error; }
+        const { data, error } = await db.from('mekan_foto')
+          .insert({ mekan_id: id, yol, kucuk_yol: kucukYol, genislik: buyuk.w, yukseklik: buyuk.h, sira: ++sira, kaynak: 'kesif' }).select().single();
+        if (error) { await depo.remove([yol, kucukYol]); throw error; }
+        if (foto.mekanId === id) foto.liste.push(data);
+      } catch (h) {
+        const ileti = h && h.message === 'webp' ? `${dosya.name}: bu tarayıcı webp üretemiyor; Chrome, Edge ya da Firefox ile yükle.`
+          : h && h.message === 'buyuk' ? `${dosya.name}: dosya 25 MB'tan büyük.`
+          : h && /foto_hakki_doldu/.test(h.message || '') ? 'Fotoğraf hakkı doldu.'
+          : h && h.name === 'InvalidStateError' || h && h.name === 'EncodingError' ? `${dosya.name}: dosya açılamadı (HEIC ise önce JPEG'e çevir).`
+          : `${dosya.name}: ${hataMetni(h)}`;
+        notlar.push(ileti);
+      }
+      foto.yukleniyor--;
+      if (foto.mekanId === id) fotolariCiz();
+    }
+    foto.yukleniyor = 0;
+    if (foto.mekanId === id) { fotolariCiz(); if (notlar.length) $('#fotoBilgi').textContent = notlar.join(' '); else if (alinan.length) $('#fotoBilgi').textContent = `${alinan.length} fotoğraf yüklendi.`; }
+  }
+
+  async function fotoSil(f) {
+    const { error } = await db.from('mekan_foto').delete().eq('id', f.id);
+    if (error) { $('#fotoBilgi').textContent = `Silinemedi: ${hataMetni(error)}`; return; }
+    foto.liste = foto.liste.filter(x => x.id !== f.id);
+    fotolariCiz();
+    const { error: dh } = await db.storage.from(DEPO).remove([f.yol, f.kucuk_yol]);
+    $('#fotoBilgi').textContent = dh ? 'Fotoğraf sitede artık görünmüyor ama dosyası depodan silinemedi.' : 'Fotoğraf silindi.';
+  }
+
+  async function fotoTasi(i, yon) {
+    const a = foto.liste[i], b = foto.liste[i + yon];
+    if (!a || !b) return;
+    // Sıra numaraları eşitse önce ayrıştırılır; sonra iki kaydın sırası değiştirilir.
+    const sa = a.sira === b.sira ? i + 1 : a.sira, sb = a.sira === b.sira ? i + 1 + yon : b.sira;
+    const r1 = await db.from('mekan_foto').update({ sira: sb }).eq('id', a.id);
+    const r2 = r1.error ? r1 : await db.from('mekan_foto').update({ sira: sa }).eq('id', b.id);
+    if (r1.error || r2.error) { $('#fotoBilgi').textContent = `Sıra değiştirilemedi: ${hataMetni(r1.error || r2.error)}`; return; }
+    a.sira = sb; b.sira = sa;
+    foto.liste.sort((x, y) => x.sira - y.sira);
+    fotolariCiz();
+    const ogeler = $$('#fotoIzgara .foto-oge');
+    const yeniYer = ogeler[i + yon];
+    if (yeniYer) { const dugme = $(yon < 0 ? '.bag' : '.bag:not(.sil)', yeniYer); if (dugme) dugme.focus(); }
+  }
+
   /* ---------- değişiklik geçmişi ---------- */
-  const ALAN_ETIKETI = { ad: 'Ad', adres: 'Adres', il: 'İl', ilce: 'İlçe', telefon: 'Telefon', web: 'Web sitesi', dogrulama_tarihi: 'Bilgi tarihi', durum: 'Durum', kategori: 'Kategori', id: 'Kimlik', konum: 'Konum' };
+  const ALAN_ETIKETI = { foto_hakki: 'Fotoğraf hakkı', ad: 'Ad', adres: 'Adres', il: 'İl', ilce: 'İlçe', telefon: 'Telefon', web: 'Web sitesi', dogrulama_tarihi: 'Bilgi tarihi', durum: 'Durum', kategori: 'Kategori', id: 'Kimlik', konum: 'Konum' };
   const DURUM_ETIKETI = { acik: 'Açık', kapali: 'Kapalı' };
 
   async function gecmisiYukle() {
@@ -2135,6 +2323,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   function formOlaylariniKur() {
     const form = $('#form');
     form.addEventListener('submit', e => { e.preventDefault(); kaydet(); });
+    $('#fotoSec').addEventListener('change', e => { const f = [...e.target.files]; e.target.value = ''; if (f.length) fotoEkle(f); });
     form.addEventListener('input', e => {
       if (e.target.matches('[aria-invalid]')) e.target.removeAttribute('aria-invalid');
       if (['adres', 'telefon'].includes(e.target.id)) teyitDurumlari();

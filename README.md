@@ -45,6 +45,19 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Bölümler: hızlı eylemler (Ara, Yol tarifi, Web sitesi, Haritada), "İşletmenin anlattıkları", "Özellikler" (kategori tanımından), "İletişim ve konum", "Yakındaki benzer yerler", kaynak.
 - "İşletmenin anlattıkları" işletme sahibinin gireceği bilgilerdir ("İşletme beyanı" etiketiyle, Keşif'in derlediği bilgilerden ayrı gösterilir ve onları değiştirmez). Sahiplenme henüz yok; şimdilik bu bölüm boş görünür.
 
+## Puanlar
+
+- Herkes bir yere 1–5 yıldız verebilir; tarayıcıya özel rastgele bir cihaz numarasıyla tutulur (cihaz başına yer başına bir puan, değiştirilebilir ve kaldırılabilir). Bu test aşaması çözümüdür; canlıda puanlar hesaplara bağlanacaktır.
+- Hastanelerde puanlama kapalıdır (`kategoriler.json`'da `"puanlama": false`; veritabanı da aynı kuralı denetler).
+- Sıralama ağırlıklı puanla yapılır: (5 × kategori ortalaması + puanların toplamı) / (5 + puan sayısı). Böylece tek bir 5 yıldızlı puan, çok sayıda yüksek puanın önüne geçmez.
+- Liste "Puana göre / Yakınlığa göre / Ada göre", arama sonuçları "En iyi eşleşme / Puana göre / Yakınlığa göre" sıralanabilir. Keşfet'te "En yüksek puanlılar" rafı vardır.
+
+## İşletme fotoğrafları
+
+- Fotoğraflar işletme sayfasında gösterilir; büyük görünümde ok tuşlarıyla gezilir.
+- Şimdilik yöneticiler yönetim sayfasından yükler. Yer başına hak varsayılan 5'tir, yönetimden artırılabilir (0–50).
+- Yüklemeden önce tarayıcıda en uzun kenarı 1600 piksele (ve 480 piksellik küçük boya) küçültülür, webp'ye çevrilir; konum dahil dosya bilgileri silinir. Dosyalar Supabase'in `mekan-foto` deposunda herkese açık olarak durur.
+
 ## Keşfet
 
 - Telefonda alttaki, geniş ekranda üstteki sekmelerle Harita ve Keşfet arasında geçilir.
