@@ -799,6 +799,12 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .sonuc-bas { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 10px; background: var(--zemin); }
 .sonuc-sayi { margin: 0; font: 600 23px/1.1 var(--yazi-dar); font-variant-numeric: tabular-nums; }
 .sonuc-not { margin: -4px 0 0; color: var(--soluk); font-size: 13.5px; }
+.kat-baglanti { display: flex; flex-direction: column; gap: 6px; }
+.kat-baglanti a { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--vurgu); border-radius: 8px; background: var(--vurgu-soluk); color: var(--vurgu); font: 600 14.5px/1.25 var(--yazi-dar); text-decoration: none; }
+.kat-baglanti a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.kat-baglanti .kb-kaynak { display: block; color: var(--soluk); font-weight: 500; font-size: 12.5px; }
+.kat-baglanti .kb-ok { flex: none; font-size: 16px; }
+.ms-govde > .kat-baglanti { margin: 0; }
 .cipler { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .cip { display: inline-flex; align-items: center; max-width: 100%; border-radius: 6px; background: var(--vurgu-soluk); color: var(--murekkep); font: 500 14px/1.15 var(--yazi-dar); }
 .cip-ad { min-width: 0; padding: 7px 2px 7px 10px; overflow-wrap: anywhere; }
@@ -1219,6 +1225,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
         <label class="sirala"><span>Sırala</span><select id="siralaSec" class="sirala-sec"><option value="puan">Puana göre</option><option value="yakinlik">Yakınlığa göre</option><option value="ad">Ada göre</option></select></label>
       </div>
       <p class="sonuc-not" id="sonucNot" hidden></p>
+      <div class="kat-baglanti" id="katBaglanti" hidden></div>
       <ul class="cipler" id="cipler" aria-label="Seçili filtreler" hidden></ul>
       <div class="diger-yerler" id="digerYerler" hidden></div>
     </div>
@@ -2378,8 +2385,24 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     guncelle();
   }
 
+  // Kategoriye özel dış bağlantılar (ör. eczanede resmi nöbetçi listesi). Tanım: kategoriler.json'da
+  // "baglantilar": [{ il?, etiket, kaynak?, adres }]; "il" verilmişse yalnızca o ilde gösterilir.
+  // Bağlantı yalnızca yönlendirir: oradaki bilgi bu sayfaya kopyalanmaz.
+  function kategoriBaglantilari(katAdi, il) {
+    const kat = kategoriler[katAdi];
+    return ((kat && kat.baglantilar) || [])
+      .filter(b => b && /^https:\/\//.test(b.adres || '') && b.etiket && (!b.il || b.il === il))
+      .map(b => el('a', { href: b.adres, target: '_blank', rel: 'noopener noreferrer' },
+        el('span', null, b.etiket, b.kaynak ? el('span', { class: 'kb-kaynak', text: `${b.kaynak} sitesinde açılır` }) : null),
+        el('span', { class: 'kb-ok', 'aria-hidden': 'true', text: '↗' })));
+  }
+
   function baglamiYaz(listedekiler) {
     const not = $('#kaynakNotu');   // kategoriye özel açıklama, tanımdan gelir
+    const bagKutu = $('#katBaglanti');
+    const baglar = durum.gorunum ? [] : kategoriBaglantilari(durum.kategori, durum.il);
+    bagKutu.replaceChildren(...baglar);
+    bagKutu.hidden = !baglar.length;
     if (durum.gorunum) {   // liste görünümü: listedeki her kategorinin notu
       $('#baglam').textContent = gorunumAdi();
       const notlar = [...new Set((listedekiler || []).map(m => kategoriler[m.kategori].bilgi_notu).filter(Boolean))];
@@ -3000,6 +3023,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
     $('#mekanSayfa').replaceChildren(ust, el('div', { class: 'ms-govde' },
       bas, hizli.length ? el('div', { class: 'ms-hizli' }, hizli) : null,
+      (b => b.length ? el('div', { class: 'kat-baglanti' }, b) : null)(kategoriBaglantilari(m.kategori, m.il)),
       fotoBolumu(m), puanBolumu(m),
       beyanBolumu, ozellikler, iletisimBolumu, yakinBolumu, kaynak));
     fotolariGetir(m.id);

@@ -1,6 +1,6 @@
 # Keşif
 
-Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları ve tekel büfeleri; İstanbul ve Mersin'deki AVM'ler; İstanbul'un otoparkları.
+Harita tabanlı mekan keşif uygulamasının deneme sürümü. Harita İstanbul ve Mersin'de açık. Kayıtlar: Maltepe'deki hastaneler, çiçekçiler ve spor salonları; Mersin'deki spor salonları ve tekel büfeleri; İstanbul ve Mersin'deki AVM'ler; İstanbul'un otoparkları ve eczaneleri.
 
 Site: https://albayrak21.github.io/kesif/
 Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici hesapları)
@@ -23,6 +23,7 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Mersin'deki spor salonu ve tekel büfesi kayıtlarının çoğu ile bazı kayıtların konumu Overture Maps Foundation'ın Places verisinden alınmıştır (overturemaps.org; kaynakları Meta, Foursquare, Microsoft ve diğerleri; CDLA-Permissive-2.0 ve Apache-2.0).
 - İSPARK otopark kayıtları (`ispark-` ile başlayan kimlikler) İBB Açık Veri Portalı'nın İSPARK servisinden alınmıştır: İstanbul Büyükşehir Belediyesi / İSPARK A.Ş., İBB Açık Veri Lisansı (https://data.ibb.gov.tr). Ad, konum, tür, kapasite, saatler, ücretsiz süre, aylık abonelik ve tarife bu kaynaktandır; değişebilir.
 - Diğer otopark kayıtları (`otopark-` ile başlayan kimlikler) OpenStreetMap'ten türetilmiştir (© OpenStreetMap katkıcıları, ODbL 1.0). Adı OSM'de olmayanların adı türünden üretilmiştir ve teyit bekler.
+- Eczane kayıtları (`eczane-` ile başlayan kimlikler) OpenStreetMap'ten türetilmiştir (© OpenStreetMap katkıcıları, ODbL 1.0). Bu kayıtlar henüz `mekanlar.json` yedeğinde yoktur; veritabanının herkese açık okuma servisinden (`/rest/v1/mekan?kategori=eq.eczane`) aynı lisansla alınabilir.
 - Sınırlar: © OpenStreetMap katkıcıları, ODbL 1.0.
 - Harita: Leaflet ve Leaflet.markercluster.
 
@@ -67,6 +68,11 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Diğer filtreler: tür (kapalı/katlı, açık alan, yol üstü), ücret, 7/24, ilk dakikalar ücretsiz, aylık abonelik.
 - Tarife, kapasite, çalışma saatleri ve işleten kurum "bilgi" alanlarıdır (`kategoriler.json`'da `bilgiler`): süzmede kullanılmaz, işletme sayfasında gösterilir, yönetimden düzenlenir.
 - Anlık doluluk henüz yok. İSPARK'ın servisi tarayıcıdan doğrudan okunamıyor; ileride sunucu tarafında bir ara katmanla eklenebilir.
+
+## Eczaneler
+
+- İstanbul'un bütün ilçelerinde, OpenStreetMap'te kayıtlı eczaneler. Adsız kayıtlar, il dışında kalanlar, medikal/ortopedi mağazaları ve ecza depoları ile aynı yerdeki çift kayıtlar ayıklandı.
+- Nöbet bilgisi tutulmaz. Eczaneler seçiliyken listenin üstünde ve her eczanenin sayfasında İstanbul Eczacı Odası'nın resmi nöbetçi eczane sayfasına bağlantı var (`kategoriler.json`'da `baglantilar`: `{ il, etiket, kaynak, adres }`; `il` verilirse yalnızca o ilde görünür). Bağlantı yalnızca yönlendirir, oradaki bilgi bu siteye kopyalanmaz.
 
 ## Keşfet
 
