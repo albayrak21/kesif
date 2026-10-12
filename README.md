@@ -32,7 +32,15 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 
 ## Favoriler ve listeler
 
-- Kartlardaki yıldıza basılınca kayıt favorilere eklenir; "Yalnızca favorilerim" anahtarı listeyi ve haritayı favorilerle sınırlar.
+- Kartlardaki yıldıza basılınca kayıt favorilere eklenir; "Göster" menüsündeki "Favorilerim" listeyi ve haritayı favorilerle sınırlar.
 - Kartlardaki liste düğmesiyle kayıt, adını ziyaretçinin verdiği listelere eklenir; "Listelerim" penceresinden liste oluşturulur, adı değiştirilir, silinir ve paylaşılır. "Göster" menüsü listeyi ve haritayı seçilen listeyle sınırlar.
 - Paylaşım bağlantıyla yapılır: liste adı ve kayıt kimlikleri adresin `#liste=` parçasına yazılır (bu parça sunucuya gönderilmez). Bağlantıyı açan listeyi görür ve kendi listelerine kaydedebilir. Bağlantı listenin o anki kopyasıdır.
-- Hesap yoktur: favoriler ve listeler yalnızca o tarayıcıda (localStorage) saklanır, sunucuya gönderilmez. Başka cihazda ya da tarayıcı verisi silinince görünmez.
+- Hesap yoktur: favoriler ve listeler o tarayıcıda (localStorage) saklanır. Başka cihazda ya da tarayıcı verisi silinince görünmez.
+- Listeler sunucuya gönderilmez. Favoriler, "En çok favorilenenler" sayımı için tarayıcıya özel rastgele bir cihaz numarasıyla veritabanına da gönderilir (yalnızca cihaz numarası ve mekan kimlikleri; ad, e-posta, konum gönderilmez). Veritabanı dışarıya yalnızca mekan başına toplam sayıyı verir. Bu, test aşaması çözümüdür; canlıda sayım hesaplara bağlanacaktır.
+
+## Keşfet
+
+- Telefonda alttaki, geniş ekranda üstteki sekmelerle Harita ve Keşfet arasında geçilir.
+- Keşfet'te iki liste var: "En çok favorilenenler" ve "Son eklenenler". İkisi de harita sekmesindeki seçime (il, ilçe ya da taranan alan, kategori, filtreler) uyan kayıtlardan çizilir. Eklenme tarihi, veritabanındaki değişiklik geçmişinde kaydın ilk eklendiği andır.
+- Arama bütün il ve kategorilerde ad, ilçe, il ve adrese bakar; kategori adları ve filtre seçenekleri (marka, branş, özellik) için filtre önerir. Sonuca basınca harita o kayda gider.
+- Haritayı kaydırınca ya da yakınlaştırınca "Bu alanı tara" düğmesi çıkar; basınca liste o anki harita alanıyla sınırlanır (seçili kategori ve filtreler geçerli kalır).

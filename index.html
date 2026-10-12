@@ -743,7 +743,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .dugme:hover { border-color: var(--murekkep); }
 .dugme-dolu { width: 100%; border-color: transparent; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
 .dugme-dolu:hover { border-color: transparent; filter: brightness(1.08); }
-.dugme-filtre { display: none; margin-left: auto; }
+.dugme-filtre { display: none; }
 .rozet { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 600 12px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; }
 .bag { padding: 6px 2px; border: 0; background: none; color: var(--vurgu); font: 600 14px/1 var(--yazi-dar); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
@@ -951,9 +951,65 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 
 .perde { display: none; }
 
+/* ---------- sekmeler: Harita | Keşfet (geniş ekranda üstte, telefonda altta) ---------- */
+.sekmeler { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--cizgi-koyu); border-radius: 8px; background: var(--zemin); }
+.sekme { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 6px 14px; border: 0; border-radius: 5px; background: none; color: var(--soluk); font: 600 15px/1 var(--yazi-dar); cursor: pointer; }
+.sekme:hover { color: var(--murekkep); }
+.sekme[aria-current="page"] { background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.sekme .simge { width: 16px; height: 16px; }
+.sekmeler-alt { display: none; }
+.ara-dugme { margin-left: auto; }
+.ara-dugme .simge { width: 16px; height: 16px; stroke-width: 2; }
+.uyg.kesfette { grid-template-areas: "ust ust ust" "panel kesfet kesfet"; }
+.uyg.kesfette .sonuclar, .uyg.kesfette .harita-kap { display: none; }
+
+/* ---------- keşfet ---------- */
+.kesfet { grid-area: kesfet; min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--zemin); }
+.kesfet-ic { width: min(760px, 100%); margin: 0 auto; padding: 18px 16px 32px; display: flex; flex-direction: column; gap: 24px; }
+.arama { position: relative; display: flex; align-items: center; }
+.arama > .simge { position: absolute; left: 14px; width: 18px; height: 18px; color: var(--soluk); stroke-width: 2; pointer-events: none; }
+.arama-giris { width: 100%; min-height: 48px; padding: 10px 14px 10px 42px; border: 1px solid var(--cizgi-koyu); border-radius: 8px; background: var(--yuzey-2); color: var(--murekkep); font: 500 16px/1.2 var(--yazi); }
+.arama-giris::placeholder { color: var(--soluk); opacity: 1; }
+.kapsam { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding: 10px 14px; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey); }
+.kapsam p { flex: 1; min-width: 0; margin: 0; font: 500 15.5px/1.3 var(--yazi-dar); overflow-wrap: anywhere; }
+.kapsam .baslik-kucuk { display: block; margin-bottom: 3px; }
+.raflar { display: flex; flex-direction: column; gap: 24px; }
+.raf { display: flex; flex-direction: column; gap: 8px; }
+.raf-baslik { margin: 0; font: 700 22px/1.1 var(--yazi-dar); }
+.raf-not { margin: -4px 0 2px; color: var(--soluk); font-size: 13.5px; }
+.satirlar { list-style: none; margin: 0; padding: 0; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey-2); overflow: hidden; }
+.satir { position: relative; border-bottom: 1px solid var(--cizgi); }
+.satir:last-child { border-bottom: 0; }
+.satir-ac { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 62px; padding: 10px 52px 10px 14px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.satir-ac:hover { background: var(--vurgu-soluk); }
+.satir-ac:focus-visible { outline-offset: -2px; }
+.satir .favori { top: 50%; right: 6px; transform: translateY(-50%); }
+.satir-sol { width: 30px; height: 30px; border-radius: 6px; font-size: 17px; }
+.satir-sol.harf { background: var(--yuzey-2); color: var(--vurgu); box-shadow: inset 0 0 0 1.5px var(--vurgu-dolgu); }
+.satir-sol.oneri { background: var(--secim); color: var(--secim-ustu); }
+.satir-govde { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.satir-ad { font: 600 16.5px/1.2 var(--yazi-dar); overflow-wrap: anywhere; }
+.satir-alt { color: var(--soluk); font-size: 13.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.satir-alt .uzaklik { margin-right: 4px; }
+.olcu { display: inline-flex; align-items: center; gap: 4px; color: var(--soluk); font: 600 14px/1 var(--yazi-dar); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.olcu .simge { width: 14px; height: 14px; }
+.olcu.fav { color: var(--uyari); }
+.olcu.fav .simge path { fill: var(--secim); }
+.raf-bos { margin: 0; padding: 16px; border: 1px dashed var(--cizgi-koyu); border-radius: 8px; color: var(--soluk); }
+.raf-daha { align-self: flex-start; }
+.arama-ozet { margin: 0; color: var(--soluk); font: 500 14px/1.3 var(--yazi-dar); }
+
+/* ---------- haritada "Bu alanı tara" ---------- */
+.tara-dugme { position: absolute; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 8px 16px; border: 1px solid var(--cizgi-koyu); border-radius: 19px; background: var(--yuzey-2); color: var(--vurgu); box-shadow: var(--golge); font: 700 15px/1 var(--yazi-dar); white-space: nowrap; cursor: pointer; }
+.tara-dugme:hover { border-color: var(--vurgu); }
+.harita-not:not([hidden]) ~ .tara-dugme { top: 48px; }
+.tara-dugme .simge { width: 15px; height: 15px; stroke-width: 2.2; }
+.tara-alan { fill: var(--vurgu-dolgu); fill-opacity: .05; stroke: var(--vurgu-dolgu); stroke-opacity: .8; stroke-width: 2; stroke-dasharray: 6 5; }
+
 /* ---------- dar ekran: panel çekmece olur ---------- */
 @media (max-width: 1099.98px) {
   .uyg { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "ust ust" "sonuc harita"; }
+  .uyg.kesfette { grid-template-areas: "ust ust" "kesfet kesfet"; }
   .dugme-filtre { display: inline-flex; }
   .panel { position: fixed; z-index: 30; inset: 0 auto 0 0; width: min(380px, 100%); padding-top: env(safe-area-inset-top, 0px); box-shadow: var(--golge); transform: translateX(-104%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
   .panel.acik { transform: none; visibility: visible; transition: transform .2s ease; }
@@ -963,7 +1019,18 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 }
 /* ---------- telefon: harita üstte, liste altta ---------- */
 @media (max-width: 719.98px) {
-  .uyg { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(200px, 42%) minmax(0, 1fr); grid-template-areas: "ust" "harita" "sonuc"; }
+  .uyg { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(200px, 42%) minmax(0, 1fr) auto; grid-template-areas: "ust" "harita" "sonuc" "sekme"; }
+  .uyg.kesfette { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "ust" "kesfet" "sekme"; }
+  .ust { gap: 8px; padding: 8px 12px; }
+  .sekmeler-ust { display: none; }
+  .ara-dugme { padding: 8px 11px; }
+  .ara-dugme .ara-metin { display: none; }
+  .sekmeler-alt { grid-area: sekme; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--cizgi); background: var(--yuzey); }
+  .sekmeler-alt .sekme { flex-direction: column; gap: 3px; min-height: 56px; border-radius: 0; font-size: 13.5px; }
+  .sekmeler-alt .sekme .simge { width: 22px; height: 22px; stroke-width: 1.6; }
+  .sekmeler-alt .sekme[aria-current="page"] { background: none; color: var(--vurgu); }
+  .kesfet-ic { padding: 14px 12px 24px; gap: 22px; }
+  .raf-baslik { font-size: 20px; }
   .panel { width: 100%; }
   .sonuclar { border-right: 0; border-top: 1px solid var(--cizgi); }
   .sonuc-sayi { font-size: 21px; }
@@ -977,7 +1044,12 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 <div class="uyg" id="uyg" lang="tr">
   <header class="ust">
     <h1 class="marka"><span class="levha" aria-hidden="true">K</span>Keşif</h1>
+    <nav class="sekmeler sekmeler-ust" aria-label="Sayfalar">
+      <button class="sekme" type="button" data-sekme="harita" aria-current="page">Harita</button>
+      <button class="sekme" type="button" data-sekme="kesfet">Keşfet</button>
+    </nav>
     <p class="baglam" id="baglam"></p>
+    <button class="dugme ara-dugme" id="araAc" type="button" aria-label="Ara"><span class="ara-metin">Ara</span></button>
     <button class="dugme dugme-filtre" id="filtreAc" type="button" aria-controls="panel" aria-expanded="false">Filtrele <span class="rozet" id="filtreSayisi" hidden>0</span></button>
   </header>
 
@@ -1026,6 +1098,21 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <p class="harita-not konum-not" id="konumNot" role="status" aria-live="polite" hidden></p>
     <div class="koor-kutu" id="koorKutu" hidden><span>Koordinat</span><output id="koorDeger"></output><button class="bag" id="koorKopya" type="button">Kopyala</button></div>
   </section>
+
+  <section class="kesfet" id="kesfet" aria-label="Keşfet" hidden>
+    <div class="kesfet-ic">
+      <form class="arama" id="aramaForm" role="search">
+        <input class="arama-giris" id="aramaGir" type="search" placeholder="Mekan, ilçe, adres, marka, branş ara" aria-label="Ara: mekan, ilçe, adres, marka, branş" autocomplete="off" enterkeyhint="search">
+      </form>
+      <div id="aramaSonuc" class="raf" aria-live="polite" hidden></div>
+      <div id="raflar" class="raflar"></div>
+    </div>
+  </section>
+
+  <nav class="sekmeler-alt" aria-label="Sayfalar">
+    <button class="sekme" type="button" data-sekme="harita" aria-current="page">Harita</button>
+    <button class="sekme" type="button" data-sekme="kesfet">Keşfet</button>
+  </nav>
   <div class="perde" id="perde" hidden></div>
 </div>
 
@@ -1072,6 +1159,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     liste: 'M2.5 4h8M2.5 8h6M2.5 12h4M12 8.5v5M9.5 11h5',
     yildiz: 'M8 1.9l1.85 3.85 4.2.6-3.05 2.95.72 4.2L8 11.5l-3.72 2 .72-4.2L1.95 6.35l4.2-.6z',
     konum: 'M8 1.5v2.2M8 12.3v2.2M1.5 8h2.2M12.3 8h2.2M8 4.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 1 0 0-6.8z',
+    ara: 'M7 2.3a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 1 0 0-9.4zM10.4 10.4l3.3 3.3',
+    harita: 'M1.8 3.6l4-1.6 4.4 1.8 4-1.6v10.2l-4 1.6-4.4-1.8-4 1.6zM5.8 2v10.2M10.2 3.8V14',
+    pusula: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM10.7 5.3L9.2 9.2 5.3 10.7 6.8 6.8z',
   };
   function simge(ad) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1146,12 +1236,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   let kategoriler, mekanlar, sinirlar;
-  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '' };   // gorunum: '' (tüm kayıtlar) | 'favori' | 'l:<liste kimliği>' | 'paylasilan'
+  // gorunum: '' (tüm kayıtlar) | 'favori' | 'l:<liste kimliği>' | 'paylasilan'
+  // sekme: 'harita' | 'kesfet'. alan: "Bu alanı tara" ile seçilen harita alanı (Leaflet sınırı) ya da null.
+  const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '', sekme: 'harita', alan: null };
 
   /* ---------- favoriler ---------- */
-  // Hesap yok: favoriler yalnızca bu tarayıcıda (localStorage) durur, sunucuya gönderilmez.
-  // Mekan kimliği kalıcı olduğu için liste kimliklerden oluşur. Saklama kapalıysa (gizli sekme vb.) sayfa açıkken bellekte tutulur.
+  // Hesap yok: favoriler bu tarayıcıda (localStorage) durur. "En çok favorilenenler" sayımı için favori listesi,
+  // tarayıcıya özel rastgele bir cihaz numarasıyla veritabanına da gönderilir (ad, e-posta, konum gönderilmez).
+  // Canlıya geçişte bu sayım gerçek hesaplara bağlanacak (test aşaması çözümü).
+  // Mekan kimliği kalıcı olduğu için liste kimliklerden oluşur. Saklama kapalıysa (gizli sekme vb.) sayfa açıkken bellekte tutulur ve gönderilmez.
   const FAVORI_ANAHTAR = 'kesif.favoriler';
+  const FAVORI_NOTU = 'Favorilerin bu tarayıcıda saklanır; "En çok favorilenenler" sayımı için adsız bir cihaz numarasıyla sunucuya da gönderilir.';
   const favoriler = new Set();
   try { for (const id of JSON.parse(localStorage.getItem(FAVORI_ANAHTAR) || '[]')) if (typeof id === 'string') favoriler.add(id); } catch (e) { /* saklama yok ya da bozuk */ }
   function favoriKaydet() { try { localStorage.setItem(FAVORI_ANAHTAR, JSON.stringify([...favoriler])); } catch (e) { /* bellekte kalır */ } }
@@ -1167,10 +1262,83 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     d.addEventListener('click', () => {
       if (favoriler.has(m.id)) favoriler.delete(m.id); else favoriler.add(m.id);
       favoriKaydet();
-      if (durum.gorunum === 'favori') guncelle(); else { yaz(); gorunumuYaz(); }
+      favoriEsitle();
+      if (durum.gorunum === 'favori' && durum.sekme === 'harita') guncelle(); else { yaz(); gorunumuYaz(); }
     });
     return d;
   }
+
+  /* ---------- favori sayımı ve eklenme tarihi (veritabanı) ---------- */
+  // Cihaz numarası yalnızca bir favori gönderilecekse üretilir; saklama çalışmıyorsa hiç üretilmez ve hiçbir şey gönderilmez
+  // (her ziyarette yeni numara, sayıyı şişirirdi).
+  const CIHAZ_ANAHTAR = 'kesif.cihaz', UUID_KALIBI = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  function cihazNumarasi(uret) {
+    try {
+      const var_ = localStorage.getItem(CIHAZ_ANAHTAR);
+      if (var_ && UUID_KALIBI.test(var_)) return var_;
+      if (!uret) return null;
+      let yeni;
+      if (crypto.randomUUID) yeni = crypto.randomUUID();
+      else {
+        const b = crypto.getRandomValues(new Uint8Array(16));
+        b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+        const h = [...b].map(x => x.toString(16).padStart(2, '0')).join('');
+        yeni = `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+      }
+      localStorage.setItem(CIHAZ_ANAHTAR, yeni);
+      return localStorage.getItem(CIHAZ_ANAHTAR) === yeni ? yeni : null;
+    } catch (e) { return null; }
+  }
+  function rpc(ad, govde, keepalive) {
+    const { url, anahtar } = AYAR.veritabani;
+    const iptal = new AbortController();
+    const sayac_ = setTimeout(() => iptal.abort(), 8000);
+    return fetch(`${url}/rest/v1/rpc/${ad}`, {
+      method: 'POST', keepalive: !!keepalive, signal: iptal.signal,
+      headers: { apikey: anahtar, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(govde || {}),
+    }).then(y => { if (!y.ok) throw new Error(`${ad}: ${y.status}`); return y.json(); })
+      .finally(() => clearTimeout(sayac_));
+  }
+  // durum: 'bos' | 'yukleniyor' | 'tamam' | 'hata'. Veriler bayatlayınca (favori 30 sn, eklenme 5 dk) Keşfet açılırken yenilenir.
+  const sayac = {
+    favori: { harita: null, zaman: 0, durum: 'bos', tekrar: false, omur: 30000, rpc: 'favori_sayilari', alan: 'sayi' },
+    eklenme: { harita: null, zaman: 0, durum: 'bos', tekrar: false, omur: 300000, rpc: 'mekan_eklenme', alan: 'eklenme' },
+  };
+  async function sayacGetir(s, zorla) {
+    if (!AYAR.veritabani) { s.durum = 'hata'; return; }
+    if (s.durum === 'yukleniyor') { if (zorla) s.tekrar = true; return; }
+    if (!zorla && s.harita && Date.now() - s.zaman < s.omur) return;
+    s.durum = 'yukleniyor';
+    try {
+      const satirlar = await rpc(s.rpc);
+      if (!Array.isArray(satirlar)) throw new Error(`${s.rpc}: liste değil`);
+      s.harita = new Map(satirlar.filter(x => x && typeof x.mekan_id === 'string' && x[s.alan] != null)
+        .map(x => [x.mekan_id, s.alan === 'sayi' ? Number(x.sayi) || 0 : Date.parse(x.eklenme)]));
+      s.zaman = Date.now();
+      s.durum = 'tamam';
+    } catch (hata) {
+      console.warn('Keşfet verisi alınamadı:', hata);
+      s.durum = 'hata';
+    }
+    if (s.tekrar) { s.tekrar = false; sayacGetir(s, true); return; }
+    if (durum.sekme === 'kesfet') kesfetCiz();
+  }
+  // Bu cihazın favori kümesi veritabanına eşitlenir (eksikler eklenir, çıkarılanlar silinir). Art arda tıklamalar tek istekte gider.
+  let esitleBekliyor = null;
+  function esitleGonder(keepalive) {
+    clearTimeout(esitleBekliyor); esitleBekliyor = null;
+    const cihaz = cihazNumarasi(favoriler.size > 0);
+    if (!AYAR.veritabani || !cihaz) return;
+    rpc('favori_esitle', { p_cihaz: cihaz, p_mekanlar: [...favoriler].slice(0, 500) }, keepalive)
+      .then(() => { if (!keepalive) sayacGetir(sayac.favori, true); })
+      .catch(hata => console.warn('Favori sayımı gönderilemedi:', hata));
+  }
+  function favoriEsitle() {
+    clearTimeout(esitleBekliyor);
+    esitleBekliyor = setTimeout(() => esitleGonder(false), 700);
+  }
+  window.addEventListener('pagehide', () => { if (esitleBekliyor) esitleGonder(true); });
 
   /* ---------- listeler ---------- */
   // Adlandırılmış listeler de yalnızca bu tarayıcıda durur. Liste mekanı kopyalamaz, kimliğini tutar.
@@ -1232,7 +1400,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
   function grubaGit(il, kategori, ciz) {
     durum.il = il; durum.ilce = TUM; durum.kategori = kategori;
-    durum.secimler = {}; durum.secili = null;
+    durum.secimler = {}; durum.secili = null; durum.alan = null;
     $('#ilSec').value = il; $('#kategoriSec').value = kategori; ilceleriCiz();
     if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(); guncelle(); }
   }
@@ -1373,10 +1541,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   }
 
   const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
+  // "Bu alanı tara" seçiliyse ilçe yerine haritadaki alan geçerlidir: alanın içinde konumu olan kayıtlar (seçili ilde).
+  const alanda = m => !!(m.konum && durum.alan && durum.alan.contains([m.konum.lat, m.konum.lng]));
   const bolgeMekanlari = () => mekanlar
-    .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.ilce === TUM || m.ilce === durum.ilce))
+    .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce)))
     .sort((a, b) => a.ad.localeCompare(b.ad, TR));
-  const bolgeAdi = () => (durum.ilce === TUM ? durum.il : durum.ilce);
+  const bolgeAdi = () => (durum.alan ? 'Haritadaki alan' : durum.ilce === TUM ? durum.il : durum.ilce);
   const aktifMi = (f, s) => f.tip === 'coklu' ? !!(s && s.size) : s != null && s !== false;
   const secenekEtiketi = (f, deger) => (f.secenekler.find(o => o.deger === deger) || { etiket: deger }).etiket;
 
@@ -1491,6 +1661,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   function aktifler() {
     const a = [];
     if (durum.gorunum) a.push({ etiket: gorunumAdi(), kaldir: () => { durum.gorunum = ''; } });
+    else if (durum.alan) a.push({ etiket: 'Haritadaki alan', kaldir: () => { durum.alan = null; } });
     for (const f of filtreler()) {
       const s = durum.secimler[f.alan];
       if (!aktifMi(f, s)) continue;
@@ -1612,7 +1783,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const rozet = $('#filtreSayisi');
     rozet.textContent = aktif.length;
     rozet.hidden = !aktif.length;
-    $('#panelUygula').textContent = uyan.length ? `${uyan.length} sonucu göster` : 'Listeye dön';
+    $('#panelUygula').textContent = durum.sekme === 'kesfet' ? 'Keşfet\'e dön' : uyan.length ? `${uyan.length} sonucu göster` : 'Listeye dön';
 
     const liste = $('#liste');
     if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
@@ -1622,8 +1793,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       const favori = durum.gorunum === 'favori';
       liste.replaceChildren(el('li', { class: 'bos-durum' },
         el('p', { text: favori ? 'Henüz favorin yok.' : 'Bu listede henüz kayıt yok.' }),
-        el('p', { text: favori ? 'Bir kaydı favoriye almak için kartındaki yıldıza bas. Favorilerin yalnızca bu cihazda, bu tarayıcıda saklanır.'
+        el('p', { text: favori ? `Bir kaydı favoriye almak için kartındaki yıldıza bas. ${FAVORI_NOTU}`
           : 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas.' }), hepsi));
+    } else if (!tum.length && durum.alan) {
+      const kaldir = el('button', { class: 'dugme', type: 'button', text: 'Alan seçimini kaldır' });
+      kaldir.addEventListener('click', () => { durum.alan = null; guncelle(); });
+      liste.replaceChildren(el('li', { class: 'bos-durum' },
+        el('p', { text: `Haritadaki bu alanda kayıt yok (${kategoriler[durum.kategori].ad}).` }),
+        el('p', { text: 'Haritayı kaydırıp yeniden tarayabilir ya da alan seçimini kaldırabilirsin.' }), kaldir));
     } else if (!tum.length) {
       liste.replaceChildren(el('li', { class: 'bos-durum' },
         el('p', { text: `${bolgeAdi()} için bu kategoride henüz kayıt yok.` }),
@@ -1728,6 +1905,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     new ResizeObserver(() => harita.invalidateSize({ pan: false })).observe(harita.getContainer());
 
     if (AYAR.koordinatAraci) koordinatAraciKur();
+    taraKur();
     bolgeyiCiz();
     yakinlik();
   }
@@ -1757,6 +1935,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   // Seçili bölge: ilçe seçiliyse sınırı çizilir; harita seçili ilin içinde tutulur.
   function bolgeyiCiz() {
     if (!harita) return;
+    taraGoster(false);
     if (bolgeKatmani) { bolgeKatmani.remove(); bolgeKatmani = null; }
     if (durum.ilce !== TUM && !durum.gorunum) {
       const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.il === durum.il && f.properties.ad === durum.ilce);
@@ -1777,6 +1956,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       const yerler = kume ? kumedekiler(kume).filter(m => m.konum).map(m => [m.konum.lat, m.konum.lng]) : [];
       return yerler.length ? L.latLngBounds(yerler).pad(0.15) : ilKutusu(durum.il);
     }
+    if (durum.alan) return durum.alan;
     if (bolgeKatmani) return bolgeKatmani.getBounds();
     const il = ilKutusu(durum.il);
     if (durum.ilce === TUM && il) return il;
@@ -1787,6 +1967,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   function bolgeyeSigdir(canli) {
     if (!harita) return;
+    kullaniciAni = 0;   // programla yapılan kaydırma "Bu alanı tara"yı çıkarmaz
     const kutu = bolgeKutusu();
     if (kutu) harita.fitBounds(kutu, { padding: [14, 14], maxZoom: 16, animate: canli && !azHareket });
   }
@@ -1821,6 +2002,42 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     }
     if (eklenen.length) KUME_VAR ? kume.addLayers(eklenen) : eklenen.forEach(i => kume.addLayer(i));
     harita.getContainer().dataset.igne = igneler.size;   // haritadaki (kümelenmiş olsa da) iğne sayısı
+  }
+
+  /* ---------- "Bu alanı tara" ---------- */
+  // Ziyaretçi haritayı kendisi kaydırınca ya da yakınlaştırınca düğme çıkar; basınca liste o anki harita alanıyla sınırlanır
+  // (seçili kategori ve filtreler geçerli kalır, ilçe seçimi yerine alan geçer). Programla yapılan kaydırmalar düğmeyi çıkarmaz.
+  let kullaniciAni = 0, taraDugmesi = null, alanKatmani = null;
+  function taraKur() {
+    taraDugmesi = el('button', { class: 'tara-dugme', type: 'button', hidden: true }, simge('ara'), 'Bu alanı tara');
+    taraDugmesi.addEventListener('click', alaniTara);
+    $('.harita-kap').append(taraDugmesi);
+    const kap = harita.getContainer();
+    const isaretle = () => { kullaniciAni = Date.now(); };
+    for (const olay of ['pointerdown', 'pointerup', 'wheel', 'touchstart', 'touchend', 'keydown']) kap.addEventListener(olay, isaretle, { passive: true });
+    harita.on('moveend', () => {
+      if (durum.gorunum || Date.now() - kullaniciAni > 1200) return;
+      taraGoster(true);
+    });
+  }
+  function taraGoster(goster) { if (taraDugmesi) taraDugmesi.hidden = !goster; }
+  function alaniTara() {
+    durum.alan = harita.getBounds();
+    durum.secili = null;
+    taraGoster(false);
+    guncelle();
+    $('#sonuclar').scrollTop = 0;
+  }
+  // Taranan alan haritada kesik çizgili bir çerçeveyle gösterilir.
+  function alaniCiz() {
+    if (!harita) return;
+    const istenen = durum.alan && !durum.gorunum ? durum.alan : null;
+    harita.getContainer().dataset.alan = istenen ? istenen.toBBoxString() : '';   // taranan alan: batı,güney,doğu,kuzey
+    if (alanKatmani && alanKatmani.kesifAlan !== istenen) { alanKatmani.remove(); alanKatmani = null; }
+    if (istenen && !alanKatmani) {
+      alanKatmani = L.rectangle(istenen, { className: 'tara-alan', interactive: false }).addTo(harita);
+      alanKatmani.kesifAlan = istenen;
+    }
   }
 
   function koordinatAraciKur() {
@@ -1914,12 +2131,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (!kume) paneliEsle(tum);
     listeyiCiz(tum, uyan, belirsiz);
     igneleriCiz(uyan);
+    alaniCiz();
     seciliyiUygula();
+    if (durum.sekme === 'kesfet') kesfetCiz();
   }
 
   function filtreleriTemizle() {
     durum.secimler = {};
     durum.gorunum = '';
+    durum.alan = null;
     guncelle();
   }
 
@@ -2080,6 +2300,237 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     konumuKapat(not);
   }
 
+  /* ---------- sekmeler: Harita | Keşfet ---------- */
+  function sekmeyeGec(s) {
+    durum.sekme = s;
+    kok.classList.toggle('kesfette', s === 'kesfet');
+    $('#kesfet').hidden = s !== 'kesfet';
+    for (const b of kok.querySelectorAll('[data-sekme]')) {
+      if (b.dataset.sekme === s) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    }
+    $('#panelUygula').textContent = s === 'kesfet' ? 'Keşfet\'e dön' : 'Sonuçları göster';
+    if (s === 'kesfet') {
+      sayacGetir(sayac.favori); sayacGetir(sayac.eklenme);
+      kesfetCiz();
+    } else if (harita) {
+      harita.invalidateSize({ pan: false });
+      guncelle();
+    }
+  }
+
+  /* ---------- keşfet ---------- */
+  // Raflar, harita sekmesindeki seçimle (il, ilçe ya da taranan alan, kategori, filtreler) aynı kümeden çizilir:
+  // yalnızca filtrelere kesin uyan kayıtlar. Liste görünümü (Favorilerim vb.) Keşfet'i etkilemez.
+  const RAF_ADIM = 10;
+  const rafSiniri = { favori: RAF_ADIM, yeni: RAF_ADIM, arama: 30, kapsam: '' };
+  const kapsamUyanlar = () => bolgeMekanlari().filter(m => degerlendir(m, durum.secimler).sonuc === 'uyar');
+  const kategoriHarfi = k => kategoriler[k].simge || kategoriler[k].ad.trim().charAt(0).toLocaleUpperCase(TR);
+  const aySiz = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short' });
+  const ayYil = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+  const kisaTarih = ms => (new Date(ms).getFullYear() === new Date().getFullYear() ? aySiz : ayYil).format(ms);
+
+  function satir(m, sol, olcu, raf) {
+    const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
+    const ac = el('button', { class: 'satir-ac', type: 'button' }, sol,
+      el('span', { class: 'satir-govde' },
+        el('span', { class: 'satir-ad', text: m.ad }),
+        el('span', { class: 'satir-alt' },
+          uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, uzaklikYaz(uzak)) : null,
+          `${kategoriler[m.kategori].ad} · ${m.ilce}, ${m.il}`)),
+      olcu);
+    ac.addEventListener('click', () => haritadaGoster(m));
+    return el('li', { class: 'satir', 'data-id': m.id, 'data-raf': raf }, ac, favoriDugmesi(m));
+  }
+  const levhaSol = (metin, ek) => el('span', { class: `levha satir-sol${ek ? ` ${ek}` : ''}`, 'aria-hidden': 'true', text: metin });
+  function dahaDugmesi(anahtar, kalan) {
+    const b = el('button', { class: 'dugme raf-daha', type: 'button', text: `${Math.min(kalan, RAF_ADIM)} tane daha göster` });
+    b.addEventListener('click', () => { rafSiniri[anahtar] += anahtar === 'arama' ? 30 : RAF_ADIM; kesfetCiz(); });
+    return b;
+  }
+  function raf(baslik, not, govde) {
+    return el('section', { class: 'raf', 'aria-label': baslik }, el('h2', { class: 'raf-baslik', text: baslik }), not ? el('p', { class: 'raf-not', text: not }) : null, govde);
+  }
+
+  function kesfetCiz() {
+    if (!mekanlar) return;
+    // Yıldıza basınca raf yeniden çizilir; odak aynı kaydın yıldızında kalır.
+    const odak = document.activeElement;
+    const odakSatiri = odak && odak.classList && odak.classList.contains('favori') && odak.closest('.satir');
+    const odakAnahtari = odakSatiri ? [odakSatiri.dataset.raf, odakSatiri.dataset.id] : null;
+
+    const q = $('#aramaGir').value.trim();
+    const arama = duz(q).length >= 2;
+    $('#aramaSonuc').hidden = !arama;
+    $('#raflar').hidden = arama;
+    if (arama) aramayiCiz(q); else raflariCiz();
+
+    if (odakAnahtari) {
+      const yeni = kok.querySelector(`.satir[data-raf="${odakAnahtari[0]}"][data-id="${odakAnahtari[1]}"] .favori`);
+      if (yeni) yeni.focus();
+    }
+  }
+
+  function raflariCiz() {
+    const uyan = kapsamUyanlar();
+    const kat = kategoriler[durum.kategori];
+    const filtreSayisi = filtreler().reduce((n, f) => n + (aktifMi(f, durum.secimler[f.alan]) ? (f.tip === 'coklu' ? durum.secimler[f.alan].size : 1) : 0), 0);
+    const kapsamAnahtari = `${durum.il}|${durum.ilce}|${durum.kategori}|${!!durum.alan}|${uyan.length}|${filtreSayisi}`;
+    if (kapsamAnahtari !== rafSiniri.kapsam) { rafSiniri.kapsam = kapsamAnahtari; rafSiniri.favori = RAF_ADIM; rafSiniri.yeni = RAF_ADIM; }
+
+    const degistir = el('button', { class: 'bag', type: 'button', text: 'Değiştir' });
+    degistir.addEventListener('click', () => { if (dar.matches) paneliAyarla(true, true); else $('#ilSec').focus(); });
+    const yer = durum.alan ? `Haritadaki alan (${durum.il})` : durum.ilce === TUM ? `Tüm ${durum.il}` : `${durum.ilce}, ${durum.il}`;
+    const kapsam = el('div', { class: 'kapsam' },
+      el('p', null, el('span', { class: 'baslik-kucuk', text: 'Seçimin' }),
+        [yer, kat.ad, filtreSayisi ? `${filtreSayisi} filtre` : null, `${uyan.length} yer`].filter(Boolean).join(' · ')),
+      degistir);
+
+    // En çok favorilenenler
+    const fs = sayac.favori;
+    let favGovde;
+    if (!fs.harita) {
+      favGovde = el('p', { class: 'raf-bos', text: fs.durum === 'hata' ? 'Favori sayıları şu an alınamadı. Sayfayı yenileyip yeniden dene.' : 'Favori sayıları yükleniyor…' });
+    } else {
+      const sirali = uyan.filter(m => (fs.harita.get(m.id) || 0) > 0)
+        .sort((a, b) => fs.harita.get(b.id) - fs.harita.get(a.id) || a.ad.localeCompare(b.ad, TR));
+      favGovde = sirali.length
+        ? [el('ol', { class: 'satirlar' }, sirali.slice(0, rafSiniri.favori).map((m, i) => {
+          const n = fs.harita.get(m.id);
+          return satir(m, levhaSol(String(i + 1)),
+            el('span', { class: 'olcu fav', title: `${n} kişi favoriledi` }, simge('yildiz'), el('span', { class: 'gorunmez', text: 'Favori sayısı: ' }), String(n)), 'favori');
+        })), sirali.length > rafSiniri.favori ? dahaDugmesi('favori', sirali.length - rafSiniri.favori) : null]
+        : el('p', { class: 'raf-bos', text: 'Bu seçimde henüz favorilenen yer yok. Bir yeri favoriye almak için yanındaki yıldıza bas.' });
+    }
+
+    // Son eklenenler
+    const es = sayac.eklenme;
+    let yeniGovde;
+    if (!es.harita) {
+      yeniGovde = el('p', { class: 'raf-bos', text: es.durum === 'hata' ? 'Eklenme tarihleri şu an alınamadı. Sayfayı yenileyip yeniden dene.' : 'Yükleniyor…' });
+    } else {
+      const sirali = uyan.filter(m => Number.isFinite(es.harita.get(m.id)))
+        .sort((a, b) => es.harita.get(b.id) - es.harita.get(a.id) || a.ad.localeCompare(b.ad, TR));
+      yeniGovde = sirali.length
+        ? [el('ol', { class: 'satirlar' }, sirali.slice(0, rafSiniri.yeni).map(m => satir(m, levhaSol(kategoriHarfi(m.kategori), 'harf'),
+          el('span', { class: 'olcu', title: 'Keşif\'e eklendiği gün' }, el('span', { class: 'gorunmez', text: 'Eklendi: ' }), kisaTarih(es.harita.get(m.id))), 'yeni'))),
+        sirali.length > rafSiniri.yeni ? dahaDugmesi('yeni', sirali.length - rafSiniri.yeni) : null]
+        : el('p', { class: 'raf-bos', text: 'Bu seçimde kayıt yok.' });
+    }
+
+    $('#raflar').replaceChildren(
+      kapsam,
+      raf('En çok favorilenenler', 'Ziyaretçilerin favorilerine göre. Senin favorilerin de sayıma adsız olarak girer.', favGovde),
+      raf('Son eklenenler', 'Keşif\'e en son eklenen yerler.', yeniGovde));
+  }
+
+  /* ---------- arama ---------- */
+  // Bütün il ve kategorilerde ad, ilçe, il ve adrese bakar (Türkçe harf ve büyük/küçük harf fark etmez).
+  // Ayrıca kategori adlarına ve filtre seçeneklerine (marka, branş, özellik) bakıp filtre önerir.
+  let aramaDizini = null;
+  function dizinKur() {
+    aramaDizini = mekanlar.filter(m => kategoriler[m.kategori])
+      .map(m => ({ m, ad: duz(m.ad), hepsi: duz(`${m.ad} ${m.ilce} ${m.il} ${m.adres || ''}`) }));
+  }
+  const kelimeBasi = (metin, q) => metin.startsWith(q) || metin.includes(` ${q}`);
+  function eslesir(m, o) {
+    if (o.tur === 'kategori') return m.kategori === o.k;
+    const v = m.kategori === o.k ? m.ozellikler[o.f.alan] : undefined;
+    if (o.f.tip === 'coklu') return Array.isArray(v) && v.includes(o.deger);
+    if (o.f.tip === 'secim') return v === o.deger;
+    return v === true;
+  }
+  function oneriBul(q) {
+    const adaylar = [];
+    for (const [k, kat] of Object.entries(kategoriler)) {
+      const ad = duz(kat.ad);
+      if (kelimeBasi(ad, q)) adaylar.push({ tur: 'kategori', k, etiket: kat.ad, puan: ad.startsWith(q) ? 0 : 1 });
+      if (q.length < 3) continue;   // tek iki harfle filtre önerisi çok gürültülü olur (tam eşleşme hariç)
+      for (const f of kat.filtreler) {
+        if (f.tip === 'evet_hayir') {
+          const e = duz(f.etiket);
+          if (kelimeBasi(e, q)) adaylar.push({ tur: 'filtre', k, f, deger: true, etiket: f.etiket, puan: e === q ? 0 : 1 });
+        } else {
+          for (const s of f.secenekler) {
+            const e = duz(s.etiket);
+            if (e === q || kelimeBasi(e, q)) adaylar.push({ tur: 'filtre', k, f, deger: s.deger, etiket: s.etiket, puan: e === q ? 0 : e.startsWith(q) ? 1 : 2 });
+          }
+        }
+      }
+    }
+    return adaylar.sort((a, b) => a.puan - b.puan).slice(0, 25)
+      .map(o => ({ ...o, n: mekanlar.filter(m => eslesir(m, o)).length }))
+      .filter(o => o.n > 0)
+      .sort((a, b) => a.puan - b.puan || b.n - a.n)
+      .slice(0, 5);
+  }
+  function aramayiCiz(ham) {
+    if (!aramaDizini) dizinKur();
+    const q = duz(ham), parcalar = q.split(' ');
+    if (rafSiniri.aramaMetni !== q) { rafSiniri.aramaMetni = q; rafSiniri.arama = 30; }
+    const puan = d => (d.ad.startsWith(q) ? 0 : kelimeBasi(d.ad, q) ? 1 : d.ad.includes(q) ? 2 : 3);
+    const uzak = m => (konum.son && m.konum ? uzaklik(konum.son, m.konum) : Infinity);
+    const bulunan = aramaDizini.filter(d => parcalar.every(p => d.hepsi.includes(p)))
+      .map(d => ({ m: d.m, p: puan(d) }))
+      .sort((a, b) => a.p - b.p || uzak(a.m) - uzak(b.m) || a.m.ad.localeCompare(b.m.ad, TR));
+    const oneriler = q.length >= 2 ? oneriBul(q) : [];
+
+    const ogeler = [];
+    if (oneriler.length) {
+      ogeler.push(raf('Filtre önerileri', 'Seçince harita bu kategori ve filtreyle açılır.',
+        el('ul', { class: 'satirlar' }, oneriler.map(o => {
+          const kat = kategoriler[o.k];
+          const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(kategoriHarfi(o.k), 'oneri'),
+            el('span', { class: 'satir-govde' },
+              el('span', { class: 'satir-ad', text: o.etiket }),
+              el('span', { class: 'satir-alt', text: o.tur === 'kategori' ? 'Kategori' : `${kat.ad} · ${o.f.etiket}` })),
+            el('span', { class: 'olcu', text: `${o.n} yer` }));
+          ac.addEventListener('click', () => oneriUygula(o));
+          return el('li', { class: 'satir' }, ac);
+        }))));
+    }
+    const mekanBasligi = `Yerler`;
+    ogeler.push(raf(mekanBasligi, null, bulunan.length
+      ? [el('p', { class: 'arama-ozet', text: `${bulunan.length} sonuç · bütün il ve kategorilerde${konum.son ? ' · yakın olanlar önce' : ''}` }),
+        el('ul', { class: 'satirlar' }, bulunan.slice(0, rafSiniri.arama).map(({ m }) => satir(m, levhaSol(kategoriHarfi(m.kategori), 'harf'), null, 'arama'))),
+        bulunan.length > rafSiniri.arama ? dahaDugmesi('arama', bulunan.length - rafSiniri.arama) : null]
+      : el('p', { class: 'raf-bos', text: `“${ham}” adıyla, adresiyle ya da ilçesiyle eşleşen yer yok.${oneriler.length ? ' Yukarıdaki filtre önerilerine bakabilirsin.' : ''}` })));
+    $('#aramaSonuc').replaceChildren(...ogeler);
+  }
+
+  /* ---------- Keşfet'ten haritaya ---------- */
+  // Kayıt haritadaki seçime uyuyorsa seçim korunur; uymuyorsa kaydın il ve kategorisine geçilir (filtreler temizlenir).
+  function haritadaGoster(m) {
+    const kume = gorunumKumesi();
+    const icinde = kume ? kume.has(m.id)
+      : m.il === durum.il && m.kategori === durum.kategori
+        && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce))
+        && degerlendir(m, durum.secimler).sonuc !== 'uymaz';
+    sekmeyeGec('harita');
+    if (!icinde) {
+      durum.gorunum = '';
+      grubaGit(m.il, m.kategori, false);
+      baglamiYaz(); filtreleriCiz(); bolgeyiCiz();
+      guncelle();
+    }
+    durum.secili = null;
+    sec(m.id, 'liste');
+    const k = kok.querySelector(`#sonuclar .kart[data-id="${m.id}"]`);
+    if (k) { k.scrollIntoView({ block: 'start' }); k.querySelector('.kart-bas').focus({ preventScroll: true }); }
+  }
+  function oneriUygula(o) {
+    const sayim = new Map();
+    for (const m of mekanlar) if (eslesir(m, o)) sayim.set(m.il, (sayim.get(m.il) || 0) + 1);
+    const il = sayim.has(durum.il) ? durum.il : [...sayim].sort((a, b) => b[1] - a[1])[0][0];
+    sekmeyeGec('harita');
+    durum.gorunum = '';
+    grubaGit(il, o.k, false);
+    if (o.tur === 'filtre') durum.secimler[o.f.alan] = o.f.tip === 'coklu' ? new Set([o.deger]) : o.deger;
+    $('#aramaGir').value = '';
+    baglamiYaz(); filtreleriCiz(); bolgeyiCiz();
+    guncelle();
+    $('#sonuclar').scrollTop = 0;
+  }
+
   /* ---------- çekmece (dar ekranda filtre paneli) ---------- */
   const dar = window.matchMedia('(max-width: 1099.98px)');
   const panel = $('#panel');
@@ -2092,7 +2543,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#filtreAc').setAttribute('aria-expanded', String(gorunur));
     if (cekmece) { panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); }
     else { panel.removeAttribute('role'); panel.removeAttribute('aria-modal'); }
-    for (const b of [$('.ust'), $('#sonuclar'), $('.harita-kap')]) b.inert = gorunur;
+    for (const b of [$('.ust'), $('#sonuclar'), $('.harita-kap'), $('#kesfet'), $('.sekmeler-alt')]) b.inert = gorunur;
     if (odakla) (gorunur ? $('#panelKapat') : $('#filtreAc')).focus();
   }
 
@@ -2121,12 +2572,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
     ilSec.addEventListener('change', () => {
       durum.il = ilSec.value; durum.ilce = TUM;   // il değişince ilçe seçimi sıfırlanır
-      durum.secili = null;
+      durum.secili = null; durum.alan = null;
       ilceleriCiz(); baglamiYaz(); bolgeyiCiz(); guncelle();
     });
     ilceSec.addEventListener('change', () => {
       durum.ilce = ilceSec.value;
-      durum.secili = null;
+      durum.secili = null; durum.alan = null;
       baglamiYaz(); bolgeyiCiz(); guncelle();
     });
     kategoriSec.addEventListener('change', () => {
@@ -2153,6 +2604,18 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#perde').addEventListener('click', () => paneliAyarla(false, true));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('acik')) paneliAyarla(false, true); });
     dar.addEventListener('change', () => paneliAyarla(false, false));
+
+    // Sekmeler, arama ve Keşfet
+    for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge(b.dataset.sekme === 'kesfet' ? 'pusula' : 'harita'));
+    $('#araAc').prepend(simge('ara'));
+    $('#aramaForm').prepend(simge('ara'));
+    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sekmeyeGec(b.dataset.sekme));
+    $('#araAc').addEventListener('click', () => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); });
+    let aramaBekliyor = null;
+    $('#aramaGir').addEventListener('input', () => { clearTimeout(aramaBekliyor); aramaBekliyor = setTimeout(kesfetCiz, 120); });
+    $('#aramaGir').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value) { e.preventDefault(); e.target.value = ''; kesfetCiz(); } });
+    $('#aramaForm').addEventListener('submit', e => { e.preventDefault(); clearTimeout(aramaBekliyor); kesfetCiz(); $('#aramaGir').blur(); });
+    if (favoriler.size || cihazNumarasi(false)) esitleGonder(false);   // daha önce yalnızca tarayıcıda tutulan favoriler de sayıma girer
 
     paneliAyarla(false, false);
     baglamiYaz();
