@@ -24,6 +24,7 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - İSPARK otopark kayıtları (`ispark-` ile başlayan kimlikler) İBB Açık Veri Portalı'nın İSPARK servisinden alınmıştır: İstanbul Büyükşehir Belediyesi / İSPARK A.Ş., İBB Açık Veri Lisansı (https://data.ibb.gov.tr). Ad, konum, tür, kapasite, saatler, ücretsiz süre, aylık abonelik ve tarife bu kaynaktandır; değişebilir.
 - Diğer otopark kayıtları (`otopark-` ile başlayan kimlikler) OpenStreetMap'ten türetilmiştir (© OpenStreetMap katkıcıları, ODbL 1.0). Adı OSM'de olmayanların adı türünden üretilmiştir ve teyit bekler.
 - Eczane kayıtları (`eczane-` ile başlayan kimlikler) OpenStreetMap'ten türetilmiştir (© OpenStreetMap katkıcıları, ODbL 1.0). Bu kayıtlar henüz `mekanlar.json` yedeğinde yoktur; veritabanının herkese açık okuma servisinden (`/rest/v1/mekan?kategori=eq.eczane`) aynı lisansla alınabilir.
+- Restoran, kafe ve tatlı, güzellik ve bakım, araç hizmetleri kayıtları ile İstanbul'daki spor salonu ve çiçekçi kayıtlarının bir kısmı (`fsq-` ile başlayan kimlikler) Foursquare Open Source Places verisinden alınmıştır: © Foursquare Labs, Inc., Apache License 2.0 (sürüm 2026-09-15). Veri değiştirilmiştir: İstanbul'a kırpıldı, 2023 öncesi güncellenmiş ve kapanmış kayıtlar atıldı, Foursquare kategorileri Keşif kategorilerine ve türlerine çevrildi, ad, telefon ve web adresleri biçimlendirildi, çift kayıtlar birleştirildi, ilçe konumdan hesaplandı. Kayıtlar teyit bekler. Bu kayıtlar `mekanlar.json` yedeğinde yoktur; veritabanının herkese açık okuma servisinden alınabilir.
 - Sınırlar: © OpenStreetMap katkıcıları, ODbL 1.0.
 - Harita: Leaflet ve Leaflet.markercluster.
 
@@ -80,3 +81,9 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Keşfet'te iki liste var: "En çok favorilenenler" ve "Son eklenenler". İkisi de harita sekmesindeki seçime (il, ilçe ya da taranan alan, kategori, filtreler) uyan kayıtlardan çizilir. Eklenme tarihi, veritabanındaki değişiklik geçmişinde kaydın ilk eklendiği andır.
 - Arama bütün il ve kategorilerde ad, ilçe, il ve adrese bakar; kategori adları ve filtre seçenekleri (marka, branş, özellik) için filtre önerir. Sonuca basınca harita o kayda gider.
 - Haritayı kaydırınca ya da yakınlaştırınca "Bu alanı tara" düğmesi çıkar; basınca liste o anki harita alanıyla sınırlanır (seçili kategori ve filtreler geçerli kalır).
+
+## Büyük kategoriler
+- `kategoriler.json`'da `"yukleme": "bolge"` olan kategoriler (restoran, kafe, güzellik, araç, spor salonu, eczane) açılışta yüklenmez: ilçe seçilince ya da haritada "Bu alanı tara"ya basılınca yalnızca o bölgenin kayıtları veritabanından getirilir. İl geneli seçiliyken ilçe başına kayıt sayıları gösterilir (`mekan_sayilari()`); taranan alanda 5.000'den çok kayıt varsa yakınlaşmak istenir.
+- Aramada bu kategoriler sunucuda aranır (ad ve ilçe, Türkçe harf duyarsız `arama` sütunu; en çok 300 sonuç). Filtre önerilerindeki sayılar `secenek_sayilari()`'ndan gelir.
+- Favorilerde, listelerde, paylaşılan listede ya da `#mekan=` bağlantısında geçen kayıtlar kimlikleriyle ayrıca getirilir.
+- Yönetim sayfasında bu kategoriler listeye toplu alınmaz; ad, ilçe ya da kimlikle aranır (en çok 200 sonuç).

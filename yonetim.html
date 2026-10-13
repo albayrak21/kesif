@@ -1419,10 +1419,15 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
 
   /* ---------- mekan listesi ---------- */
   // Veritabanı tek yanıtta en fazla 1000 satır döndürür: liste kimlik sırasıyla sayfa sayfa okunur.
+  // Büyük kategoriler ("yukleme": "bolge", on binlerce kayıt) listeye toplu alınmaz: aramayla ya da kategori seçilince
+  // sunucudan getirilir (bkz. uzakListe). Diğer kategoriler her zamanki gibi tümüyle yüklenir.
+  const bolgeselKategoriler = () => Object.entries(kategoriler || {}).filter(([, v]) => v && v.yukleme === 'bolge').map(([k]) => k);
   async function tumMekanlar() {
-    const SAYFA = 1000, tum = [];
+    const SAYFA = 1000, tum = [], haric = bolgeselKategoriler();
     for (let i = 0; ; i += SAYFA) {
-      const { data, error, count } = await db.from('mekan').select('*', { count: 'exact' }).order('id').range(i, i + SAYFA - 1);
+      let sorgu = db.from('mekan').select('*', { count: 'exact' });
+      if (haric.length) sorgu = sorgu.not('kategori', 'in', `(${haric.join(',')})`);
+      const { data, error, count } = await sorgu.order('id').range(i, i + SAYFA - 1);
       if (error) return { data: null, error };
       tum.push(...data);
       if (!data.length || (count != null ? tum.length >= count : data.length < SAYFA)) return { data: tum, error: null };
@@ -1437,9 +1442,35 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       return;
     }
     mekanlar = data;
+    uzakListe.anahtar = null;
     goster('calisma');
     listeyiCiz();
     oneriListeleri();
+  }
+
+  // Büyük kategorilerde arama: ad ve ilçe (Türkçe harf duyarsız "arama" sütunu) ya da kimlik; en çok UZAK_SINIR kayıt.
+  const UZAK_SINIR = 200;
+  const uzakListe = { anahtar: null, durum: 'bos', sayi: 0, zamanlayici: null };
+  function uzakListeyiGetir(q, kat) {
+    const bolgesel = bolgeselKategoriler();
+    const kats = kat ? (bolgesel.includes(kat) ? [kat] : []) : bolgesel;
+    if (!kats.length || (!q && !kat)) { uzakListe.anahtar = null; uzakListe.durum = 'bos'; return; }
+    const anahtar = `${kats.join(',')}|${q}`;
+    if (uzakListe.anahtar === anahtar) return;
+    uzakListe.anahtar = anahtar; uzakListe.durum = 'yukleniyor';
+    clearTimeout(uzakListe.zamanlayici);
+    uzakListe.zamanlayici = setTimeout(async () => {
+      let sorgu = db.from('mekan').select('*', { count: 'exact' }).in('kategori', kats);
+      const kelimeler = q ? q.split(' ').filter(Boolean).slice(0, 5) : [];
+      if (kelimeler.length === 1 && /^[a-z0-9-]+$/.test(kelimeler[0]) && kelimeler[0].includes('-')) sorgu = sorgu.or(`id.eq.${kelimeler[0]},arama.ilike.*${kelimeler[0]}*`);
+      else for (const w of kelimeler) sorgu = sorgu.ilike('arama', `%${w}%`);
+      const { data, error, count } = await sorgu.order('ad').limit(UZAK_SINIR);
+      if (uzakListe.anahtar !== anahtar) return;
+      if (error) { uzakListe.durum = 'hata'; listeyiCiz(); return; }
+      for (const m of data) { const i = mekanlar.findIndex(x => x.id === m.id); if (i < 0) mekanlar.push(m); }
+      uzakListe.durum = 'tamam'; uzakListe.sayi = count ?? data.length;
+      listeyiCiz();
+    }, 300);
   }
 
   async function listeyiYenile() {
@@ -1449,6 +1480,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     b.disabled = false; b.textContent = 'Listeyi yenile';
     if (error) { $('#listeSayi').textContent = 'Liste yenilenemedi'; return; }
     mekanlar = data;
+    uzakListe.anahtar = null;
     listeyiCiz();
     oneriListeleri();
   }
@@ -1468,8 +1500,13 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     const q = duz($('#ara').value);
     const kat = $('#katSuz').value;
     const sirali = [...mekanlar].sort((a, b) => a.ad.localeCompare(b.ad, TR));
+    uzakListeyiGetir(q, kat);
     const gorunen = sirali.filter(m => (!kat || m.kategori === kat) && (!q || duz(`${m.ad} ${m.adres} ${m.il} ${m.ilce} ${m.id}`).includes(q)));
-    $('#listeSayi').textContent = q || kat ? `${gorunen.length} / ${mekanlar.length} mekan` : `${mekanlar.length} mekan`;
+    const uzakNot = uzakListe.durum === 'yukleniyor' ? ' · büyük kategorilerde aranıyor…'
+      : uzakListe.durum === 'hata' ? ' · büyük kategorilerde aranamadı'
+      : uzakListe.durum === 'tamam' && uzakListe.sayi > UZAK_SINIR ? ` · büyük kategorilerde ${uzakListe.sayi} eşleşmeden ilk ${UZAK_SINIR}'i; aramayı daralt` : '';
+    $('#listeSayi').textContent = (q || kat ? `${gorunen.length} mekan gösteriliyor` : `${mekanlar.length} mekan`) + uzakNot
+      + (!q && !kat && bolgeselKategoriler().length ? ' · büyük kategoriler aramayla açılır' : '');
     const liste = $('#mekanListe');
     liste.replaceChildren(...gorunen.map(m => {
       const b = el('button', { type: 'button', 'data-id': m.id, 'aria-current': m.id === d.id ? 'true' : null },
