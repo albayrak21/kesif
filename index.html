@@ -2130,7 +2130,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
       else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
       // Az seçenekli çoklu alan (ör. otopark işletmecisi) adlarıyla, uzun olan (ör. dersler) sayısıyla gösterilir.
-      else if (f.tip === 'coklu' && f.secenekler.length <= 3) for (const d of v) ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, d) }));
+      // Kayıtta en çok iki değer varsa da adları yazılır (ör. restoranın mutfağı, tarihi yerin türü).
+      else if (f.tip === 'coklu' && (f.secenekler.length <= 3 || v.length <= 2)) for (const d of v) ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, d) }));
       else if (f.tip === 'coklu') ogeler.push(el('li', { class: 'olgu', text: `${f.etiket}: ${v.length}` }));
     }
     for (const b of bilgiler(m.kategori)) {
