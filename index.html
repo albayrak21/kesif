@@ -2050,7 +2050,23 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
   // Bilgiler: süzmede kullanılmayan, yalnızca gösterilen alanlar (tarife, kapasite, çalışma saatleri…). Kategori tanımından gelir.
   // Biçim: { alan, etiket, tip: 'metin' | 'sayi' | 'liste', birim?, kartta?, aranir? }. Bilinmeyen bilgi gösterilmez.
-  const bilgiler = kat => kategoriler[kat].bilgiler || [];
+  // Her kategoride ortak: OSM/Overture'dan gelen ek bilgiler. Kategori kendi tanımında aynı alanı tanımlıyorsa onunki geçerlidir.
+  const ORTAK_BILGILER = [
+    { alan: 'calisma_saatleri', etiket: 'Çalışma saatleri', tip: 'metin' },
+    { alan: 'marka', etiket: 'Marka', tip: 'metin', aranir: true },
+  ];
+  // Evet/hayır özellikleri: yalnızca biliniyorsa gösterilir (çoğu kayıtta bilinmiyor; "bilinmiyor" diye listelenmez).
+  const ORTAK_OZELLIKLER = [
+    { alan: 'acik_alan', etiket: 'Açık alan' }, { alan: 'wifi', etiket: 'Wi-Fi' }, { alan: 'paket_servis', etiket: 'Paket servis' },
+    { alan: 'eve_teslimat', etiket: 'Eve teslimat' }, { alan: 'engelli_erisimi', etiket: 'Engelli erişimi' },
+    { alan: 'vejetaryen', etiket: 'Vejetaryen seçenek' }, { alan: 'vegan', etiket: 'Vegan seçenek' },
+    { alan: 'kartla_odeme', etiket: 'Kartla ödeme' }, { alan: 'temassiz', etiket: 'Temassız ödeme' },
+    { alan: 'klima', etiket: 'Klima' }, { alan: 'rezervasyon', etiket: 'Rezervasyon' },
+  ];
+  const bilgiler = kat => {
+    const kendi = kategoriler[kat].bilgiler || [];
+    return kendi.concat(ORTAK_BILGILER.filter(o => !kendi.some(b => b.alan === o.alan)));
+  };
   const sayiBicim = new Intl.NumberFormat('tr-TR');
   function bilgiYaz(b, v) {
     if (v == null || v === '') return null;
@@ -2197,11 +2213,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (p && p.sayi) ogeler.push(el('li', { class: 'olgu puan-cip', title: `${p.sayi} puan, ortalama ${virgul(p.ort)}` },
       simge('yildiz'), el('span', { class: 'gorunmez', text: 'Puan: ' }), virgul(p.ort), el('span', { class: 'puan-sayi', text: ` (${p.sayi})` })));
     // Bilinmeyenler tek satırda toplanır (tek tek listesi ayrıntıda): kart kısa kalır, eksik bilgi yine görünür.
-    const bilinmeyen = filtreler(m.kategori).filter(f => m.ozellikler[f.alan] == null);
+    const bilinmeyen = filtreler(m.kategori).filter(f => !f.seyrek && m.ozellikler[f.alan] == null);
     for (const f of filtreler(m.kategori)) {
       const v = m.ozellikler[f.alan];
       if (v == null) continue;
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
+      else if (f.tip === 'evet_hayir' && f.seyrek && !v) continue;   // seyrek özellikte kartta yalnızca "var" gösterilir
       else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
       // Az seçenekli çoklu alan (ör. otopark işletmecisi) adlarıyla, uzun olan (ör. dersler) sayısıyla gösterilir.
       // Kayıtta en çok iki değer varsa da adları yazılır (ör. restoranın mutfağı, tarihi yerin türü).
@@ -3295,7 +3312,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       if (t) deger.append(t);
       return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: b.etiket }), deger);
     }).filter(Boolean);
-    const satirlar = bilgiSatirlari.concat(filtreler(m.kategori).map(f => {
+    const satirlar = bilgiSatirlari.concat(filtreler(m.kategori).filter(f => !(f.seyrek && m.ozellikler[f.alan] == null)).map(f => {
       const v = m.ozellikler[f.alan];
       if (f.tip === 'coklu' && v != null && v.length) {
         const aranan = durum.secimler[f.alan] || new Set();
@@ -3318,6 +3335,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       if (t) deger.append(t);
       return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: f.etiket }), deger);
     }));
+    // Kategori filtresinde olmayan ortak özellikler: yalnızca bilinenler.
+    for (const o of ORTAK_OZELLIKLER) {
+      const v = m.ozellikler[o.alan];
+      if (typeof v !== 'boolean' || filtreler(m.kategori).some(f => f.alan === o.alan)) continue;
+      const deger = el('span', { class: `ms-satir-deger olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), v ? 'var' : 'yok');
+      satirlar.push(el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: o.etiket }), deger));
+    }
     const ozellikler = satirlar.length
       ? bolum('Özellikler', el('span', { class: 'ms-etiket', text: 'Keşif derledi' }), el('ul', { class: 'ms-satirlar' }, satirlar))
       : null;
@@ -3335,6 +3359,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       try { gorunen = new URL(m.web).hostname.replace(/^www\./, ''); } catch (e) { /* olduğu gibi */ }
       iletisim.push(el('dt', { text: 'Web' }), el('dd', null, el('a', { href: m.web, target: '_blank', rel: 'noopener noreferrer', text: gorunen }), teyit('web')));
     }
+    const oz = m.ozellikler || {};
+    if (/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(oz.eposta || '')) {
+      iletisim.push(el('dt', { text: 'E-posta' }), el('dd', null, el('a', { href: `mailto:${oz.eposta}`, text: oz.eposta })));
+    }
+    const sosyal = [['instagram', 'Instagram'], ['facebook', 'Facebook']]
+      .filter(([k]) => /^https:\/\/(www\.|m\.)?(instagram|facebook)\.com\//.test(oz[k] || ''))
+      .map(([k, ad]) => el('a', { href: oz[k], target: '_blank', rel: 'noopener noreferrer', text: ad }));
+    if (sosyal.length) iletisim.push(el('dt', { text: 'Sosyal medya' }), el('dd', { class: 'ms-sosyal' }, sosyal.flatMap((a, i) => (i ? [' · ', a] : [a]))));
     iletisim.push(el('dt', { text: 'Bölge' }), el('dd', { text: `${m.ilce}, ${m.il}` }));
     const konumNotu = !m.konum ? 'Haritadaki yeri henüz işaretlenmedi.'
       : bekleyen.has('konum') ? 'Haritadaki yeri yaklaşık olabilir, teyit bekliyor.' : null;
