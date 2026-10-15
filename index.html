@@ -1384,8 +1384,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     return { iste, iptal, bitir: () => clearTimeout(sayac) };
   }
 
-  async function mekanlariVeritabanindanGetir(ms, haric) {
-    const s = mekanSorgusu(haric && haric.length ? `&kategori=not.in.(${haric.join(',')})` : '', ms);
+  // Açılışta yalnızca küçük kategoriler adıyla istenir ("büyükler hariç" sorgusu tablo büyüdükçe yavaşlıyordu).
+  async function mekanlariVeritabanindanGetir(ms, kucukler) {
+    if (!kucukler.length) return [];
+    const s = mekanSorgusu(`&kategori=in.(${kucukler.join(',')})`, ms);
     try { return satirdanMekan(await sayfaliGetir(s.iste, 'mekan')); } finally { s.bitir(); }
   }
 
@@ -1442,7 +1444,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (AYAR.veritabani) {
       try {
         [mekanlar, sayilar, secenekler] = await Promise.all([
-          mekanlariVeritabanindanGetir(8000, bolgesel),
+          mekanlariVeritabanindanGetir(8000, Object.keys(kategoriler).filter(k => !bolgesel.includes(k))),
           bolgesel.length ? rpc('mekan_sayilari') : [],
           bolgesel.length ? rpc('secenek_sayilari', { p_kategoriler: bolgesel }).catch(() => []) : [],
         ]);
