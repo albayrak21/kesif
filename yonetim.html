@@ -1761,8 +1761,10 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     for (const a of Object.keys(ozellikler)) if (ozellikler[a] === null && kat && (kat.bilgiler || []).some(b => b.alan === a)) delete ozellikler[a];   // boş bilgi saklanmaz
     const kutular = $$('[data-teyit]', $('#form'));
     const yonetilen = new Set(kutular.map(g => g.dataset.teyit));
+    // Adres elle değiştirildiyse "konumdan üretilen yaklaşık adres" işareti kalkar.
+    const adresDegisti = metin($('#adres').value) !== (d.ham.adres || '');
     const dogrulanacak = [...kutular.filter(g => g.checked && !g.disabled).map(g => g.dataset.teyit),
-      ...(d.ham.dogrulanacak || []).filter(a => !yonetilen.has(a))].sort();
+      ...(d.ham.dogrulanacak || []).filter(a => !yonetilen.has(a) && !(adresDegisti && a === 'adres_yaklasik'))].sort();
     const k = konumOku($('#konumMetni').value);
     const konum = k && !k.hata ? k : null;
     return {

@@ -872,6 +872,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .bilgi dt.genis { margin-top: 4px; }
 .bilgi .bilinmiyor { color: var(--soluk); font-style: italic; }
 .teyit { display: inline-block; margin-left: 4px; padding: 1px 6px; border: 1px dashed var(--uyari); border-radius: 4px; color: var(--uyari); font: 500 12px/1.3 var(--yazi-dar); white-space: nowrap; }
+.kart-adres .yaklasik { color: var(--soluk); font-style: italic; }
+.yaklasik-not { display: block; margin-top: 4px; color: var(--soluk); font-size: 13px; }
 .dallar { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .dallar li { padding: 3px 7px 2px; border: 1px solid var(--cizgi); border-radius: 4px; font: 500 13px/1.2 var(--yazi-dar); }
 .dallar.uzun { max-height: 172px; overflow-y: auto; padding: 6px; border: 1px solid var(--cizgi); border-radius: 6px; }
@@ -2247,6 +2249,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     return s ? s.etiket : kat.ad;
   }
 
+  // Kaynakta adres yoksa adres konumdan üretilir (en yakın mahalle ve sokak); dogrulanacak listesinde 'adres_yaklasik' işareti taşır.
+  const adresYaklasik = m => (m.dogrulanacak || []).includes('adres_yaklasik');
+
   function kart(m, eksik) {
     const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
     const bas = el('button', { class: 'kart-bas', type: 'button', 'aria-label': `${m.ad}: işletme sayfasını aç` },
@@ -2254,6 +2259,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       el('span', { class: 'kart-ad', text: m.ad }),
       el('span', { class: 'kart-adres' },
         uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
+        adresYaklasik(m) ? el('span', { class: 'yaklasik', title: 'Konumdan üretilen yaklaşık adres', text: 'Yaklaşık: ' }) : null,
         m.adres));
     bas.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'liste' }));
     return el('li', { class: 'kart', 'data-id': m.id },
@@ -3347,7 +3353,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
       : null;
 
     // İletişim ve konum
-    const iletisim = [el('dt', { text: 'Adres' }), el('dd', null, m.adres || el('span', { class: 'bilinmiyor', text: 'bilinmiyor' }), teyit('adres'))];
+    const iletisim = adresYaklasik(m)
+      ? [el('dt', { text: 'Yaklaşık adres' }), el('dd', null, m.adres, el('span', { class: 'teyit', text: 'konumdan üretildi' }),
+          el('span', { class: 'aciklama yaklasik-not', text: 'Kaynakta adres yoktu; mahalle ve sokak, yerin haritadaki konumuna en yakın kayıtlardan bulundu. Kapı numarası yok.' }))]
+      : [el('dt', { text: 'Adres' }), el('dd', null, m.adres || el('span', { class: 'bilinmiyor', text: 'bilinmiyor' }), teyit('adres'))];
     if (m.telefon) {
       const no = el('a', { class: 'tel', href: `tel:${m.telefon.replace(/\s/g, '')}`, text: m.telefon });
       const kopya = el('button', { class: 'bag kopya', type: 'button', text: 'Kopyala' });
