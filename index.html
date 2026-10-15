@@ -3159,7 +3159,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
   // Her kaydın kendi sayfası ve adresi var: <site>#mekan=<kimlik>. Paylaşılabilir, tarayıcının geri tuşu çalışır.
   // Sayfa kategori tanımından çizilir (kategoriye özel kod yok). İşletme sahibinin girdiği bilgiler ayrı bir katmandır,
   // "İşletme beyanı" etiketiyle gösterilir ve doğrulanmış bilgiyi hiçbir zaman değiştirmez.
-  const sayfa = { donus: 'harita', odakGeri: null, sonra: null, ortalanacak: null, baslik: document.title };
+  const sayfa = { donus: 'harita', odakGeri: null, sonra: null, ortalanacak: null, baslik: document.title, tamamen: false };
   const MEKAN_HASH = /^#mekan=([a-z0-9]+(?:-[a-z0-9]+)*)$/;
   const mekanHashi = () => { const e = location.hash.match(MEKAN_HASH); return e ? e[1] : null; };
   const mekanBul = id => mekanlar.find(m => m.id === id && kategoriler[m.kategori]);
@@ -3203,7 +3203,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     if (dar.matches && panel.classList.contains('acik')) paneliAyarla(false, false);
     seciliyiUygula();
     mekanSayfasiniCiz(m);
-    if (gecmis && mekanHashi() !== m.id) history.pushState({ kesifMekan: m.id }, '', `#mekan=${m.id}`);
+    // derinlik: bu sayfa zincirinde kaçıncı sayfa (sekmeye basınca hepsi birden kapatılabilsin diye).
+    if (gecmis && mekanHashi() !== m.id) history.pushState({ kesifMekan: m.id, derinlik: ((history.state && history.state.derinlik) || 0) + 1 }, '', `#mekan=${m.id}`);
     document.title = `${m.ad} · Keşif`;
     if (harita) harita.invalidateSize({ pan: false });
     // İğneye basılınca harita kıpırdamaz; başka yerden açılınca kayıt haritada ortalanır (telefonda harita gizliyse kapanınca).
@@ -3215,10 +3216,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
 
   // Kapatma tarayıcı geçmişiyle yapılır: sayfayı biz açtıysak bir adım geri gidilir (hashchange kapatır), bağlantıyla
   // gelindiyse adres temizlenir. sonra: kapandıktan sonra çalışacak iş (ör. başka sekmeye geçmek).
-  function sayfayiKapat(sonra) {
+  // tamamen: art arda açılmış sayfaların hepsi kapanır (Harita/Keşfet sekmesi, Ara); yoksa yalnızca bir adım geri gidilir (← düğmesi, Esc).
+  function sayfayiKapat(sonra, tamamen = false) {
     if (!durum.sayfa) { if (sonra) sonra(); return; }
     sayfa.sonra = sonra || null;
-    if (history.state && history.state.kesifMekan) { history.back(); return; }
+    const d = history.state && history.state.kesifMekan ? (tamamen ? history.state.derinlik || 1 : 1) : 0;
+    if (d) { sayfa.tamamen = tamamen; history.go(-d); return; }
     history.replaceState(null, '', location.pathname + location.search);
     sayfaKapandi();
   }
@@ -3664,6 +3667,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     // Adres değişimi: #mekan=<kimlik> işletme sayfasını açar (geri/ileri tuşları dahil), #liste= paylaşılan listeyi.
     window.addEventListener('hashchange', () => {
       const id = mekanHashi();
+      if (id && sayfa.tamamen) {   // sekmeyle kapatırken bağlantıyla açılmış ilk sayfaya düşüldü: o da kapanır
+        sayfa.tamamen = false;
+        history.replaceState(null, '', location.pathname + location.search);
+        if (durum.sayfa) sayfaKapandi();
+        return;
+      }
+      sayfa.tamamen = false;
       if (id) {
         const ac = () => {
           if (mekanHashi() !== id) return;   // bu arada adres değiştiyse vazgeç
@@ -3701,8 +3711,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     $('#araAc').prepend(simge('ara'));
     $('#aramaForm').prepend(simge('ara'));
     // Sayfa açıkken sekmeye ya da aramaya basılınca önce sayfa kapanır (geçmişten bir adım geri), sonra istenen yere geçilir.
-    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => sekmeyeGec(b.dataset.sekme)));
-    $('#araAc').addEventListener('click', () => sayfayiKapat(() => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }));
+    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => sekmeyeGec(b.dataset.sekme), true));
+    $('#araAc').addEventListener('click', () => sayfayiKapat(() => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }, true));
     let aramaBekliyor = null;
     $('#aramaGir').addEventListener('input', () => { clearTimeout(aramaBekliyor); aramaBekliyor = setTimeout(kesfetCiz, 120); });
     $('#aramaGir').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value) { e.preventDefault(); e.target.value = ''; kesfetCiz(); } });
