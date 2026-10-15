@@ -2278,6 +2278,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"osm","url":
     const notlar = [];
     if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);
     if (durum.gorunum && tum.length) notlar.push('bütün kategoriler ve şehirler');
+    // "Tümü": haritadaki alanda gösterilen kayıt sayısı yakınlığa göre sınırlı; sınıra varıldıysa söylenir.
+    if (tumuMu() && !durum.gorunum && harita && bb.durum !== 'yukleniyor') {
+      const sinir = tumuSiniri(Math.round(harita.getZoom()));
+      notlar.push(uyan.length >= sinir
+        ? `Haritadaki alanda öne çıkan ${sayiBicim.format(sinir)} yer gösteriliyor; yakınlaştıkça daha fazlası görünür. Bir kategori seçersen o kategorinin bütün kayıtları listelenir.`
+        : 'Haritadaki alanda bulunan yerler');
+    }
     const yersiz = uyan.filter(m => !m.konum).length;
     if (yersiz) notlar.push(`${yersiz} sonucun haritada yeri henüz yok`);
     if (durum.siralama === 'yakinlik' && !konum.son && uyan.length > 1) notlar.push(konum.aktif ? 'yakınlık için konumun bekleniyor' : 'yakınlığa göre sıralamak için konumunu aç');
