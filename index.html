@@ -1455,8 +1455,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       try {
         [mekanlar, sayilar, secenekler] = await Promise.all([
           mekanlariVeritabanindanGetir(8000, Object.keys(kategoriler).filter(k => !bolgesel.includes(k))),
-          bolgesel.length ? rpc('mekan_sayilari') : [],
-          bolgesel.length ? rpc('secenek_sayilari', { p_kategoriler: bolgesel }).catch(() => []) : [],
+          bolgesel.length ? rpc('mekan_sayilari_json')   /* tek JSON dizisi: 1000 satır sınırı yok */ : [],
+          bolgesel.length ? rpc('secenek_sayilari_json', { p_kategoriler: bolgesel }).catch(() => []) : [],
         ]);
         if (!mekanlar.length) { console.warn('Veritabanı boş döndü; depodaki son kopya kullanılıyor.'); mekanlar = null; }
       } catch (hata) {
