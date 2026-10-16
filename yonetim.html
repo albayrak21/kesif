@@ -1521,7 +1521,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   function oneriListeleri() {
     const doldur = (sec, degerler) => $(sec).replaceChildren(...[...new Set(degerler)].sort((a, b) => a.localeCompare(b, TR)).map(v => el('option', { value: v })));
     const sinirIlce = sinirlar ? sinirlar.features.filter(f => f.properties.tur === 'ilce') : [];
-    doldur('#ilListesi', [...mekanlar.map(m => m.il), ...sinirIlce.map(f => f.properties.il)]);
+    doldur('#ilListesi', [...mekanlar.map(m => m.il), ...Object.keys((sinirlar && sinirlar.iller) || {})]);
     doldur('#ilceListesi', [...mekanlar.map(m => m.ilce), ...sinirIlce.map(f => f.properties.ad)]);
   }
 
@@ -2361,6 +2361,24 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     return true;
   }
 
+  // İlçe sınırları il başına veritabanından gelir (sinirlar.json yalnızca il kutularını taşır).
+  const ilSinirIstekleri = new Map();
+  function ilSinirYukle(il) {
+    if (!il || !sinirlar || !db || !(sinirlar.iller || {})[il]) return Promise.resolve(false);
+    if (sinirlar.features.some(f => f.properties.tur === 'ilce' && f.properties.il === il)) return Promise.resolve(false);
+    if (ilSinirIstekleri.has(il)) return ilSinirIstekleri.get(il);
+    const is = db.rpc('il_sinirlari', { p_il: il }).then(({ data, error }) => {
+      if (error) throw error;
+      const yeni = (Array.isArray(data) ? data : []).filter(x => x && x.geometry && x.properties && x.properties.il === il);
+      if (!yeni.length) return false;
+      sinirlar.features.push(...yeni);
+      oneriListeleri();
+      return true;
+    }).catch(hata => { console.warn('İlçe sınırları yüklenemedi:', il, hata); ilSinirIstekleri.delete(il); return false; });
+    ilSinirIstekleri.set(il, is);
+    return is;
+  }
+
   // Seçili ilçenin sınırı (sinirlar.json'da varsa) haritada ince çizgiyle gösterilir.
   let ilceKatmani = null;
   function ilceSinirKatmani() {
@@ -2368,7 +2386,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     if (!harita || !sinirlar) return null;
     const il = metin($('#il').value), ilce = metin($('#ilce').value);
     const f = sinirlar.features.filter(x => x.properties.tur === 'ilce' && x.properties.il === il && x.properties.ad === ilce);
-    if (!f.length) return null;
+    if (!f.length) { ilSinirYukle(il).then(v => { if (v) ilceSinirKatmani(); }); return null; }
     ilceKatmani = L.geoJSON({ type: 'FeatureCollection', features: f }, { interactive: false, style: { className: 'ilce-sinir' } }).addTo(harita);
     return ilceKatmani;
   }
@@ -2408,6 +2426,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   function formOlaylariniKur() {
     const form = $('#form');
     form.addEventListener('submit', e => { e.preventDefault(); kaydet(); });
+    $('#il').addEventListener('change', () => ilSinirYukle(metin($('#il').value)));   // ilçe önerileri için
     $('#fotoSec').addEventListener('change', e => { const f = [...e.target.files]; e.target.value = ''; if (f.length) fotoEkle(f); });
     form.addEventListener('input', e => {
       if (e.target.matches('[aria-invalid]')) e.target.removeAttribute('aria-invalid');

@@ -2449,6 +2449,46 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     sistemKoyu.addEventListener('change', () => { if (gorunum === 'otomatik') gorunumUygula(); });
   }
 
+  // Şematik zemin: ilçe/mahalle sınırları ve adları (sokak haritası gelmezse görünen katman).
+  function zemineEkle(features, atif) {
+    if (!harita || !features.length) return;
+    L.geoJSON({ type: 'FeatureCollection', features }, {
+      pane: 'zemin', interactive: false, attribution: atif || null,
+      style: f => ({ className: `sinir sinir-${f.properties.tur}` }),
+    }).addTo(harita);
+    for (const f of features) {
+      const p = f.properties;
+      if (!p.yazi) continue;
+      L.marker([p.yazi[1], p.yazi[0]], {
+        pane: 'zeminYazi', interactive: false, keyboard: false,
+        icon: L.divIcon({ className: `yer-adi yer-${p.tur}`, html: el('span', { text: p.ad }), iconSize: [0, 0] }),
+      }).addTo(harita);
+    }
+  }
+
+  // İlçe sınırları il başına veritabanından gelir (sinirlar.json yalnızca il kutularını taşır).
+  // Yüklenen il sinirlar.features'a eklenir; seçili ilse ilçe çizgisi yeniden çizilir.
+  const ilSinirDurumu = new Map();   // il -> Promise
+  function ilSiniriYuklu(il) {
+    return sinirlar.features.some(f => f.properties.tur === 'ilce' && f.properties.il === il);
+  }
+  function ilSinirYukle(il) {
+    if (!il || !AYAR.veritabani || ilSiniriYuklu(il)) return Promise.resolve(true);
+    if (ilSinirDurumu.has(il)) return ilSinirDurumu.get(il);
+    const is = rpc('il_sinirlari', { p_il: il })
+      .then(f => {
+        const yeni = (Array.isArray(f) ? f : []).filter(x => x && x.geometry && x.properties && x.properties.il === il);
+        if (!yeni.length || ilSiniriYuklu(il)) return false;
+        sinirlar.features.push(...yeni);
+        zemineEkle(yeni);
+        if (durum.il === il && durum.ilce !== TUM && !durum.gorunum) bolgeyiCiz();   // yalnız seçili ilçe çizgisi için; görünüm yeniden sığdırılmaz
+        return true;
+      })
+      .catch(hata => { console.warn('İlçe sınırları yüklenemedi:', il, hata); ilSinirDurumu.delete(il); return false; });
+    ilSinirDurumu.set(il, is);
+    return is;
+  }
+
   function haritaKur() {
     if (!HARITA_VAR) { haritaNotu('Harita yüklenemedi. Liste ve filtreler çalışıyor.'); return; }
     harita = L.map('harita', {
@@ -2463,18 +2503,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const yaziKatmani = harita.createPane('zeminYazi');
     yaziKatmani.style.zIndex = 160;
     yaziKatmani.style.pointerEvents = 'none';
-    L.geoJSON(sinirlar, {
-      pane: 'zemin', interactive: false, attribution: AYAR.altliklar.length ? null : SINIR_ATIF,
-      style: f => ({ className: `sinir sinir-${f.properties.tur}` }),
-    }).addTo(harita);
-    for (const f of sinirlar.features) {
-      const p = f.properties;
-      if (!p.yazi) continue;
-      L.marker([p.yazi[1], p.yazi[0]], {
-        pane: 'zeminYazi', interactive: false, keyboard: false,
-        icon: L.divIcon({ className: `yer-adi yer-${p.tur}`, html: el('span', { text: p.ad }), iconSize: [0, 0] }),
-      }).addTo(harita);
-    }
+    zemineEkle(sinirlar.features, AYAR.altliklar.length ? null : SINIR_ATIF);
 
     // Yakın iğneler sayılı tek daireye toplanır; sokak ölçeğinde (16) kümeleme kalkar.
     kume = KUME_VAR
@@ -2574,6 +2603,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (!harita) return;
     taraGoster(false);
     if (bolgeKatmani) { bolgeKatmani.remove(); bolgeKatmani = null; }
+    if (!ilSiniriYuklu(durum.il)) ilSinirYukle(durum.il);   // gelince bolgeyiCiz yeniden çağrılır
     if (durum.ilce !== TUM && !durum.gorunum) {
       const ilce = sinirlar.features.filter(f => f.properties.tur === 'ilce' && f.properties.il === durum.il && f.properties.ad === durum.ilce);
       if (ilce.length) {
@@ -2862,10 +2892,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         if (halkaIcinde(lng, lat, c[0]) && !c.slice(1).some(d => halkaIcinde(lng, lat, d))) return { il: f.properties.il, ilce: f.properties.ad };
       }
     }
-    for (const [il, v] of Object.entries(sinirlar.iller || {})) {   // kıyıda, suda: ilin kutusu yeter
+    // Sınırı yüklenmemiş il ya da kıyı/su: ilin kutusu yeter (kutular örtüşebilir; en küçüğü seçilir).
+    let enIyi = null, enKucuk = Infinity;
+    for (const [il, v] of Object.entries(sinirlar.iller || {})) {
       const [b, g, d, n] = v.kutu || [];
-      if (lng >= b && lng <= d && lat >= g && lat <= n) return { il, ilce: null };
+      if (lng >= b && lng <= d && lat >= g && lat <= n && (d - b) * (n - g) < enKucuk) { enIyi = il; enKucuk = (d - b) * (n - g); }
     }
+    if (enIyi) { ilSinirYukle(enIyi); return { il: enIyi, ilce: null }; }
     return null;
   }
 
