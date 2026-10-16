@@ -2588,12 +2588,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const m = gl.getMaplibreMap();
     let yuklendi = false;
     m.once('load', () => { yuklendi = true; });
+    m.once('styledata', () => { yuklendi = true; });   // stil geldiyse sunucu çalışıyor demektir; karolar sonra da gelebilir
+    // Sayfa ilk açılışta veriyle meşgulken 'load' gecikebilir: yalnız stil hiç gelmezse yedeğe geçilir.
     setTimeout(() => {
-      if (yuklendi) return;
+      if (yuklendi || (m.isStyleLoaded && m.isStyleLoaded())) return;
       gl.remove();
       vektorHarita = null;
       karoKur(sira + 1);
-    }, 10000);
+    }, 20000);
     m.__stil = haritaStili();
     vektorHarita = m;
   }
