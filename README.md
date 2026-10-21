@@ -35,13 +35,17 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - Konum yalnızca tarayıcıda, sayfa açıkken kullanılır: veritabanına ya da başka bir sunucuya gönderilmez, kaydedilmez. Harita karoları, her harita kullanımında olduğu gibi, görüntülenen bölge için karo sunucusundan indirilir.
 - Yönetim sayfasındaki "Bulunduğum yeri kullan" düğmesi, yöneticinin konumunu yalnızca koordinat alanına yazar; kaydedilirse mekanın konumu olur. Sokak haritası karoları OpenStreetMap verisinden üretilir.
 
-## Favoriler ve listeler
+## Hesaplar, Sayfam, favoriler ve listeler
 
-- Kartlardaki yıldıza basılınca kayıt favorilere eklenir; "Göster" menüsündeki "Favorilerim" listeyi ve haritayı favorilerle sınırlar.
-- Kartlardaki liste düğmesiyle kayıt, adını ziyaretçinin verdiği listelere eklenir; "Listelerim" penceresinden liste oluşturulur, adı değiştirilir, silinir ve paylaşılır. "Göster" menüsü listeyi ve haritayı seçilen listeyle sınırlar.
-- Paylaşım bağlantıyla yapılır: liste adı ve kayıt kimlikleri adresin `#liste=` parçasına yazılır (bu parça sunucuya gönderilmez). Bağlantıyı açan listeyi görür ve kendi listelerine kaydedebilir. Bağlantı listenin o anki kopyasıdır.
-- Hesap yoktur: favoriler ve listeler o tarayıcıda (localStorage) saklanır. Başka cihazda ya da tarayıcı verisi silinince görünmez.
-- Listeler sunucuya gönderilmez. Favoriler, "En çok favorilenenler" sayımı için tarayıcıya özel rastgele bir cihaz numarasıyla veritabanına da gönderilir (yalnızca cihaz numarası ve mekan kimlikleri; ad, e-posta, konum gönderilmez). Veritabanı dışarıya yalnızca mekan başına toplam sayıyı verir. Bu, test aşaması çözümüdür; canlıda sayım hesaplara bağlanacaktır.
+- Sekmeler: Harita | Keşfet | Sayfam. Favori ve liste için giriş gerekir (e-posta + şifre). Giriş yapmadan yıldıza ya da liste düğmesine basılınca giriş penceresi açılır; giriş bitince istenen işlem yapılır.
+- Her hesabın bir kullanıcı adı vardır (3–20 karakter: küçük harf, rakam, nokta, alt çizgi). Hesap açarken seçilir; e-posta doğrulaması açıksa ilk girişte profil oluşur. E-posta adresi kimseye gösterilmez.
+- Sayfam: profil (kullanıcı adı, görünen ad), "Favorilerim" ve adlandırılmış listeler. Liste oluşturma, ad değiştirme, silme, yer çıkarma, haritada gösterme ve paylaşma buradan yapılır. Yer eklemek için kartlardaki ya da işletme sayfasındaki yıldız / liste düğmesi kullanılır.
+- Her listenin görünürlüğü var: **Gizli** (yalnız sahibi), **Bağlantıyla** (bağlantıyı bilen görür, profilde çıkmaz), **Herkese açık** (profilde listelenir). Yeni listeler ve Favorilerim gizli başlar.
+- Kişinin sayfası: `#@kullanıcıadı`; liste bağlantısı: `#l=<liste kimliği>`. Bağlantı listenin güncel hâlini gösterir. Keşfet'teki arama kullanıcı adlarında da arar (`@` ile başlarsa kişiler öne gelir). Başkasının listesi haritada gösterilebilir ya da "Listelerime kopyala" ile kopyalanabilir.
+- "En çok favorilenenler" sayımı hesaplardaki favori listelerinden gelir (kişi başına bir); kimin favorilediği gösterilmez.
+- Hesaplardan önce tarayıcıda (localStorage) tutulan favori ve listeler için Sayfam'da bir kez "Hesabıma aktar" sorulur. Eski `#liste=` bağlantıları (o anki kopya) hâlâ açılır.
+- Veritabanı: `profil`, `liste`, `liste_mekan` (RLS: herkes yalnız kendi kayıtlarını okur/yazar). Başkalarının sayfası yalnız `profil_getir`, `liste_getir`, `kullanici_ara`, `kullanici_adi_durumu` fonksiyonlarıyla okunur. Sınırlar: hesap başına 100 liste, liste başına 1000 yer.
+- Puanlar henüz hesaba bağlı değil (tarayıcıya özel cihaz numarasıyla).
 
 ## İşletme sayfası
 
@@ -78,7 +82,7 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 
 ## Keşfet
 
-- Telefonda alttaki, geniş ekranda üstteki sekmelerle Harita ve Keşfet arasında geçilir.
+- Telefonda alttaki, geniş ekranda üstteki sekmelerle Harita, Keşfet ve Sayfam arasında geçilir.
 - Keşfet'te iki liste var: "En çok favorilenenler" ve "Son eklenenler". İkisi de harita sekmesindeki seçime (il, ilçe ya da taranan alan, kategori, filtreler) uyan kayıtlardan çizilir. Eklenme tarihi, veritabanındaki değişiklik geçmişinde kaydın ilk eklendiği andır.
 - Arama bütün il ve kategorilerde ad, ilçe, il ve adrese bakar; kategori adları ve filtre seçenekleri (marka, branş, özellik) için filtre önerir. Sonuca basınca harita o kayda gider.
 - Haritayı kaydırınca ya da yakınlaştırınca "Bu alanı tara" düğmesi çıkar; basınca liste o anki harita alanıyla sınırlanır (seçili kategori ve filtreler geçerli kalır).

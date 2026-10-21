@@ -976,6 +976,46 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .ara-dugme .simge { width: 16px; height: 16px; stroke-width: 2; }
 .uyg.kesfette { grid-template-areas: "ust ust ust" "panel kesfet kesfet"; }
 .uyg.kesfette .sonuclar, .uyg.kesfette .harita-kap { display: none; }
+/* Sayfam: tam genişlik, filtre paneli yok */
+.uyg.sayfamda { grid-template-areas: "ust ust ust" "kesfet kesfet kesfet"; }
+.uyg.sayfamda .panel, .uyg.sayfamda .sonuclar, .uyg.sayfamda .harita-kap, .uyg.sayfamda .dugme-filtre { display: none; }
+.uyg.sayfamda .perde, .uyg.sayfamda .baglam { display: none; }
+/* Sayfam, kişi sayfası, liste sayfası */
+.profil-bas { display: flex; align-items: center; gap: 14px; }
+.profil-bas .levha { flex: none; width: 56px; height: 56px; border-radius: 18px; font-size: 26px; }
+.profil-ad { margin: 0; font: 700 24px/1.15 var(--yazi-dar); overflow-wrap: anywhere; }
+.profil-alt { margin: 3px 0 0; color: var(--soluk); font-size: 14.5px; overflow-wrap: anywhere; }
+.profil-eylem { display: flex; flex-wrap: wrap; gap: 8px; }
+.profil-eylem .dugme { min-height: 36px; padding: 6px 12px; font-size: 14.5px; }
+.ust-geri { align-self: flex-start; }
+.kutu { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--cizgi); border-radius: 14px; background: var(--yuzey); }
+.kutu.vurgulu { border-color: var(--vurgu); background: var(--vurgu-soluk); }
+.kutu p { margin: 0; }
+.form-dikey { display: flex; flex-direction: column; gap: 12px; }
+.form-dikey .alan input { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid var(--cizgi-koyu); border-radius: 10px; background: var(--yuzey-2); color: var(--murekkep); font: 500 16px/1.2 var(--yazi); box-sizing: border-box; }
+.alan-not { margin: 0; color: var(--soluk); font-size: 13px; }
+.alan-not.iyi { color: var(--olumlu); }
+.alan-not.kotu, .form-hata { color: var(--uyari); }
+.form-hata { margin: 0; font-size: 14px; font-weight: 600; }
+.sekme-secici { display: flex; gap: 2px; padding: 3px; border-radius: 12px; background: var(--vurgu-soluk); }
+.sekme-secici .sekme { flex: 1; }
+.lkart { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--cizgi); border-radius: 14px; background: var(--yuzey); }
+.lkart-ust { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lkart-ad { margin: 0; font: 700 18px/1.2 var(--yazi-dar); overflow-wrap: anywhere; }
+.lkart-ad-form { display: flex; gap: 8px; flex: 1; }
+.lkart-ad-form .ara { flex: 1; min-width: 0; }
+.adet { flex: none; color: var(--soluk); font-size: 13.5px; }
+.gorunurluk { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.gorunurluk select { min-height: 36px; padding: 4px 8px; border: 1px solid var(--cizgi-koyu); border-radius: 10px; background: var(--yuzey-2); color: var(--murekkep); font: 600 14px/1.2 var(--yazi); }
+.gorunurluk .ipucu { flex: 1 1 200px; }
+.rozet-gor { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: var(--vurgu-soluk); color: var(--soluk); font: 600 12px/1.6 var(--yazi-dar); }
+.lkart details > summary { cursor: pointer; color: var(--vurgu); font: 600 14px/1.4 var(--yazi-dar); }
+.lkart .satirlar { margin-top: 6px; }
+.satir .kaldir { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: none; color: var(--soluk); cursor: pointer; }
+.satir .kaldir:hover { background: var(--vurgu-soluk); color: var(--murekkep); }
+.satir .kaldir .simge { width: 16px; height: 16px; }
+.kisi-sol { text-transform: lowercase; }
+.bildirim { position: fixed; left: 50%; bottom: 24px; z-index: 2000; transform: translateX(-50%); max-width: min(92vw, 460px); margin: 0; padding: 10px 16px; border-radius: 12px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); box-shadow: var(--golge); font: 600 14.5px/1.35 var(--yazi); text-align: center; }
 
 /* ---------- keşfet ---------- */
 .kesfet { grid-area: kesfet; min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--zemin); }
@@ -1151,6 +1191,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 @media (max-width: 1099.98px) {
   .uyg { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "ust ust" "sonuc harita"; }
   .uyg.kesfette { grid-template-areas: "ust ust" "kesfet kesfet"; }
+  .uyg.sayfamda { grid-template-areas: "ust ust" "kesfet kesfet"; }
   .uyg.sayfada { grid-template-areas: "ust ust" "sayfa harita"; }
   .dugme-filtre { display: inline-flex; }
   .panel { position: fixed; z-index: 30; inset: 0 auto 0 0; width: min(380px, 100%); padding-top: env(safe-area-inset-top, 0px); box-shadow: var(--golge); transform: translateX(-104%); visibility: hidden; transition: transform .2s ease, visibility 0s linear .2s; }
@@ -1163,6 +1204,8 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 @media (max-width: 719.98px) {
   .uyg { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(200px, 42%) minmax(0, 1fr) auto; grid-template-areas: "ust" "harita" "sonuc" "sekme"; }
   .uyg.kesfette { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "ust" "kesfet" "sekme"; }
+  .uyg.sayfamda { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "ust" "kesfet" "sekme"; }
+  .bildirim { bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
   .uyg.sayfada { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "sayfa" "sekme"; }
   .uyg.sayfada .ust, .uyg.sayfada .harita-kap { display: none; }
   .mekan-sayfa { border-right: 0; }
@@ -1174,7 +1217,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
   .sekmeler-ust { display: none; }
   .ara-dugme { padding: 8px 11px; }
   .ara-dugme .ara-metin { display: none; }
-  .sekmeler-alt { grid-area: sekme; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--cizgi); background: var(--yuzey); }
+  .sekmeler-alt { grid-area: sekme; display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--cizgi); background: var(--yuzey); }
   .sekmeler-alt .sekme { flex-direction: column; gap: 3px; min-height: 56px; border-radius: 0; font-size: 13.5px; }
   .sekmeler-alt .sekme .simge { width: 22px; height: 22px; stroke-width: 1.6; }
   .sekmeler-alt .sekme[aria-current="page"] { background: none; color: var(--vurgu); }
@@ -1196,6 +1239,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <nav class="sekmeler sekmeler-ust" aria-label="Sayfalar">
       <button class="sekme" type="button" data-sekme="harita" aria-current="page">Harita</button>
       <button class="sekme" type="button" data-sekme="kesfet">Keşfet</button>
+      <button class="sekme" type="button" data-sekme="sayfam">Sayfam</button>
     </nav>
     <p class="baglam" id="baglam"></p>
     <button class="dugme gorunum-dugme" id="gorunumDugme" type="button"></button>
@@ -1266,15 +1310,22 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     </div>
   </section>
 
+  <section class="kesfet sayfam" id="sayfam" aria-label="Sayfam" hidden>
+    <div class="kesfet-ic" id="sayfamIc"></div>
+  </section>
+
   <nav class="sekmeler-alt" aria-label="Sayfalar">
     <button class="sekme" type="button" data-sekme="harita" aria-current="page">Harita</button>
     <button class="sekme" type="button" data-sekme="kesfet">Keşfet</button>
+    <button class="sekme" type="button" data-sekme="sayfam">Sayfam</button>
   </nav>
+  <p class="bildirim" id="bildirim" role="status" aria-live="polite" hidden></p>
   <div class="perde" id="perde" hidden></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha512-OFs3W4DIZ5ZkrDhBFtsCP6JXtMEDGmhl0QPlmWYBJay40TT1n3gt2Xuw8Pf/iezgW9CdabjkNChRqozl/YADmg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="lib/maplibre-gl.css">
 <script src="lib/maplibre-gl.js"></script>
 <script src="lib/leaflet-maplibre-gl.js"></script>
@@ -1327,6 +1378,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     tel: 'M5.4 2.2l1.5 3-1.2 1.3a7.6 7.6 0 0 0 3.8 3.8l1.3-1.2 3 1.5-.5 2.4c-5.8.3-10.6-4.5-10.3-10.3z',
     yol: 'M8 1.4L14.6 8 8 14.6 1.4 8zM6.2 10V7.6h3.6M8.6 6.2l1.4 1.4-1.4 1.4',
     gunduz: 'M8 5.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 1 0 0-5.6zM8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1',
+    kisi: 'M8 2.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 1 0 0-5.6zM2.6 14c.6-2.9 2.8-4.4 5.4-4.4s4.8 1.5 5.4 4.4',
     gece: 'M13.4 9.6A5.6 5.6 0 0 1 6.4 2.6a5.6 5.6 0 1 0 7 7z',
     otomatik: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM8 1.6v12.8',
     web: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM1.6 8h12.8M8 1.6c2.1 2.1 2.1 10.7 0 12.8M8 1.6c-2.1 2.1-2.1 10.7 0 12.8',
@@ -1655,17 +1707,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     siralama: 'puan', siralamaElle: false, aramaSiralama: 'eslesme' };   // siralamaElle: ziyaretçi kendisi seçti mi   // sayfa: açık işletme sayfasının kimliği
 
   /* ---------- favoriler ---------- */
-  // Hesap yok: favoriler bu tarayıcıda (localStorage) durur. "En çok favorilenenler" sayımı için favori listesi,
-  // tarayıcıya özel rastgele bir cihaz numarasıyla veritabanına da gönderilir (ad, e-posta, konum gönderilmez).
-  // Canlıya geçişte bu sayım gerçek hesaplara bağlanacak (test aşaması çözümü).
-  // Mekan kimliği kalıcı olduğu için liste kimliklerden oluşur. Saklama kapalıysa (gizli sekme vb.) sayfa açıkken bellekte tutulur ve gönderilmez.
-  const FAVORI_ANAHTAR = 'kesif.favoriler';
-  const FAVORI_NOTU = 'Favorilerin bu tarayıcıda saklanır; "En çok favorilenenler" sayımı için adsız bir cihaz numarasıyla sunucuya da gönderilir.';
+  // Favoriler hesaptaki "Favorilerim" listesidir (giriş zorunlu). Yıldıza giriş yapmadan basılınca giriş penceresi açılır;
+  // giriş tamamlanınca istenen işlem yapılır. "En çok favorilenenler" sayımı hesaplardaki favori listelerinden gelir (kişi başına bir).
   const favoriler = new Set();
-  try { for (const id of JSON.parse(localStorage.getItem(FAVORI_ANAHTAR) || '[]')) if (typeof id === 'string') favoriler.add(id); } catch (e) { /* saklama yok ya da bozuk */ }
-  function favoriKaydet() { try { localStorage.setItem(FAVORI_ANAHTAR, JSON.stringify([...favoriler])); } catch (e) { /* bellekte kalır */ } }
   function favoriDugmesi(m) {
-    const d = el('button', { class: 'favori', type: 'button' }, simge('yildiz'));
+    const d = el('button', { class: 'favori', type: 'button', 'data-fav': m.id }, simge('yildiz'));
+    d.yaz = () => yaz();
     const yaz = () => {
       const var_ = favoriler.has(m.id);
       d.setAttribute('aria-pressed', var_ ? 'true' : 'false');
@@ -1674,17 +1721,27 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     };
     yaz();
     d.addEventListener('click', () => {
-      if (favoriler.has(m.id)) favoriler.delete(m.id); else favoriler.add(m.id);
-      favoriKaydet();
-      favoriEsitle();
+      if (!hesapHazir()) { girisIste('Favorilere eklemek için giriş yap.', () => { if (!favoriler.has(m.id)) favoriDegistir(m.id, true); }); return; }
+      favoriDegistir(m.id, !favoriler.has(m.id));
       yaz();
-      if (durum.gorunum === 'favori' && durum.sekme === 'harita' && !durum.sayfa) guncelle(); else gorunumuYaz();
     });
     return d;
   }
+  // Liste ya da favori değişince ekrandaki her şey güncel kalsın.
+  function listelerDegisti() {
+    // Ekrandaki bütün yıldız ve liste düğmeleri (kartlar, raflar, işletme sayfası) yeni duruma göre işaretlenir.
+    for (const b of kok.querySelectorAll('.favori[data-fav]')) if (b.yaz) b.yaz();
+    for (const b of kok.querySelectorAll('.liste-dugme[data-lst]')) {
+      const icinde = listeler.some(l => l.mekanlar.includes(b.dataset.lst));
+      b.setAttribute('aria-pressed', icinde ? 'true' : 'false'); b.title = icinde ? 'Listelerini düzenle' : 'Listeye ekle';
+    }
+    if (durum.gorunum && durum.sekme === 'harita' && !durum.sayfa) guncelle(); else { gorunumuYaz(); if (durum.sayfa) guncelle(); }
+    if (durum.sekme === 'sayfam') sayfamCiz();
+    else if (durum.sekme === 'kesfet') kesfetCiz();
+  }
 
   /* ---------- favori sayımı ve eklenme tarihi (veritabanı) ---------- */
-  // Cihaz numarası yalnızca bir favori gönderilecekse üretilir; saklama çalışmıyorsa hiç üretilmez ve hiçbir şey gönderilmez
+  // Cihaz numarası (puanlar için) yalnızca bir puan gönderilecekse üretilir; saklama çalışmıyorsa hiç üretilmez ve hiçbir şey gönderilmez
   // (her ziyarette yeni numara, sayıyı şişirirdi).
   const CIHAZ_ANAHTAR = 'kesif.cihaz', UUID_KALIBI = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
   function cihazNumarasi(uret) {
@@ -1758,21 +1815,6 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (s.sonra) s.sonra();
     else if (durum.sekme === 'kesfet') kesfetCiz();
   }
-  // Bu cihazın favori kümesi veritabanına eşitlenir (eksikler eklenir, çıkarılanlar silinir). Art arda tıklamalar tek istekte gider.
-  let esitleBekliyor = null;
-  function esitleGonder(keepalive) {
-    clearTimeout(esitleBekliyor); esitleBekliyor = null;
-    const cihaz = cihazNumarasi(favoriler.size > 0);
-    if (!AYAR.veritabani || !cihaz) return;
-    rpc('favori_esitle', { p_cihaz: cihaz, p_mekanlar: [...favoriler].slice(0, 500) }, keepalive)
-      .then(() => { if (!keepalive) sayacGetir(sayac.favori, true); })
-      .catch(hata => console.warn('Favori sayımı gönderilemedi:', hata));
-  }
-  function favoriEsitle() {
-    clearTimeout(esitleBekliyor);
-    esitleBekliyor = setTimeout(() => esitleGonder(false), 700);
-  }
-  window.addEventListener('pagehide', () => { if (esitleBekliyor) esitleGonder(true); });
 
   /* ---------- puanlar ---------- */
   // Herkes 1-5 yıldız verebilir; cihaz başına mekan başına bir puan (cihaz numarasıyla, test aşaması; canlıda hesaplar).
@@ -1858,27 +1900,18 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
 
   /* ---------- listeler ---------- */
-  // Adlandırılmış listeler de yalnızca bu tarayıcıda durur. Liste mekanı kopyalamaz, kimliğini tutar.
-  // Paylaşım: liste adı ve kimlikler bağlantının "#liste=" parçasına yazılır (bu parça sunucuya gönderilmez).
-  // Paylaşılan bağlantı o anki kopyadır; sonradan yapılan değişiklik karşı tarafa gitmez.
-  const LISTE_ANAHTAR = 'kesif.listeler', AD_SINIRI = 60, KIMLIK_KALIBI = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-  let listeler = [];   // { id, ad, mekanlar: [mekan kimliği] }
-  let paylasilan = null;   // bağlantıyla gelen liste: { ad, idler: [..], bilinmeyen: sayı }
-  try {
-    for (const l of JSON.parse(localStorage.getItem(LISTE_ANAHTAR) || '[]')) {
-      if (l && typeof l.id === 'string' && typeof l.ad === 'string' && Array.isArray(l.mekanlar)) {
-        listeler.push({ id: l.id, ad: l.ad.slice(0, AD_SINIRI), mekanlar: l.mekanlar.filter(x => typeof x === 'string') });
-      }
-    }
-  } catch (e) { /* saklama yok ya da bozuk */ }
-  function listeKaydet() { try { localStorage.setItem(LISTE_ANAHTAR, JSON.stringify(listeler)); } catch (e) { /* bellekte kalır */ } }
+  // Listeler hesapta (veritabanında) durur; liste mekanı kopyalamaz, kimliğini tutar. Görünürlük: gizli (yalnız sen),
+  // baglanti (bağlantıyı bilen görür, profilinde çıkmaz), herkes (profilinde listelenir). Paylaşım bağlantısı <site>#l=<liste kimliği>:
+  // açan kişi listenin güncel hâlini görür. Eski "#liste=" bağlantıları (hesap öncesi, o anki kopya) okunmaya devam eder.
+  const AD_SINIRI = 60, KIMLIK_KALIBI = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  let listeler = [];   // { id, ad, gorunurluk, mekanlar: [mekan kimliği, son eklenen başta] }
+  let paylasilan = null;   // haritada gösterilen başkasının listesi: { ad, idler: [..], bilinmeyen: sayı, sahip?, id? }
   const adDuzelt = ad => ad.replace(/\s+/g, ' ').trim().slice(0, AD_SINIRI);
-  function listeOlustur(ad, mekanIdleri) {
-    let a = adDuzelt(ad) || 'Adsız liste';
-    for (let n = 2; listeler.some(l => l.ad === a); n++) a = `${adDuzelt(ad).slice(0, AD_SINIRI - 5)} (${n})`;
-    const l = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ad: a, mekanlar: [...new Set(mekanIdleri || [])] };
-    listeler.push(l); listeKaydet();
-    return l;
+  function benzersizAd(ad) {
+    const kok_ = adDuzelt(ad) || 'Adsız liste';
+    let a = kok_;
+    for (let n = 2; listeler.some(l => l.ad === a) || a === 'Favorilerim'; n++) a = `${kok_.slice(0, AD_SINIRI - 5)} (${n})`;
+    return a;
   }
   const seciliListe = () => (durum.gorunum.startsWith('l:') ? listeler.find(l => l.id === durum.gorunum.slice(2)) : null);
   function gorunumKumesi(g = durum.gorunum) {
@@ -1889,7 +1922,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   function gorunumAdi() {
     if (durum.gorunum === 'favori') return 'Favorilerim';
-    if (durum.gorunum === 'paylasilan') return paylasilan ? `Paylaşılan: ${paylasilan.ad}` : '';
+    if (durum.gorunum === 'paylasilan') return paylasilan ? `${paylasilan.sahip ? `@${paylasilan.sahip}: ` : 'Paylaşılan: '}${paylasilan.ad}` : '';
     const l = seciliListe();
     return l ? `Liste: ${l.ad}` : '';
   }
@@ -1932,23 +1965,33 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (g) { durum.secimler = {}; durum.secili = null; }
     if (ciz) guncelle();
   }
+  // Listeyi harita sekmesinde göster (kendi listen ya da başkasınınki).
+  function haritadaGoster(g) {
+    sayfayiKapat(() => { gorunumeGec(g, false); if (durum.sekme !== 'harita') sekmeyeGec('harita'); else guncelle(); }, true);
+  }
   function gorunumuYaz() {
     if (durum.gorunum.startsWith('l:') && !seciliListe()) durum.gorunum = '';
+    if (durum.gorunum === 'favori' && !hesapHazir()) durum.gorunum = '';
     if (durum.gorunum === 'paylasilan' && !paylasilan) durum.gorunum = '';
     const say = kume => kumedekiler(kume).length;
     const sec = $('#gorunumSec');
     sec.replaceChildren(
       el('option', { value: '', text: 'Tüm kayıtlar' }),
-      el('option', { value: 'favori', text: `Favorilerim (${say(favoriler)})` }),
+      hesapHazir() ? el('option', { value: 'favori', text: `Favorilerim (${say(favoriler)})` }) : null,
       listeler.length ? el('optgroup', { label: 'Listelerim' }, listeler.map(l => el('option', { value: `l:${l.id}`, text: `${l.ad} (${say(new Set(l.mekanlar))})` }))) : null,
-      paylasilan ? el('option', { value: 'paylasilan', text: `Paylaşılan: ${paylasilan.ad} (${paylasilan.idler.length})` }) : null);
+      paylasilan ? el('option', { value: 'paylasilan', text: `${gorunumAdiPaylasilan()} (${paylasilan.idler.length})` }) : null);
     sec.value = durum.gorunum;
+    $('#listeYonet').textContent = hesapHazir() ? 'Listelerim' : 'Giriş yap';
   }
+  const gorunumAdiPaylasilan = () => (paylasilan.sahip ? `@${paylasilan.sahip}: ${paylasilan.ad}` : `Paylaşılan: ${paylasilan.ad}`);
   function listeDugmesi(m) {
     const icinde = listeler.some(l => l.mekanlar.includes(m.id));
-    const d = el('button', { class: 'favori liste-dugme', type: 'button', 'aria-pressed': icinde ? 'true' : 'false',
+    const d = el('button', { class: 'favori liste-dugme', type: 'button', 'data-lst': m.id, 'aria-pressed': icinde ? 'true' : 'false',
       'aria-label': `${m.ad}: listeye ekle`, title: icinde ? 'Listelerini düzenle' : 'Listeye ekle' }, simge('liste'));
-    d.addEventListener('click', () => listeEkleDiyalogu(m));
+    d.addEventListener('click', () => {
+      if (!hesapHazir()) { girisIste('Listelere eklemek için giriş yap.', () => listeEkleDiyalogu(m)); return; }
+      listeEkleDiyalogu(m);
+    });
     return d;
   }
 
@@ -1963,11 +2006,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   function yeniListeFormu(dugmeMetni, olusunca) {
     const giris = el('input', { type: 'text', class: 'ara', maxlength: AD_SINIRI, placeholder: 'Yeni liste adı', 'aria-label': 'Yeni liste adı', autocomplete: 'off' });
-    const form = el('form', { class: 'yeni-liste' }, giris, el('button', { class: 'dugme', type: 'submit', text: dugmeMetni }));
-    form.addEventListener('submit', e => {
+    const dugme = el('button', { class: 'dugme', type: 'submit', text: dugmeMetni });
+    const form = el('form', { class: 'yeni-liste' }, giris, dugme);
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       if (!adDuzelt(giris.value)) { giris.focus(); return; }
-      olusunca(giris.value);
+      dugme.disabled = true;
+      try { await olusunca(giris.value); } finally { dugme.disabled = false; }
     });
     return form;
   }
@@ -1975,23 +2020,24 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const satirlar = listeler.map(l => {
       const kutu = el('input', { type: 'checkbox' });
       kutu.checked = l.mekanlar.includes(m.id);
-      kutu.addEventListener('change', () => {
-        if (kutu.checked) { if (!l.mekanlar.includes(m.id)) l.mekanlar.push(m.id); } else l.mekanlar = l.mekanlar.filter(x => x !== m.id);
-        listeKaydet();
+      const adet = el('span', { class: 'adet', text: `${l.mekanlar.length} kayıt` });
+      kutu.addEventListener('change', async () => {
+        kutu.disabled = true;
+        const tamam = await listeyeEkleCikar(l, m.id, kutu.checked);
+        if (!tamam) kutu.checked = !kutu.checked;
+        kutu.disabled = false;
+        adet.textContent = `${l.mekanlar.length} kayıt`;
       });
-      return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }), el('span', { class: 'adet', text: `${l.mekanlar.length} kayıt` })));
+      return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }), adet));
     });
     diyalogAc(`Listeye ekle: ${m.ad}`,
       listeler.length ? el('ul', { class: 'liste-satirlari' }, satirlar) : el('p', { class: 'ipucu', text: 'Henüz listen yok. Aşağıdan bir ad verip ilk listeni oluştur.' }),
-      yeniListeFormu('Oluştur ve ekle', ad => { listeOlustur(ad, [m.id]); listeEkleDiyalogu(m); }),
-      el('p', { class: 'ipucu', text: 'Listelerin yalnızca bu cihazda, bu tarayıcıda saklanır.' }));
+      yeniListeFormu('Oluştur ve ekle', async ad => { if (await listeOlustur(ad, [m.id])) listeEkleDiyalogu(m); }),
+      el('p', { class: 'ipucu', text: 'Yeni listeler gizli başlar. Görünürlüğünü Sayfam\'dan değiştirebilirsin.' }));
   }
+  // Eski paylaşım bağlantıları (#liste=, hesap öncesi): listenin o anki kopyası bağlantının içindedir.
   const b64 = { yaz: s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
     oku: s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))) };
-  function paylasimBaglantisi(ad, idler) {
-    const gecerli = idler.filter(id => mekanlar.some(m => m.id === id));
-    return `${location.href.split('#')[0]}#liste=${b64.yaz(JSON.stringify({ v: 1, a: ad, m: gecerli }))}`;
-  }
   function paylasimiOku() {
     const h = location.hash;
     if (!h.startsWith('#liste=')) return null;
@@ -2012,54 +2058,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const kap = $('#paylasilan');
     kap.hidden = !paylasilan;
     if (!paylasilan) { kap.replaceChildren(); return; }
-    const kaydet = el('button', { class: 'dugme', type: 'button', text: 'Listelerime kaydet' });
-    kaydet.addEventListener('click', () => { const l = listeOlustur(paylasilan.ad, paylasilan.idler); paylasimiKapat(); gorunumeGec(`l:${l.id}`, true); });
+    const p = paylasilan;
+    const kaydet = el('button', { class: 'dugme', type: 'button', text: 'Listelerime kopyala' });
+    kaydet.addEventListener('click', () => {
+      const yap = async () => { const l = await listeOlustur(p.ad, p.idler); if (l) { paylasimiKapat(); gorunumeGec(`l:${l.id}`, true); } };
+      if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
+    });
     const goster = durum.gorunum === 'paylasilan' ? null : el('button', { class: 'dugme', type: 'button', text: 'Listeyi göster' });
     if (goster) goster.addEventListener('click', () => gorunumeGec('paylasilan', true));
     const kapat = el('button', { class: 'dugme', type: 'button', text: 'Kapat' });
     kapat.addEventListener('click', () => { paylasimiKapat(); guncelle(); });
     kap.replaceChildren(
-      el('p', null, 'Seninle paylaşılan liste: ', el('strong', { text: paylasilan.ad }), ` · ${paylasilan.idler.length} kayıt`,
-        paylasilan.bilinmeyen ? ` (${paylasilan.bilinmeyen} kayıt artık yok)` : ''),
-      el('div', { class: 'eylemler' }, kaydet, goster, kapat));
-  }
-  function listelerDiyalogu(paylasimi) {
-    const satir = (anahtar, ad, idler, liste) => {
-      const adYeri = el('span', { class: 'liste-ad', text: ad });
-      const eylem = (metin, is, sinif) => { const b = el('button', { class: sinif || 'bag', type: 'button', text: metin }); b.addEventListener('click', is); return b; };
-      const eylemler = el('div', { class: 'liste-eylem' },
-        eylem('Göster', () => { $('#diyalog').close(); gorunumeGec(anahtar, true); }),
-        eylem('Paylaş', async () => {
-          const bag = paylasimBaglantisi(ad, idler);
-          let durumu = 'Bağlantıyı kopyalayıp gönderebilirsin.';
-          try { await navigator.clipboard.writeText(bag); durumu = 'Bağlantı kopyalandı. Açan kişi listeyi görür ve kendi listelerine kaydedebilir.'; } catch (e) { /* elle kopyalanır */ }
-          listelerDiyalogu({ anahtar, bag, durumu });
-        }));
-      if (liste) {
-        eylemler.append(
-          eylem('Adını değiştir', () => {
-            const giris = el('input', { type: 'text', class: 'ara', maxlength: AD_SINIRI, value: liste.ad, 'aria-label': 'Liste adı' });
-            const form = el('form', { class: 'yeni-liste' }, giris, el('button', { class: 'dugme', type: 'submit', text: 'Kaydet' }));
-            form.addEventListener('submit', e => { e.preventDefault(); const a = adDuzelt(giris.value); if (a) { liste.ad = a; listeKaydet(); } listelerDiyalogu(); });
-            adYeri.replaceWith(form); giris.focus(); giris.select();
-          }),
-          eylem('Sil', e => {
-            const onay = eylem('Evet, sil', () => { listeler = listeler.filter(x => x !== liste); listeKaydet(); listelerDiyalogu(); }, 'bag tehlike');
-            const vazgec = eylem('Vazgeç', () => listelerDiyalogu());
-            e.target.replaceWith(el('span', { class: 'ipucu', text: 'Liste silinsin mi? ' }), onay, vazgec);
-          }));
-      }
-      const paylas = paylasimi && paylasimi.anahtar === anahtar
-        ? el('div', { class: 'paylas-kutu' }, el('p', { class: 'ipucu', role: 'status', text: paylasimi.durumu }),
-          el('input', { type: 'text', class: 'ara', readonly: true, value: paylasimi.bag, 'aria-label': 'Paylaşım bağlantısı' }))
-        : null;
-      if (paylas) paylas.lastChild.addEventListener('focus', e => e.target.select());
-      return el('li', null, el('div', { class: 'liste-ust' }, adYeri, el('span', { class: 'adet', text: `${kumedekiler(new Set(idler)).length} kayıt` })), eylemler, paylas);
-    };
-    diyalogAc('Listelerim',
-      el('ul', { class: 'liste-satirlari' }, satir('favori', 'Favorilerim', [...favoriler], null), listeler.map(l => satir(`l:${l.id}`, l.ad, l.mekanlar, l))),
-      yeniListeFormu('Liste oluştur', ad => { listeOlustur(ad, []); listelerDiyalogu(); }),
-      el('p', { class: 'ipucu', text: 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas. Listeler yalnızca bu cihazda, bu tarayıcıda saklanır; paylaşılan bağlantı listenin o anki kopyasıdır.' }));
+      el('p', null, p.sahip ? `@${p.sahip} listesi: ` : 'Seninle paylaşılan liste: ', el('strong', { text: p.ad }), ` · ${p.idler.length} kayıt`,
+        p.bilinmeyen ? ` (${p.bilinmeyen} kayıt artık yok)` : ''),
+      el('div', { class: 'eylemler' }, p.benim ? null : kaydet, goster, kapat));
   }
 
   const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
@@ -2326,7 +2338,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       const favori = durum.gorunum === 'favori';
       liste.replaceChildren(el('li', { class: 'bos-durum' },
         el('p', { text: favori ? 'Henüz favorin yok.' : 'Bu listede henüz kayıt yok.' }),
-        el('p', { text: favori ? `Bir kaydı favoriye almak için kartındaki yıldıza bas. ${FAVORI_NOTU}`
+        el('p', { text: favori ? (hesapHazir() ? 'Bir kaydı favoriye almak için kartındaki yıldıza bas.' : 'Favorilerin hesabında saklanır. Görmek için Sayfam\'dan giriş yap.')
           : 'Bir kaydı listeye eklemek için kartındaki liste düğmesine bas.' }), hepsi));
     } else if (bb.durum !== 'tamam') {
       liste.replaceChildren(bolgeDurumKutusu(bb));
@@ -3004,11 +3016,702 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     konumuKapat(not);
   }
 
-  /* ---------- sekmeler: Harita | Keşfet ---------- */
-  function sekmeyeGec(s) {
+  /* ---------- hesap: giriş, kullanıcı adı, favoriler ve listeler (veritabanı) ---------- */
+  // Giriş e-posta + şifreyle (Supabase Auth). Her hesabın bir kullanıcı adı vardır (profil tablosu); favoriler ve listeler
+  // hesapta durur. Kişinin herkese açık sayfası: <site>#@kullanıcıadı; bir liste: <site>#l=<liste kimliği>.
+  // durum: 'yukleniyor' | 'misafir' | 'adsiz' (giriş yaptı, kullanıcı adı seçmedi) | 'hazir' | 'hata'
+  const hesap = { db: null, oturum: null, profil: null, durum: 'yukleniyor', favori: null, bekleyen: null, yerel: null, hata: '' };
+  const siteAdresi = () => location.href.split('#')[0];
+  const profilBaglantisi = ad => `${siteAdresi()}#@${ad}`;
+  const listeBaglantisi = id => `${siteAdresi()}#l=${id}`;
+  const hesapHazir = () => hesap.durum === 'hazir';
+  const GORUNURLUK = {
+    gizli: { ad: 'Gizli', not: 'Yalnızca sen görürsün.' },
+    baglanti: { ad: 'Bağlantıyla', not: 'Bağlantıyı bilen görür; profilinde görünmez.' },
+    herkes: { ad: 'Herkese açık', not: 'Profil sayfanda görünür; bağlantıyla da açılır.' },
+  };
+  const KA_KALIBI = /^[a-z0-9][a-z0-9._]{1,18}[a-z0-9]$/;
+  const KA_IPUCU = '3–20 karakter: küçük harf, rakam, nokta ve alt çizgi. Harf ya da rakamla başlayıp biter.';
+  const kullaniciAdiDuzelt = s => s.toLocaleLowerCase(TR)
+    .replace(/[çğıöşü]/g, c => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c])).replace(/[^a-z0-9._]/g, '').slice(0, 20);
+  const kaGecerli = v => KA_KALIBI.test(v) && !/[._]{2}/.test(v);
+
+  let bildirimZamani = null;
+  function bildir(metin) {
+    const b = $('#bildirim');
+    b.textContent = metin; b.hidden = false;
+    clearTimeout(bildirimZamani);
+    bildirimZamani = setTimeout(() => { b.hidden = true; }, 3500);
+  }
+  function hataMetni(h, varsayilan = 'İşlem yapılamadı. Bağlantını kontrol edip yeniden dene.') {
+    const kod = (h && h.code) || '', mesaj = (h && h.message) || '';
+    const metinler = {
+      invalid_credentials: 'E-posta ya da şifre yanlış.',
+      email_not_confirmed: 'E-postanı henüz doğrulamadın. Gelen kutundaki (gereksiz klasörüne de bak) bağlantıya bas.',
+      user_already_exists: 'Bu e-postayla zaten bir hesap var. Giriş yapmayı dene.',
+      email_exists: 'Bu e-postayla zaten bir hesap var. Giriş yapmayı dene.',
+      weak_password: 'Şifre çok zayıf. En az 8 karakter kullan; harf ve rakam karıştır.',
+      same_password: 'Yeni şifre eskisiyle aynı olamaz.',
+      over_email_send_rate_limit: 'Kısa sürede çok fazla e-posta istendi. Biraz bekleyip yeniden dene.',
+      over_request_rate_limit: 'Çok fazla deneme yapıldı. Biraz bekleyip yeniden dene.',
+      email_address_invalid: 'Bu e-posta adresi geçersiz görünüyor.',
+      email_address_not_authorized: 'Bu adrese şu an e-posta gönderilemiyor (sitenin e-posta ayarı henüz tamamlanmadı).',
+      signup_disabled: 'Yeni hesap açma şu an kapalı.',
+      P0001: mesaj,
+    };
+    if (metinler[kod]) return metinler[kod];
+    if (/invalid login credentials/i.test(mesaj)) return metinler.invalid_credentials;
+    if (/email not confirmed/i.test(mesaj)) return metinler.email_not_confirmed;
+    if (/failed to fetch|networkerror|load failed/i.test(mesaj)) return 'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.';
+    return varsayilan;
+  }
+  // Oturum varsa kullanıcının kimliğiyle (gizli listesini görebilsin), yoksa adsız çağrılır.
+  async function uyeRpc(ad, govde) {
+    if (!hesap.db) return rpc(ad, govde);
+    const { data, error } = await hesap.db.rpc(ad, govde);
+    if (error) throw error;
+    return data;
+  }
+
+  function hesapKur() {
+    const v = AYAR.veritabani;
+    if (!v || !window.supabase || typeof window.supabase.createClient !== 'function') {
+      hesap.durum = 'hata';
+      hesap.hata = 'Hesap kitaplığı yüklenemedi. Sayfayı yenile; sorun sürerse bu site için reklam engelleyiciyi kapat.';
+      hesapCizildi();
+      return;
+    }
+    hesap.db = window.supabase.createClient(v.url, v.anahtar, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    hesap.db.auth.onAuthStateChange((olay, oturum) => {
+      const onceki = hesap.oturum && hesap.oturum.user.id;
+      hesap.oturum = oturum;
+      if (olay === 'PASSWORD_RECOVERY') setTimeout(sifreYenileDiyalogu, 0);
+      const simdiki = oturum && oturum.user.id;
+      if (olay !== 'INITIAL_SESSION' && olay !== 'SIGNED_OUT' && onceki === simdiki) return;   // jeton yenileme vb.
+      setTimeout(hesapYukle, 0);   // bu geri çağrının içinde başka bir istek kilitlenebilir (supabase-js uyarısı)
+    });
+  }
+  let yuklemeNo = 0;
+  async function hesapYukle() {
+    const no = ++yuklemeNo;
+    const o = hesap.oturum;
+    if (!o) {
+      hesap.durum = 'misafir'; hesap.profil = null; hesap.favori = null; hesap.yerel = null;
+      favoriler.clear(); listeler = [];
+      hesapCizildi();
+      return;
+    }
+    hesap.durum = 'yukleniyor';
+    hesapCizildi();
+    try {
+      let { data: profil, error } = await hesap.db.from('profil').select('id,kullanici_adi,ad').maybeSingle();
+      if (error) throw error;
+      // Hesap açılırken seçilen kullanıcı adı (e-posta doğrulamasından sonra ilk girişte profil oluşur)
+      const istenen = o.user.user_metadata && o.user.user_metadata.kullanici_adi;
+      if (!profil && typeof istenen === 'string' && kaGecerli(istenen)) {
+        const r = await hesap.db.from('profil').insert({ id: o.user.id, kullanici_adi: istenen }).select('id,kullanici_adi,ad').maybeSingle();
+        if (!r.error) profil = r.data;
+      }
+      if (no !== yuklemeNo) return;
+      if (!profil) { hesap.durum = 'adsiz'; hesap.profil = null; hesapCizildi(); if (hesap.bekleyen) kullaniciAdiDiyalogu(); return; }
+      hesap.profil = profil;
+      await listeleriYukle();
+      if (no !== yuklemeNo) return;
+      hesap.durum = 'hazir';
+      hesap.yerel = yerelVeriOku();
+      hesapCizildi();
+      const sonra = hesap.bekleyen; hesap.bekleyen = null;
+      if (sonra) sonra();
+    } catch (h) {
+      if (no !== yuklemeNo) return;
+      console.warn('Hesap bilgileri alınamadı', h);
+      hesap.durum = 'hata';
+      hesap.hata = 'Hesap bilgilerin alınamadı. Sayfayı yenileyip yeniden dene.';
+      hesapCizildi();
+    }
+  }
+  async function listeleriYukle() {
+    const { data, error } = await hesap.db.from('liste')
+      .select('id,ad,tur,gorunurluk,olusturma,liste_mekan(mekan_id,eklenme)').order('olusturma');
+    if (error) throw error;
+    const yeni = [];
+    let fav = null;
+    for (const l of data || []) {
+      // eskiden yeniye: ekrana basılırken ters çevrilir (son eklenen başta)
+      const idler = (l.liste_mekan || []).slice().sort((a, b) => String(a.eklenme).localeCompare(String(b.eklenme))).map(x => x.mekan_id);
+      if (l.tur === 'favori') fav = { id: l.id, gorunurluk: l.gorunurluk, mekanlar: idler };
+      else yeni.push({ id: l.id, ad: l.ad, gorunurluk: l.gorunurluk, mekanlar: idler });
+    }
+    hesap.favori = fav;
+    favoriler.clear();
+    if (fav) for (const id of fav.mekanlar) favoriler.add(id);
+    listeler = yeni;
+    await kimlikleriYukle([...favoriler, ...listeler.flatMap(l => l.mekanlar)]);
+  }
+  function hesapCizildi() {
+    if (!mekanlar) return;
+    gorunumuYaz();
+    guncelle();
+    if (durum.sekme === 'sayfam') sayfamCiz();
+    else if (durum.sekme === 'kesfet') kesfetCiz();
+  }
+  // Giriş gerektiren bir işlem: giriş penceresi açılır; giriş (ve gerekiyorsa kullanıcı adı) tamamlanınca işlem yapılır.
+  function girisIste(neden, sonra) {
+    if (hesap.durum === 'hata') { bildir(hesap.hata); return; }
+    if (hesap.durum === 'yukleniyor') { bildir('Hesabın yükleniyor, birazdan yeniden dene.'); return; }
+    hesap.bekleyen = sonra || null;
+    if (hesap.durum === 'adsiz') kullaniciAdiDiyalogu();
+    else girisDiyalogu('giris', neden);
+  }
+
+  /* --- veritabanına yazan işlemler: ekran hemen değişir, hata olursa geri alınır --- */
+  async function favoriDegistir(id, ekle) {
+    if (!hesapHazir() || !hesap.favori) return false;
+    if (ekle) favoriler.add(id); else favoriler.delete(id);
+    listelerDegisti();
+    const t = hesap.db.from('liste_mekan');
+    const { error } = ekle ? await t.insert({ liste_id: hesap.favori.id, mekan_id: id })
+      : await t.delete().eq('liste_id', hesap.favori.id).eq('mekan_id', id);
+    if (error && !(ekle && error.code === '23505')) {
+      if (ekle) favoriler.delete(id); else favoriler.add(id);
+      listelerDegisti();
+      bildir(hataMetni(error, 'Favori kaydedilemedi. Yeniden dene.'));
+      return false;
+    }
+    sayacGetir(sayac.favori, true);
+    return true;
+  }
+  async function listeyeEkleCikar(l, id, ekle) {
+    if (!hesapHazir()) return false;
+    const once = l.mekanlar.slice();
+    if (ekle) { if (!l.mekanlar.includes(id)) l.mekanlar.push(id); } else l.mekanlar = l.mekanlar.filter(x => x !== id);
+    listelerDegisti();
+    const t = hesap.db.from('liste_mekan');
+    const { error } = ekle ? await t.insert({ liste_id: l.id, mekan_id: id }) : await t.delete().eq('liste_id', l.id).eq('mekan_id', id);
+    if (error && !(ekle && error.code === '23505')) {
+      l.mekanlar = once;
+      listelerDegisti();
+      bildir(hataMetni(error, 'Liste kaydedilemedi. Yeniden dene.'));
+      return false;
+    }
+    return true;
+  }
+  async function listeOlustur(ad, mekanIdleri) {
+    if (!hesapHazir()) return null;
+    const { data, error } = await hesap.db.from('liste').insert({ sahip: hesap.profil.id, ad: benzersizAd(ad) }).select('id,ad,gorunurluk').single();
+    if (error) { bildir(hataMetni(error, 'Liste oluşturulamadı. Yeniden dene.')); return null; }
+    const l = { id: data.id, ad: data.ad, gorunurluk: data.gorunurluk, mekanlar: [] };
+    listeler.push(l);
+    const idler = [...new Set(mekanIdleri || [])].filter(id => bolge.dizin.has(id)).slice(0, 1000);
+    if (idler.length) {
+      const r = await hesap.db.from('liste_mekan').insert(idler.map(id => ({ liste_id: l.id, mekan_id: id })));
+      if (r.error) bildir('Liste oluşturuldu ama yerler eklenemedi. Yeniden eklemeyi dene.');
+      else l.mekanlar = idler;
+    }
+    listelerDegisti();
+    return l;
+  }
+  // l: listeler'deki bir liste ya da favori listesi (hesap.favori). degisiklik: { ad?, gorunurluk? }
+  async function listeAyarla(l, degisiklik) {
+    const once = { ad: l.ad, gorunurluk: l.gorunurluk };
+    Object.assign(l, degisiklik);
+    listelerDegisti();
+    const { error } = await hesap.db.from('liste').update(degisiklik).eq('id', l.id);
+    if (error) { Object.assign(l, once); listelerDegisti(); bildir(hataMetni(error, 'Değişiklik kaydedilemedi. Yeniden dene.')); return false; }
+    return true;
+  }
+  async function listeSil(l) {
+    const once = listeler.slice();
+    listeler = listeler.filter(x => x !== l);
+    listelerDegisti();
+    const { error } = await hesap.db.from('liste').delete().eq('id', l.id);
+    if (error) { listeler = once; listelerDegisti(); bildir(hataMetni(error, 'Liste silinemedi. Yeniden dene.')); return false; }
+    bildir(`“${l.ad}” silindi.`);
+    return true;
+  }
+
+  // Hesaplardan önce bu tarayıcıda tutulan favoriler ve listeler: bir kez hesaba aktarılabilir.
+  const ESKI_FAVORI = 'kesif.favoriler', ESKI_LISTE = 'kesif.listeler';
+  function yerelVeriOku() {
+    try {
+      const fav = JSON.parse(localStorage.getItem(ESKI_FAVORI) || '[]').filter(x => typeof x === 'string' && KIMLIK_KALIBI.test(x));
+      const lis = JSON.parse(localStorage.getItem(ESKI_LISTE) || '[]')
+        .filter(l => l && typeof l.ad === 'string' && Array.isArray(l.mekanlar))
+        .map(l => ({ ad: adDuzelt(l.ad) || 'Adsız liste', mekanlar: l.mekanlar.filter(x => typeof x === 'string' && KIMLIK_KALIBI.test(x)) }));
+      return fav.length || lis.length ? { favori: fav, listeler: lis } : null;
+    } catch (e) { return null; }
+  }
+  function yerelVeriyiSil() {
+    try { localStorage.removeItem(ESKI_FAVORI); localStorage.removeItem(ESKI_LISTE); } catch (e) { /* yok */ }
+    hesap.yerel = null;
+  }
+  async function yerelVeriyiAktar() {
+    const y = hesap.yerel;
+    if (!y || !hesapHazir()) return;
+    await kimlikleriYukle([...y.favori, ...y.listeler.flatMap(l => l.mekanlar)]);
+    const yeniFav = y.favori.filter(id => bolge.dizin.has(id) && !favoriler.has(id));
+    if (yeniFav.length) {
+      const { error } = await hesap.db.from('liste_mekan').insert(yeniFav.map(id => ({ liste_id: hesap.favori.id, mekan_id: id })));
+      if (error) { bildir(hataMetni(error, 'Favoriler aktarılamadı. Yeniden dene.')); return; }
+      for (const id of yeniFav) favoriler.add(id);
+    }
+    for (const l of y.listeler) if (!(await listeOlustur(l.ad, l.mekanlar))) return;
+    yerelVeriyiSil();
+    listelerDegisti();
+    sayacGetir(sayac.favori, true);
+    bildir('Bu tarayıcıdaki favoriler ve listeler hesabına aktarıldı.');
+  }
+
+  /* --- bağlantı paylaşma --- */
+  async function baglantiPaylas(bag, baslik) {
+    if (navigator.share && dar.matches) {
+      try { await navigator.share({ title: baslik, url: bag }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(bag); bildir('Bağlantı kopyalandı.'); }
+    catch (e) { window.prompt('Bağlantıyı kopyala:', bag); }
+  }
+
+  /* --- giriş, hesap oluşturma, şifre --- */
+  let alanNo = 0;
+  function alan(etiket, giris, not) {
+    if (!giris.id) giris.id = `alan${++alanNo}`;
+    if (not) { not.id = `${giris.id}Not`; giris.setAttribute('aria-describedby', not.id); }
+    return el('div', { class: 'alan' }, el('label', { for: giris.id, text: etiket }), giris, not);
+  }
+  // Kullanıcı adı alanı: yazarken düzeltilir (küçük harf, Türkçe harfler ascii), uygunluğu sunucuya sorulur.
+  function kullaniciAdiAlani(deger, kendi) {
+    const giris = el('input', { type: 'text', value: deger || '', maxlength: 20, autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true, inputmode: 'text' });
+    const not = el('p', { class: 'alan-not', text: KA_IPUCU });
+    let zamanlayici = null, sonuc = null;
+    const yaz = (s, metin) => { not.className = `alan-not${s === 'uygun' ? ' iyi' : s ? ' kotu' : ''}`; not.textContent = metin; };
+    async function denetle() {
+      const v = giris.value;
+      if (!v) { sonuc = null; yaz(null, KA_IPUCU); return null; }
+      if (!kaGecerli(v)) { sonuc = 'bicim'; yaz('bicim', KA_IPUCU); return sonuc; }
+      if (kendi && v === kendi) { sonuc = 'uygun'; yaz(null, 'Şu anki kullanıcı adın.'); return sonuc; }
+      try { const r = await uyeRpc('kullanici_adi_durumu', { p_ad: v }); if (giris.value !== v) return denetle(); sonuc = r; }
+      catch (e) { sonuc = null; yaz(null, KA_IPUCU); return null; }
+      yaz(sonuc, sonuc === 'uygun' ? `@${v} kullanılabilir.` : sonuc === 'alinmis' ? 'Bu kullanıcı adı alınmış.' : sonuc === 'ayrilmis' ? 'Bu ad kullanılamaz.' : KA_IPUCU);
+      return sonuc;
+    }
+    giris.addEventListener('input', () => {
+      const d = kullaniciAdiDuzelt(giris.value);
+      if (d !== giris.value) giris.value = d;
+      clearTimeout(zamanlayici); zamanlayici = setTimeout(denetle, 350);
+    });
+    return { kap: alan('Kullanıcı adı', giris, not), giris, denetle };
+  }
+  function girisDiyalogu(mod, neden) {
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const sec = el('div', { class: 'sekme-secici', role: 'group', 'aria-label': 'Giriş ya da hesap oluşturma' },
+      ...[['giris', 'Giriş yap'], ['kayit', 'Hesap oluştur']].map(([m, metin]) => {
+        const b = el('button', { class: 'sekme', type: 'button', text: metin, 'aria-pressed': m === mod ? 'true' : 'false' });
+        if (m === mod) b.setAttribute('aria-current', 'page');
+        b.addEventListener('click', () => girisDiyalogu(m, neden));
+        return b;
+      }));
+    const eposta = el('input', { type: 'email', autocomplete: 'email', required: true, inputmode: 'email', autocapitalize: 'none', spellcheck: 'false' });
+    const sifre = el('input', { type: 'password', autocomplete: mod === 'kayit' ? 'new-password' : 'current-password', required: true, minlength: mod === 'kayit' ? 8 : null });
+    const ka = mod === 'kayit' ? kullaniciAdiAlani('', null) : null;
+    const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: mod === 'kayit' ? 'Hesap oluştur' : mod === 'sifre' ? 'Sıfırlama bağlantısı gönder' : 'Giriş yap' });
+    const form = el('form', { class: 'form-dikey', novalidate: true },
+      alan('E-posta', eposta),
+      mod === 'sifre' ? null : alan('Şifre', sifre, mod === 'kayit' ? el('p', { class: 'alan-not', text: 'En az 8 karakter.' }) : null),
+      ka ? ka.kap : null,
+      hata, gonder);
+    const unuttum = el('button', { class: 'bag', type: 'button', text: mod === 'sifre' ? 'Girişe dön' : 'Şifremi unuttum' });
+    unuttum.addEventListener('click', () => girisDiyalogu(mod === 'sifre' ? 'giris' : 'sifre', neden));
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      const ep = eposta.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ep)) { hata.textContent = 'Geçerli bir e-posta adresi yaz.'; eposta.focus(); return; }
+      if (mod !== 'sifre' && !sifre.value) { hata.textContent = 'Şifreni yaz.'; sifre.focus(); return; }
+      if (mod === 'kayit' && sifre.value.length < 8) { hata.textContent = 'Şifre en az 8 karakter olmalı.'; sifre.focus(); return; }
+      gonder.disabled = true;
+      try {
+        if (mod === 'kayit') {
+          const s = await ka.denetle();
+          if (s !== 'uygun') { hata.textContent = s === 'alinmis' ? 'Bu kullanıcı adı alınmış; başka bir ad seç.' : s ? 'Kullanıcı adını kurallara göre düzelt.' : 'Kullanıcı adı denetlenemedi. Yeniden dene.'; ka.giris.focus(); return; }
+          const { data, error } = await hesap.db.auth.signUp({ email: ep, password: sifre.value,
+            options: { data: { kullanici_adi: ka.giris.value }, emailRedirectTo: siteAdresi() } });
+          if (error) { hata.textContent = hataMetni(error); return; }
+          if (data.session) { $('#diyalog').close(); bildir(`Hoş geldin @${ka.giris.value}!`); return; }
+          if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) { hata.textContent = hataMetni({ code: 'user_already_exists' }); return; }
+          diyalogAc('E-postanı doğrula',
+            el('p', null, 'Doğrulama bağlantısı ', el('strong', { text: ep }), ' adresine gönderildi. Bağlantıya basınca hesabın açılır ve bu siteye dönersin.'),
+            el('p', { class: 'ipucu', text: 'E-posta gelmediyse gereksiz (spam) klasörüne bak. Doğruladıktan sonra burada "Giriş yap" ile de girebilirsin.' }));
+        } else if (mod === 'sifre') {
+          const { error } = await hesap.db.auth.resetPasswordForEmail(ep, { redirectTo: siteAdresi() });
+          if (error) { hata.textContent = hataMetni(error); return; }
+          diyalogAc('E-postana bak', el('p', null, 'Bu adrese kayıtlı bir hesap varsa şifre sıfırlama bağlantısı ', el('strong', { text: ep }), ' adresine gönderildi.'));
+        } else {
+          const { error } = await hesap.db.auth.signInWithPassword({ email: ep, password: sifre.value });
+          if (error) { hata.textContent = hataMetni(error); return; }
+          $('#diyalog').close();
+        }
+      } finally { gonder.disabled = false; }
+    });
+    diyalogAc(mod === 'sifre' ? 'Şifreni sıfırla' : mod === 'kayit' ? 'Hesap oluştur' : 'Giriş yap',
+      neden && mod !== 'sifre' ? el('p', { class: 'ipucu', text: neden }) : null,
+      mod === 'sifre' ? el('p', { class: 'ipucu', text: 'Hesabının e-posta adresini yaz; şifreni yenilemen için bir bağlantı gönderelim.' }) : sec,
+      form, el('p', null, unuttum),
+      mod === 'kayit' ? el('p', { class: 'ipucu', text: 'Kullanıcı adın ve herkese açık yaptığın listeler başkalarına görünür. E-posta adresin kimseye gösterilmez.' }) : null);
+    setTimeout(() => eposta.focus(), 0);
+  }
+  function sifreYenileDiyalogu() {
+    const sifre = el('input', { type: 'password', autocomplete: 'new-password', required: true, minlength: 8 });
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: 'Şifreyi kaydet' });
+    const form = el('form', { class: 'form-dikey', novalidate: true }, alan('Yeni şifre', sifre, el('p', { class: 'alan-not', text: 'En az 8 karakter.' })), hata, gonder);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (sifre.value.length < 8) { hata.textContent = 'Şifre en az 8 karakter olmalı.'; return; }
+      gonder.disabled = true;
+      const { error } = await hesap.db.auth.updateUser({ password: sifre.value });
+      gonder.disabled = false;
+      if (error) { hata.textContent = hataMetni(error); return; }
+      $('#diyalog').close();
+      bildir('Şifren değişti.');
+    });
+    diyalogAc('Yeni şifre belirle', form);
+    setTimeout(() => sifre.focus(), 0);
+  }
+  // Kullanıcı adı seçme / profil düzenleme formu. sonra: kayıttan sonra çalışır.
+  function profilFormu(sonra) {
+    const p = hesap.profil;
+    const istenen = !p && hesap.oturum && hesap.oturum.user.user_metadata && hesap.oturum.user.user_metadata.kullanici_adi;
+    const ka = kullaniciAdiAlani(p ? p.kullanici_adi : (typeof istenen === 'string' ? kullaniciAdiDuzelt(istenen) : ''), p && p.kullanici_adi);
+    const ad = el('input', { type: 'text', maxlength: 40, autocomplete: 'name', value: (p && p.ad) || '' });
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: p ? 'Kaydet' : 'Devam et' });
+    const form = el('form', { class: 'form-dikey', novalidate: true }, ka.kap,
+      alan('Görünen ad (isteğe bağlı)', ad, el('p', { class: 'alan-not', text: 'Profil sayfanda kullanıcı adının yanında görünür.' })),
+      p ? el('p', { class: 'alan-not', text: 'Kullanıcı adını değiştirirsen eski profil bağlantın çalışmaz; liste bağlantıların çalışmaya devam eder.' }) : null,
+      hata, gonder);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      gonder.disabled = true;
+      try {
+        const s = await ka.denetle();
+        if (s !== 'uygun') { hata.textContent = s === 'alinmis' ? 'Bu kullanıcı adı alınmış; başka bir ad seç.' : s ? 'Kullanıcı adını kurallara göre düzelt.' : 'Kullanıcı adı denetlenemedi. Yeniden dene.'; ka.giris.focus(); return; }
+        const gorunen = ad.value.replace(/\s+/g, ' ').trim().slice(0, 40) || null;
+        const t = hesap.db.from('profil');
+        const { data, error } = p
+          ? await t.update({ kullanici_adi: ka.giris.value, ad: gorunen }).eq('id', p.id).select('id,kullanici_adi,ad').single()
+          : await t.insert({ id: hesap.oturum.user.id, kullanici_adi: ka.giris.value, ad: gorunen }).select('id,kullanici_adi,ad').single();
+        if (error) { hata.textContent = error.code === '23505' ? 'Bu kullanıcı adı az önce alındı; başka bir ad seç.' : error.code === '23514' ? 'Kullanıcı adını ya da görünen adı kurallara göre düzelt.' : hataMetni(error); return; }
+        if (p) { hesap.profil = data; bildir('Profilin kaydedildi.'); if (sonra) sonra(); hesapCizildi(); }
+        else { if (sonra) sonra(); hesapYukle(); }   // profil oluşunca favori listesi de oluşur: listeler yeniden okunur
+      } finally { gonder.disabled = false; }
+    });
+    return form;
+  }
+  function kullaniciAdiDiyalogu() {
+    diyalogAc('Kullanıcı adını seç', el('p', { class: 'ipucu', text: 'Başkaları seni bu adla bulur ve herkese açık listelerini görür.' }),
+      profilFormu(() => $('#diyalog').close()));
+  }
+  async function cikisYap() {
+    const { error } = await hesap.db.auth.signOut({ scope: 'local' });
+    if (error) { bildir(hataMetni(error)); return; }
+    bildir('Çıkış yaptın.');
+  }
+
+  /* ---------- Sayfam ---------- */
+  const acikKartlar = new Set();   // içeriği açık liste kartları (yeniden çizimde korunur)
+  const kartSiniri = new Map();
+  let profilDuzenleniyor = false;
+  function sayfamCiz() {
+    const kap = $('#sayfamIc');
+    if (!kap) return;
+    // açık/kapalı kart durumu ekrandan okunur (yeniden çizimde korunsun)
+    for (const d of kap.querySelectorAll('details[data-kart]')) { if (d.open) acikKartlar.add(d.dataset.kart); else acikKartlar.delete(d.dataset.kart); }
+    const baslik = el('h2', { class: 'raf-baslik', text: 'Sayfam' });
+    if (hesap.durum === 'yukleniyor') { kap.replaceChildren(baslik, el('p', { class: 'raf-bos', text: 'Yükleniyor…' })); return; }
+    if (hesap.durum === 'hata') { kap.replaceChildren(baslik, el('p', { class: 'raf-bos', text: hesap.hata })); return; }
+    if (hesap.durum === 'misafir') {
+      const giris = el('button', { class: 'dugme dugme-dolu', type: 'button', text: 'Giriş yap' });
+      giris.addEventListener('click', () => girisDiyalogu('giris'));
+      const kayit = el('button', { class: 'dugme', type: 'button', text: 'Hesap oluştur' });
+      kayit.addEventListener('click', () => girisDiyalogu('kayit'));
+      kap.replaceChildren(baslik, el('div', { class: 'kutu' },
+        el('p', { text: 'Favorilerini ve listelerini hesabında sakla; istediğin listeyi bağlantıyla paylaş ya da profilinde herkese aç.' }),
+        el('p', { class: 'ipucu', text: 'Başkalarının sayfalarını görmek için hesap gerekmez: Keşfet\'te kullanıcı adıyla ara.' }),
+        el('div', { class: 'profil-eylem' }, giris, kayit)));
+      return;
+    }
+    if (hesap.durum === 'adsiz') {
+      const cik = el('button', { class: 'bag', type: 'button', text: 'Çıkış yap' });
+      cik.addEventListener('click', cikisYap);
+      kap.replaceChildren(baslik, el('div', { class: 'kutu' },
+        el('p', { text: 'Son adım: bir kullanıcı adı seç. Başkaları seni bu adla bulur.' }), profilFormu(), el('p', null, cik)));
+      return;
+    }
+    const p = hesap.profil;
+    const eylem = (metin, is, sinif = 'dugme') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    const ust = el('div', { class: 'kutu' },
+      el('div', { class: 'profil-bas' }, el('span', { class: 'levha kisi-sol', 'aria-hidden': 'true', text: p.kullanici_adi.charAt(0) }),
+        el('div', null, el('h2', { class: 'profil-ad', text: `@${p.kullanici_adi}` }),
+          el('p', { class: 'profil-alt', text: [p.ad, hesap.oturum && hesap.oturum.user.email].filter(Boolean).join(' · ') }))),
+      profilDuzenleniyor ? profilFormu(() => { profilDuzenleniyor = false; }) : null,
+      el('div', { class: 'profil-eylem' },
+        eylem('Profilimi gör', () => altGorunumeGit(`#@${p.kullanici_adi}`)),
+        eylem('Profil bağlantısı', () => baglantiPaylas(profilBaglantisi(p.kullanici_adi), `@${p.kullanici_adi} · Keşif`)),
+        eylem(profilDuzenleniyor ? 'Vazgeç' : 'Profili düzenle', () => { profilDuzenleniyor = !profilDuzenleniyor; sayfamCiz(); }),
+        eylem('Çıkış yap', cikisYap)),
+      el('p', { class: 'ipucu', text: 'E-posta adresin yalnızca sana görünür.' }));
+
+    let aktar = null;
+    if (hesap.yerel) {
+      const y = hesap.yerel;
+      aktar = el('div', { class: 'kutu vurgulu' },
+        el('p', { text: `Bu tarayıcıda hesap öncesinden kalan ${[y.favori.length ? `${y.favori.length} favori` : '', y.listeler.length ? `${y.listeler.length} liste` : ''].filter(Boolean).join(' ve ')} var.` }),
+        el('div', { class: 'profil-eylem' },
+          eylem('Hesabıma aktar', async e => { e.target.disabled = true; await yerelVeriyiAktar(); sayfamCiz(); }),
+          eylem('Bunları sil', () => { yerelVeriyiSil(); sayfamCiz(); })));
+    }
+
+    const kartlar = [];
+    if (hesap.favori) kartlar.push(listeKarti({ ...hesap.favori, ad: 'Favorilerim', mekanlar: [...favoriler], favori: true }));
+    for (const l of listeler) kartlar.push(listeKarti(l));
+    kap.replaceChildren(...[baslik, ust, aktar].filter(Boolean),
+      el('section', { class: 'raf', 'aria-label': 'Listelerim' },
+        el('h2', { class: 'raf-baslik', text: 'Listelerim' }),
+        el('p', { class: 'raf-not', text: 'Yeni listeler gizli başlar. Bir yeri listeye eklemek için kartındaki ya da sayfasındaki liste düğmesine bas.' }),
+        yeniListeFormu('Liste oluştur', async ad => { const l = await listeOlustur(ad, []); if (l) { acikKartlar.add(l.id); bildir(`“${l.ad}” oluşturuldu.`); } }),
+        kartlar));
+  }
+  // Sayfam'daki bir liste kartı. l.favori: Favorilerim (adı değişmez, silinmez; görünürlüğü değişebilir).
+  function listeKarti(l) {
+    const gercek = l.favori ? hesap.favori : l;
+    const idler = l.mekanlar.slice().reverse();   // son eklenen başta
+    const yuklu = idler.map(id => bolge.dizin.get(id)).filter(m => m && kategoriler[m.kategori]);
+    const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+
+    const gor = el('select', { 'aria-label': `${l.ad}: görünürlük` },
+      ...Object.entries(GORUNURLUK).map(([k, v]) => el('option', { value: k, text: v.ad })));
+    gor.value = l.gorunurluk;
+    gor.addEventListener('change', () => listeAyarla(gercek, { gorunurluk: gor.value }));
+    const gorNot = el('p', { class: 'ipucu', text: GORUNURLUK[l.gorunurluk].not });
+
+    const adYeri = el('h3', { class: 'lkart-ad', text: l.ad });
+    const paylasKutu = el('div', { class: 'eylemler', hidden: true });
+    const eylemler = el('div', { class: 'liste-eylem' },
+      eylem('Haritada göster', () => haritadaGoster(l.favori ? 'favori' : `l:${l.id}`)),
+      eylem('Paylaş', () => {
+        if (gercek.gorunurluk !== 'gizli') { baglantiPaylas(listeBaglantisi(l.id), `${l.ad} · Keşif`); return; }
+        paylasKutu.hidden = false;
+        paylasKutu.replaceChildren(el('p', { class: 'ipucu', text: 'Bu liste gizli. Paylaşmak için görünürlüğü "Bağlantıyla" yapalım mı?' }),
+          eylem('Bağlantıyla yap ve paylaş', async () => {
+            if (await listeAyarla(gercek, { gorunurluk: 'baglanti' })) baglantiPaylas(listeBaglantisi(l.id), `${l.ad} · Keşif`);
+          }, 'dugme'),
+          eylem('Vazgeç', () => { paylasKutu.hidden = true; }, 'dugme'));
+      }));
+    if (!l.favori) {
+      eylemler.append(
+        eylem('Adını değiştir', () => {
+          const giris = el('input', { type: 'text', class: 'ara', maxlength: AD_SINIRI, value: l.ad, 'aria-label': 'Liste adı' });
+          const form = el('form', { class: 'lkart-ad-form' }, giris, el('button', { class: 'dugme', type: 'submit', text: 'Kaydet' }));
+          form.addEventListener('submit', e => {
+            e.preventDefault();
+            const a = adDuzelt(giris.value);
+            if (!a || a === l.ad) { sayfamCiz(); return; }
+            listeAyarla(l, { ad: benzersizAd(a) });
+          });
+          adYeri.replaceWith(form); giris.focus(); giris.select();
+        }),
+        eylem('Sil', e => {
+          const onay = eylem('Evet, sil', () => listeSil(l), 'bag tehlike');
+          const vazgec = eylem('Vazgeç', () => sayfamCiz());
+          e.target.replaceWith(el('span', { class: 'ipucu', text: 'Liste silinsin mi? ' }), onay, vazgec);
+        }));
+    }
+
+    const sinir = kartSiniri.get(l.id) || 10;
+    const satirlar = yuklu.slice(0, sinir).map(m => {
+      const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(kategoriHarfi(m.kategori), 'harf'),
+        el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: m.ad }),
+          el('span', { class: 'satir-alt', text: `${kategoriler[m.kategori].ad} · ${m.ilce}, ${m.il}` })));
+      ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'kesfet' }));
+      const kaldir = el('button', { class: 'kaldir', type: 'button', title: 'Listeden çıkar', 'aria-label': `${m.ad}: ${l.ad} listesinden çıkar` }, simge('yok'));
+      kaldir.addEventListener('click', () => (l.favori ? favoriDegistir(m.id, false) : listeyeEkleCikar(l, m.id, false)));
+      return el('li', { class: 'satir', 'data-id': m.id }, ac, kaldir);
+    });
+    const daha = yuklu.length > sinir ? eylem(`${Math.min(yuklu.length - sinir, 20)} tane daha göster`, () => { kartSiniri.set(l.id, sinir + 20); sayfamCiz(); }, 'dugme raf-daha') : null;
+    const icerik = el('details', { 'data-kart': l.id }, el('summary', { text: yuklu.length ? `Yerleri göster (${yuklu.length})` : 'Bu listede henüz yer yok' }),
+      yuklu.length ? [el('ol', { class: 'satirlar' }, satirlar), daha] : el('p', { class: 'ipucu', text: l.favori ? 'Bir yeri favorilere eklemek için yanındaki yıldıza bas.' : 'Bir yeri eklemek için kartındaki liste düğmesine bas.' }));
+    if (acikKartlar.has(l.id)) icerik.open = true;
+    icerik.addEventListener('toggle', () => { if (icerik.open) acikKartlar.add(l.id); else acikKartlar.delete(l.id); });
+
+    return el('article', { class: 'lkart', 'data-liste': l.id },
+      el('div', { class: 'lkart-ust' }, adYeri, el('span', { class: 'adet', text: `${yuklu.length} yer` })),
+      el('div', { class: 'gorunurluk' }, el('label', { class: 'gorunmez', for: `gor${l.id}`, text: 'Görünürlük' }), gor, gorNot),
+      eylemler, paylasKutu, icerik);
+  }
+
+  /* ---------- kişi sayfası ve liste sayfası (Keşfet içinde) ---------- */
+  // Adres: #@kullanıcıadı ya da #l=<liste kimliği>. Geri tuşu Keşfet'e döner.
+  const KISI_HASH = /^#@([a-z0-9._]{3,20})$/, LISTE_HASH = /^#l=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+  let kesfetAlt = null;   // { anahtar, tur: 'kisi' | 'liste', deger, durum: 'yukleniyor' | 'tamam' | 'yok' | 'hata', veri }
+  const altSinir = new Map();
+  function altHashi() {
+    const h = decodeURIComponent(location.hash || '');
+    let e = h.match(KISI_HASH);
+    if (e) return { anahtar: `kisi:${e[1]}`, tur: 'kisi', deger: e[1] };
+    e = h.toLowerCase().match(LISTE_HASH);
+    if (e) return { anahtar: `liste:${e[1]}`, tur: 'liste', deger: e[1] };
+    return null;
+  }
+  function altGorunumeGit(hash) {
+    if (location.hash !== hash) history.pushState({ kesifAlt: true }, '', hash);
+    const a = altHashi();
+    if (a) altGorunumAc(a);
+  }
+  async function altGorunumAc(a) {
+    if (!kesfetAlt || kesfetAlt.anahtar !== a.anahtar || kesfetAlt.durum === 'hata') {
+      kesfetAlt = { ...a, durum: 'yukleniyor', veri: null };
+      altSinir.clear();
+      const bu = kesfetAlt;
+      (async () => {
+        try {
+          const veri = a.tur === 'kisi' ? await uyeRpc('profil_getir', { p_kullanici_adi: a.deger }) : await uyeRpc('liste_getir', { p_id: a.deger });
+          if (kesfetAlt !== bu) return;
+          if (!veri) { bu.durum = 'yok'; }
+          else {
+            const idler = a.tur === 'kisi' ? veri.listeler.flatMap(l => l.mekanlar) : veri.mekanlar;
+            await kimlikleriYukle(idler);
+            if (kesfetAlt !== bu) return;
+            bu.veri = veri; bu.durum = 'tamam';
+          }
+        } catch (h) {
+          console.warn('Sayfa alınamadı', h);
+          if (kesfetAlt === bu) bu.durum = 'hata';
+        }
+        if (kesfetAlt === bu && durum.sekme === 'kesfet') kesfetCiz();
+      })();
+    }
+    if (durum.sekme !== 'kesfet') sekmeyeGec('kesfet'); else kesfetCiz();
+    $('#kesfet').scrollTop = 0;
+  }
+  function altGorunumuKapat() {
+    kesfetAlt = null;
+    if (altHashi()) history.replaceState(null, '', location.pathname + location.search);
+  }
+  function altGeri() {
+    if (history.state && history.state.kesifAlt) history.back();
+    else { altGorunumuKapat(); kesfetCiz(); }
+  }
+  // Başkasının listesi: satırlar (yıldızla), haritada göster, kopyala, bağlantı
+  function digerListeBolumu(l, sahip, benim, sayfada) {
+    const yuklu = l.mekanlar.map(id => bolge.dizin.get(id)).filter(m => m && kategoriler[m.kategori]);
+    const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    const sinir = altSinir.get(l.id) || (sayfada ? 30 : 10);
+    const ad = l.tur === 'favori' ? 'Favorileri' : l.ad;
+    const eylemler = el('div', { class: 'liste-eylem' },
+      yuklu.length ? eylem('Haritada göster', () => {
+        const kendi = benim && (l.tur === 'favori' ? 'favori' : listeler.some(x => x.id === l.id) ? `l:${l.id}` : null);
+        if (kendi) { haritadaGoster(kendi); return; }
+        paylasilan = { ad, idler: yuklu.map(m => m.id), bilinmeyen: 0, sahip, benim, id: l.id };
+        haritadaGoster('paylasilan');
+      }) : null,
+      !benim && yuklu.length ? eylem('Listelerime kopyala', () => {
+        const yap = async () => { const k = await listeOlustur(l.tur === 'favori' ? `@${sahip} favorileri` : l.ad, yuklu.map(m => m.id)); if (k) bildir(`“${k.ad}” listelerine eklendi.`); };
+        if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
+      }) : null,
+      eylem('Bağlantıyı paylaş', () => baglantiPaylas(listeBaglantisi(l.id), `${ad} · @${sahip} · Keşif`)));
+    return el('article', { class: 'lkart', 'data-liste': l.id },
+      el('div', { class: 'lkart-ust' }, el(sayfada ? 'h2' : 'h3', { class: 'lkart-ad', text: ad }), el('span', { class: 'adet', text: `${yuklu.length} yer` })),
+      eylemler,
+      yuklu.length ? [el('ol', { class: 'satirlar' }, yuklu.slice(0, sinir).map(m => satir(m, levhaSol(kategoriHarfi(m.kategori), 'harf'), null, `alt-${l.id}`))),
+        yuklu.length > sinir ? eylem(`${Math.min(yuklu.length - sinir, 30)} tane daha göster`, () => { altSinir.set(l.id, sinir + 30); kesfetCiz(); }, 'dugme raf-daha') : null]
+        : el('p', { class: 'ipucu', text: 'Bu listede henüz yer yok.' }));
+  }
+  function altGorunumCiz() {
+    const a = kesfetAlt;
+    $('#aramaForm').hidden = true;
+    $('#aramaSonuc').hidden = true;
+    $('#raflar').hidden = false;
+    const geri = el('button', { class: 'dugme ust-geri', type: 'button' }, simge('geri'), 'Geri');
+    geri.addEventListener('click', altGeri);
+    const ogeler = [geri];
+    if (a.durum === 'yukleniyor') ogeler.push(el('p', { class: 'raf-bos', text: 'Yükleniyor…' }));
+    else if (a.durum === 'hata') {
+      const tekrar = el('button', { class: 'dugme', type: 'button', text: 'Yeniden dene' });
+      tekrar.addEventListener('click', () => altGorunumAc(a));
+      ogeler.push(el('p', { class: 'raf-bos', text: 'Sayfa şu an alınamadı.' }), tekrar);
+    } else if (a.durum === 'yok') {
+      ogeler.push(el('p', { class: 'raf-bos', text: a.tur === 'kisi' ? `@${a.deger} adında bir kullanıcı yok.` : 'Liste bulunamadı. Silinmiş ya da sahibi tarafından gizlenmiş olabilir.' }));
+    } else if (a.tur === 'kisi') {
+      const v = a.veri;
+      const sayi = v.listeler.length;
+      ogeler.push(el('div', { class: 'kutu' },
+        el('div', { class: 'profil-bas' }, el('span', { class: 'levha kisi-sol', 'aria-hidden': 'true', text: v.kullanici_adi.charAt(0) }),
+          el('div', null, el('h2', { class: 'profil-ad', text: `@${v.kullanici_adi}` }),
+            el('p', { class: 'profil-alt', text: [v.ad, sayi ? `${sayi} herkese açık liste` : null].filter(Boolean).join(' · ') }))),
+        (() => {
+          const b = el('button', { class: 'dugme', type: 'button', text: 'Profil bağlantısı' });
+          b.addEventListener('click', () => baglantiPaylas(profilBaglantisi(v.kullanici_adi), `@${v.kullanici_adi} · Keşif`));
+          const kendi = v.benim ? el('button', { class: 'dugme', type: 'button', text: 'Sayfam\'a git' }) : null;
+          if (kendi) kendi.addEventListener('click', () => sekmeyeGec('sayfam'));
+          return el('div', { class: 'profil-eylem' }, b, kendi);
+        })()));
+      if (v.benim) ogeler.push(el('p', { class: 'kutu vurgulu', text: 'Başkaları sayfanı böyle görür. Gizli ve yalnız bağlantıyla paylaşılan listelerin burada görünmez.' }));
+      ogeler.push(sayi ? v.listeler.map(l => digerListeBolumu(l, v.kullanici_adi, v.benim, false))
+        : el('p', { class: 'raf-bos', text: v.benim ? 'Herkese açık listen yok. Sayfam\'dan bir listenin görünürlüğünü "Herkese açık" yapabilirsin.' : 'Herkese açık listesi yok.' }));
+    } else {
+      const v = a.veri;
+      const kisi = el('button', { class: 'bag', type: 'button', text: `@${v.kullanici_adi}` });
+      kisi.addEventListener('click', () => altGorunumeGit(`#@${v.kullanici_adi}`));
+      ogeler.push(el('p', { class: 'raf-not' }, 'Liste · ', kisi, v.benim ? ` · senin listen (${GORUNURLUK[v.gorunurluk].ad.toLocaleLowerCase(TR)})` : ''));
+      ogeler.push(digerListeBolumu(v, v.kullanici_adi, v.benim, true));
+    }
+    $('#raflar').replaceChildren(...ogeler.flat());
+  }
+
+  /* ---------- Keşfet aramasında kişiler ---------- */
+  const kisiArama = { metin: null, durum: 'bos', sonuc: [], zamanlayici: null };
+  function kisiAra(ham) {
+    const m = ham.trim().replace(/^@/, '').toLocaleLowerCase(TR);
+    if (m.length < 2) { kisiArama.metin = m; kisiArama.durum = 'bos'; kisiArama.sonuc = []; return; }
+    if (kisiArama.metin === m) return;
+    kisiArama.metin = m; kisiArama.durum = 'yukleniyor';
+    clearTimeout(kisiArama.zamanlayici);
+    kisiArama.zamanlayici = setTimeout(async () => {
+      try {
+        const r = await uyeRpc('kullanici_ara', { p_metin: m });
+        if (kisiArama.metin !== m) return;
+        kisiArama.sonuc = Array.isArray(r) ? r : []; kisiArama.durum = 'tamam';
+      } catch (h) { if (kisiArama.metin !== m) return; kisiArama.durum = 'hata'; kisiArama.sonuc = []; }
+      if (durum.sekme === 'kesfet' && !kesfetAlt) kesfetCiz();
+    }, 250);
+  }
+  function kisilerRafi(ham) {
+    const kisiMi = ham.trim().startsWith('@');
+    const s = kisiArama;
+    if (!s.sonuc.length) {
+      if (!kisiMi) return null;
+      return raf('Kişiler', null, el('p', { class: 'raf-bos', text: s.durum === 'yukleniyor' ? 'Aranıyor…' : s.durum === 'hata' ? 'Kişiler şu an aranamadı.' : `“${ham.trim()}” ile eşleşen kullanıcı yok.` }));
+    }
+    return raf('Kişiler', null, el('ul', { class: 'satirlar' }, s.sonuc.map(k => {
+      const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(k.kullanici_adi.charAt(0), 'harf kisi-sol'),
+        el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: `@${k.kullanici_adi}` }),
+          el('span', { class: 'satir-alt', text: [k.ad, k.liste_sayisi ? `${k.liste_sayisi} herkese açık liste` : 'Herkese açık listesi yok'].filter(Boolean).join(' · ') })));
+      ac.addEventListener('click', () => altGorunumeGit(`#@${k.kullanici_adi}`));
+      return el('li', { class: 'satir' }, ac);
+    })));
+  }
+
+  /* ---------- sekmeler: Harita | Keşfet | Sayfam ---------- */
+  // altKalsin: işletme sayfası Keşfet'teki bir kişi/liste sayfasından açılıyor (geri dönünce o sayfa yeniden görünsün).
+  function sekmeyeGec(s, { altKalsin = false } = {}) {
+    if (s !== 'kesfet' && kesfetAlt && !altKalsin) altGorunumuKapat();
     durum.sekme = s;
     kok.classList.toggle('kesfette', s === 'kesfet');
+    kok.classList.toggle('sayfamda', s === 'sayfam');
     $('#kesfet').hidden = s !== 'kesfet';
+    $('#sayfam').hidden = s !== 'sayfam';
+    if (s === 'sayfam' && dar.matches && panel.classList.contains('acik')) paneliAyarla(false, false);
     for (const b of kok.querySelectorAll('[data-sekme]')) {
       if (b.dataset.sekme === s) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     }
@@ -3016,6 +3719,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (s === 'kesfet') {
       sayacGetir(sayac.favori); sayacGetir(sayac.eklenme); sayacGetir(sayac.puan);
       kesfetCiz();
+    } else if (s === 'sayfam') {
+      sayfamCiz();
+      $('#sayfam').scrollTop = 0;
     } else if (harita) {
       harita.invalidateSize({ pan: false });
       guncelle();
@@ -3058,13 +3764,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   function kesfetCiz() {
     if (!mekanlar) return;
+    if (kesfetAlt) { altGorunumCiz(); return; }
+    $('#aramaForm').hidden = false;
     // Yıldıza basınca raf yeniden çizilir; odak aynı kaydın yıldızında kalır.
     const odak = document.activeElement;
     const odakSatiri = odak && odak.classList && odak.classList.contains('favori') && odak.closest('.satir');
     const odakAnahtari = odakSatiri ? [odakSatiri.dataset.raf, odakSatiri.dataset.id] : null;
 
     const q = $('#aramaGir').value.trim();
-    const arama = duz(q).length >= 2;
+    const arama = duz(q).length >= 2 || (q.startsWith('@') && q.length >= 3);
     $('#aramaSonuc').hidden = !arama;
     $('#raflar').hidden = arama;
     if (arama) aramayiCiz(q); else raflariCiz();
@@ -3144,7 +3852,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#raflar').replaceChildren(
       kapsam,
       raf('En yüksek puanlılar', 'Ortalama puana ve puan sayısına göre; az puanlı yerler öne geçmesin diye ağırlıklı.', puanGovde),
-      raf('En çok favorilenenler', 'Ziyaretçilerin favorilerine göre. Senin favorilerin de sayıma adsız olarak girer.', favGovde),
+      raf('En çok favorilenenler', 'Kaç kişinin favorilerinde olduğuna göre. Kimin favorilediği gösterilmez.', favGovde),
       raf('Son eklenenler', 'Keşif\'e en son eklenen yerler.', yeniGovde));
   }
 
@@ -3225,8 +3933,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       [['eslesme', 'En iyi eşleşme'], ['puan', 'Puana göre', !aramaPuanVar], ['yakinlik', 'Yakınlığa göre', !yakinlikMumkun()]],
       v => { durum.aramaSiralama = v; rafSiniri.arama = 30; kesfetCiz(); const s = $('#aramaSirala'); if (s) s.focus(); });
     const oneriler = q.length >= 2 ? oneriBul(q) : [];
+    kisiAra(ham);
+    const kisiler = kisilerRafi(ham);
+    const kisiOnde = ham.trim().startsWith('@');
 
     const ogeler = [];
+    if (kisiler && kisiOnde) ogeler.push(kisiler);
     if (oneriler.length) {
       ogeler.push(raf('Filtre önerileri', 'Seçince harita bu kategori ve filtreyle açılır.',
         el('ul', { class: 'satirlar' }, oneriler.map(o => {
@@ -3240,6 +3952,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
           return el('li', { class: 'satir' }, ac);
         }))));
     }
+    if (kisiler && !kisiOnde) ogeler.push(kisiler);
     const mekanBasligi = `Yerler`;
     // Kategori seçiliyken aramayı bütün kategorilere genişletmek için tek düğme ("Tümü"ye geçer).
     let kapsamSatiri = null;
@@ -3306,7 +4019,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       sayfa.odakGeri = document.activeElement;
     }
     if (kaynak !== 'harita') kapsamaAl(m);
-    if (durum.sekme !== 'harita') sekmeyeGec('harita');
+    if (durum.sekme !== 'harita') sekmeyeGec('harita', { altKalsin: true });
     durum.sayfa = m.id;
     durum.secili = m.id;
     kok.classList.add('sayfada');
@@ -3345,7 +4058,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#mekanSayfa').replaceChildren();
     document.title = sayfa.baslik;
     const sonra = sayfa.sonra; sayfa.sonra = null;
-    if (sayfa.donus === 'kesfet' && !sonra) sekmeyeGec('kesfet');
+    if (sayfa.donus !== 'harita' && !sonra) sekmeyeGec(sayfa.donus);
     else { if (harita) harita.invalidateSize({ pan: false }); guncelle(); }
     if (sayfa.ortalanacak) { haritadaOrtala(sayfa.ortalanacak); sayfa.ortalanacak = null; }
     if (sonra) { sonra(); return; }
@@ -3719,7 +4432,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       const hashId = mekanHashi();
       let paylasimIdleri = [];
       try { const h = location.hash; if (h.startsWith('#liste=')) { const v = JSON.parse(b64.oku(h.slice(7))); if (v && Array.isArray(v.m)) paylasimIdleri = v.m.slice(0, 500); } } catch (e) { /* bozuk bağlantı */ }
-      await kimlikleriYukle([...favoriler, ...listeler.flatMap(l => l.mekanlar), ...paylasimIdleri, ...(hashId ? [hashId] : [])]);
+      await kimlikleriYukle([...paylasimIdleri, ...(hashId ? [hashId] : [])]);
     } catch (hata) {
       $('#sonucSayi').textContent = 'Veri yüklenemedi';
       const not = $('#sonucNot');
@@ -3767,7 +4480,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       guncelle();
     });
     $('#gorunumSec').addEventListener('change', e => gorunumeGec(e.target.value, true));
-    $('#listeYonet').addEventListener('click', () => listelerDiyalogu());
+    $('#listeYonet').addEventListener('click', () => { if (dar.matches) paneliAyarla(false, false); sayfayiKapat(() => sekmeyeGec('sayfam'), true); });
     const diyalog = $('#diyalog');
     diyalog.addEventListener('click', e => { if (e.target === diyalog) diyalog.close(); });   // dışına tıklayınca kapanır
     diyalog.addEventListener('close', guncelle);
@@ -3786,6 +4499,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         return;
       }
       sayfa.tamamen = false;
+      const alt = altHashi();
+      if (alt) {
+        if (durum.sayfa) { const sonraVar = !!sayfa.sonra; sayfaKapandi(); if (sonraVar) return; }
+        altGorunumAc(alt);
+        return;
+      }
+      if (kesfetAlt && !id) { kesfetAlt = null; if (durum.sekme === 'kesfet' && !durum.sayfa) kesfetCiz(); }
       if (id) {
         const ac = () => {
           if (mekanHashi() !== id) return;   // bu arada adres değiştiyse vazgeç
@@ -3819,17 +4539,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     dar.addEventListener('change', () => paneliAyarla(false, false));
 
     // Sekmeler, arama ve Keşfet
-    for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge(b.dataset.sekme === 'kesfet' ? 'pusula' : 'harita'));
+    for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge({ kesfet: 'pusula', sayfam: 'kisi' }[b.dataset.sekme] || 'harita'));
     $('#araAc').prepend(simge('ara'));
     $('#aramaForm').prepend(simge('ara'));
     // Sayfa açıkken sekmeye ya da aramaya basılınca önce sayfa kapanır (geçmişten bir adım geri), sonra istenen yere geçilir.
-    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => sekmeyeGec(b.dataset.sekme), true));
-    $('#araAc').addEventListener('click', () => sayfayiKapat(() => { sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }, true));
+    for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => {
+      // Keşfet'teyken Keşfet'e yeniden basmak kişi/liste sayfasından ana Keşfet'e döner (Instagram'daki gibi).
+      if (b.dataset.sekme === 'kesfet' && durum.sekme === 'kesfet' && kesfetAlt) { altGorunumuKapat(); kesfetCiz(); return; }
+      sekmeyeGec(b.dataset.sekme);
+    }, true));
+    $('#araAc').addEventListener('click', () => sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }, true));
     let aramaBekliyor = null;
     $('#aramaGir').addEventListener('input', () => { clearTimeout(aramaBekliyor); aramaBekliyor = setTimeout(kesfetCiz, 120); });
     $('#aramaGir').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value) { e.preventDefault(); e.target.value = ''; kesfetCiz(); } });
     $('#aramaForm').addEventListener('submit', e => { e.preventDefault(); clearTimeout(aramaBekliyor); kesfetCiz(); $('#aramaGir').blur(); });
-    if (favoriler.size || cihazNumarasi(false)) esitleGonder(false);   // daha önce yalnızca tarayıcıda tutulan favoriler de sayıma girer
 
     paneliAyarla(false, false);
     baglamiYaz();
@@ -3844,6 +4567,16 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       if (m) mekanSayfasiniAc(m, { kaynak: 'baglanti', gecmis: false });
       else history.replaceState(null, '', location.pathname + location.search);
     }
+    // Bağlantıyla gelindiyse kişi (#@ad) ya da liste (#l=kimlik) sayfası açılır.
+    const ilkAlt = altHashi();
+    if (ilkAlt) altGorunumAc(ilkAlt);
+    // E-posta doğrulama / şifre bağlantısı hatalı ya da süresi dolmuşsa (adres "#error=..." ile döner)
+    if (/^#error=|[#&]error_description=/.test(location.hash)) {
+      const p = new URLSearchParams(location.hash.slice(1));
+      bildir(p.get('error_code') === 'otp_expired' ? 'Bağlantının süresi dolmuş. Yeniden giriş yapmayı ya da şifre sıfırlamayı dene.' : 'Bağlantı geçersiz. Yeniden dene.');
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    hesapKur();
   }
   baslat();
 })();
