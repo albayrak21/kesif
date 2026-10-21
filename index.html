@@ -30,10 +30,10 @@
   --secim-ustu: #FFFFFF;
   --olumlu: #1C7248;
   --uyari: #8A5A00;
-  --h-deniz: #D9E1E8;
-  --h-kara: #F2F2EF;
-  --h-kara-2: #E6E6E2;
-  --h-cizgi: #C4C4BF;
+  --h-deniz: #C9DCE7;
+  --h-kara: #F7F7F2;
+  --h-kara-2: #E2E7E1;
+  --h-cizgi: #A7B4AF;
   --perde: rgb(0 0 0 / .4);
   --golge: 0 1px 2px rgb(0 0 0 / .08), 0 8px 24px rgb(0 0 0 / .10);
   --yazi: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
@@ -44,7 +44,7 @@
     --zemin: #0B0B0C; --yuzey: #111113; --yuzey-2: #19191B; --murekkep: #F2F2F0; --soluk: #9B9B98;
     --cizgi: #26262A; --cizgi-koyu: #3A3A3F; --vurgu: #F2F2F0; --vurgu-dolgu: #F2F2F0; --vurgu-ustu: #111111;
     --vurgu-soluk: #232326; --secim: #F2F2F0; --secim-ustu: #111111; --olumlu: #6FCB9B; --uyari: #E2B45A;
-    --h-deniz: #0E151C; --h-kara: #19191B; --h-kara-2: #151517; --h-cizgi: #2E2E33;
+    --h-deniz: #0C202B; --h-kara: #1E2C2E; --h-kara-2: #172325; --h-cizgi: #3F5356;
     --perde: rgb(0 0 0 / .6);
     --golge: 0 1px 2px rgb(0 0 0 / .5), 0 8px 24px rgb(0 0 0 / .4);
     color-scheme: dark;
@@ -54,7 +54,7 @@
   --zemin: #0B0B0C; --yuzey: #111113; --yuzey-2: #19191B; --murekkep: #F2F2F0; --soluk: #9B9B98;
   --cizgi: #26262A; --cizgi-koyu: #3A3A3F; --vurgu: #F2F2F0; --vurgu-dolgu: #F2F2F0; --vurgu-ustu: #111111;
   --vurgu-soluk: #232326; --secim: #F2F2F0; --secim-ustu: #111111; --olumlu: #6FCB9B; --uyari: #E2B45A;
-  --h-deniz: #0E151C; --h-kara: #19191B; --h-kara-2: #151517; --h-cizgi: #2E2E33;
+  --h-deniz: #0C202B; --h-kara: #1E2C2E; --h-kara-2: #172325; --h-cizgi: #3F5356;
   --perde: rgb(0 0 0 / .6);
   --golge: 0 1px 2px rgb(0 0 0 / .5), 0 8px 24px rgb(0 0 0 / .4);
   color-scheme: dark;
@@ -2416,7 +2416,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     gunduz:   { etiket: 'Görünüm: gündüz', simge: 'gunduz', sonraki: 'gece' },
     gece:     { etiket: 'Görünüm: gece', simge: 'gece', sonraki: 'otomatik' },
   };
-  const HARITA_STILI = { acik: 'https://tiles.openfreemap.org/styles/positron', koyu: 'https://tiles.openfreemap.org/styles/dark' };
+  const HARITA_STILI = { acik: 'https://tiles.openfreemap.org/styles/bright', koyu: 'https://tiles.openfreemap.org/styles/fiord' };
   const sistemKoyu = matchMedia('(prefers-color-scheme: dark)');
   let gorunum = 'otomatik', vektorHarita = null;
   try { const g = localStorage.getItem('kesif-gorunum'); if (GORUNUMLER[g]) gorunum = g; } catch (e) {}
