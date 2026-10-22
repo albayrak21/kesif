@@ -1015,6 +1015,29 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .satir .kaldir:hover { background: var(--vurgu-soluk); color: var(--murekkep); }
 .satir .kaldir .simge { width: 16px; height: 16px; }
 .kisi-sol { text-transform: lowercase; }
+/* Kişisel yerler: yeşil levha (genel kayıtlardan ayrılsın) */
+.igne.kisisel .levha, .levha.kisisel, .satir-sol.harf.kisisel { background: var(--olumlu); color: var(--zemin); box-shadow: 0 0 0 2px var(--yuzey-2), 0 2px 6px rgb(0 0 0 / .3); }
+.satir-sol.harf.kisisel { box-shadow: none; }
+.igne.kisisel .levha::after { border-top-color: var(--yuzey-2); }
+.igne.kisisel.secili .levha { background: var(--olumlu); color: var(--zemin); transform: scale(1.2); box-shadow: 0 0 0 2px var(--murekkep), 0 3px 10px rgb(0 0 0 / .35); }
+.igne.taslak .levha { animation: taslak-zipla .9s ease-in-out infinite alternate; }
+@keyframes taslak-zipla { to { transform: scale(1.2) translateY(-4px); } }
+.ms-tur .levha.kisisel { box-shadow: none; }
+.yer-modu, .yer-modu .leaflet-interactive { cursor: crosshair !important; }
+.leaflet-bar.yer-arac .yer-dugme { display: inline-flex; gap: 6px; width: auto; padding: 0 12px; font: 600 14px/1 var(--yazi-dar); }
+.leaflet-bar.yer-arac .yer-dugme .simge { width: 15px; height: 15px; stroke-width: 2.2; }
+.leaflet-bar.yer-arac .yer-dugme[aria-pressed="true"] { background: var(--secim); color: var(--secim-ustu); }
+.yer-ipucu { position: absolute; z-index: 1001; top: 10px; left: 10px; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 140px); padding: 7px 7px 7px 16px; border-radius: 22px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); box-shadow: var(--golge); font: 600 14.5px/1.25 var(--yazi); }
+.yer-ipucu-vazgec { flex: none; min-height: 30px; padding: 4px 12px; border: 0; border-radius: 15px; background: var(--vurgu-ustu); color: var(--vurgu-dolgu); font: 600 13.5px/1 var(--yazi-dar); cursor: pointer; }
+.form-dikey textarea { width: 100%; min-height: 72px; padding: 8px 10px; border: 1px solid var(--cizgi-koyu); border-radius: 10px; background: var(--yuzey-2); color: var(--murekkep); font: 500 15px/1.35 var(--yazi); box-sizing: border-box; resize: vertical; }
+.alan-grup { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 10px 12px 12px; border: 1px solid var(--cizgi); border-radius: 12px; }
+.alan-grup legend { padding: 0 4px; color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
+.alan-grup .liste-satirlari > li { padding: 4px 0; }
+.raf-ust { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.raf-ust .dugme { min-height: 36px; padding: 6px 12px; font-size: 14.5px; }
+.lkart.soluk { opacity: .85; border-style: dashed; }
+.liste-eylem .dugme { min-height: 34px; padding: 5px 12px; font-size: 14px; }
+.dugme.secili-dugme { border-color: var(--vurgu); background: var(--vurgu-soluk); }
 .bildirim { position: fixed; left: 50%; bottom: 24px; z-index: 2000; transform: translateX(-50%); max-width: min(92vw, 460px); margin: 0; padding: 10px 16px; border-radius: 12px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); box-shadow: var(--golge); font: 600 14.5px/1.35 var(--yazi); text-align: center; }
 
 /* ---------- keşfet ---------- */
@@ -1379,6 +1402,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     yol: 'M8 1.4L14.6 8 8 14.6 1.4 8zM6.2 10V7.6h3.6M8.6 6.2l1.4 1.4-1.4 1.4',
     gunduz: 'M8 5.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 1 0 0-5.6zM8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1',
     kisi: 'M8 2.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 1 0 0-5.6zM2.6 14c.6-2.9 2.8-4.4 5.4-4.4s4.8 1.5 5.4 4.4',
+    arti: 'M8 3v10M3 8h10',
     gece: 'M13.4 9.6A5.6 5.6 0 0 1 6.4 2.6a5.6 5.6 0 1 0 7 7z',
     otomatik: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM8 1.6v12.8',
     web: 'M8 1.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 1 0 0-12.8zM1.6 8h12.8M8 1.6c2.1 2.1 2.1 10.7 0 12.8M8 1.6c-2.1 2.1-2.1 10.7 0 12.8',
@@ -1542,6 +1566,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     ad: 'Tümü (her şey)', simge: '•', filtreler: [],
     bilgi_notu: 'Haritadaki alanda bulunan her şey: uzaktayken öne çıkan yerler, yakınlaştıkça daha fazlası. Filtrelemek için bir kategori seç.',
   };
+  // Kişisel yerler (kullanıcının haritada kendisinin işaretlediği noktalar) mekan dizisinde bu türle, "yer-<uuid>" kimliğiyle durur.
+  // Bu tür kategori listesinde yoktur: genel harita, arama, Keşfet rafları ve sayımlar onları görmez; yalnızca listelerde
+  // (liste kimlere açıksa onlara) ve kendi sayfalarında görünürler.
+  const KISISEL = 'kisisel';
+  const KISISEL_TANIM = { ad: 'Kişisel yer', simge: '◆', filtreler: [], bilgiler: [], puanlama: false };
+  const katOf = k => (kategoriler && kategoriler[k]) || (k === KISISEL ? KISISEL_TANIM : null);
+  const kisiselMi = m => !!m && m.kategori === KISISEL;
+  const yerYazisi = m => [m.ilce, m.il].filter(Boolean).join(', ') || (m.konum ? `${m.konum.lat.toFixed(4)}, ${m.konum.lng.toFixed(4)}` : '');
   // Yakınlığa göre ekranda gösterilecek en çok kayıt (uzakta az, sokak ölçeğinde çok).
   const tumuSiniri = z => (z >= 16 ? 1000 : z >= 15 ? 700 : z >= 14 ? 400 : z >= 13 ? 250 : 120);
   const onemi = m => (typeof m.onem === 'number' ? m.onem : 50);
@@ -1661,7 +1693,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Kimliği bilinen ama yüklenmemiş kayıtlar (favoriler, listeler, paylaşılan liste, #mekan= bağlantısı).
   async function kimlikleriYukle(idler) {
     if (!AYAR.veritabani) return 0;
-    const eksik = [...new Set(idler)].filter(id => typeof id === 'string' && KIMLIK_KALIBI.test(id) && !bolge.dizin.has(id)).slice(0, 2000);
+    const eksik = [...new Set(idler)].filter(id => typeof id === 'string' && KIMLIK_KALIBI.test(id) && !id.startsWith('yer-') && !bolge.dizin.has(id)).slice(0, 2000);
     let n = 0;
     for (let i = 0; i < eksik.length; i += 150) {
       try {
@@ -1711,6 +1743,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // giriş tamamlanınca istenen işlem yapılır. "En çok favorilenenler" sayımı hesaplardaki favori listelerinden gelir (kişi başına bir).
   const favoriler = new Set();
   function favoriDugmesi(m) {
+    if (kisiselMi(m) && !m.benim) return null;   // başkasının kişisel yeri yalnız onun listelerinde durabilir
     const d = el('button', { class: 'favori', type: 'button', 'data-fav': m.id }, simge('yildiz'));
     d.yaz = () => yaz();
     const yaz = () => {
@@ -1738,6 +1771,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (durum.gorunum && durum.sekme === 'harita' && !durum.sayfa) guncelle(); else { gorunumuYaz(); if (durum.sayfa) guncelle(); }
     if (durum.sekme === 'sayfam') sayfamCiz();
     else if (durum.sekme === 'kesfet') kesfetCiz();
+    if (durum.sayfa && durum.sayfa.startsWith('yer-')) { const m = mekanBul(durum.sayfa); if (m) kisiselSayfaCiz(m); }
   }
 
   /* ---------- favori sayımı ve eklenme tarihi (veritabanı) ---------- */
@@ -1914,14 +1948,19 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return a;
   }
   const seciliListe = () => (durum.gorunum.startsWith('l:') ? listeler.find(l => l.id === durum.gorunum.slice(2)) : null);
+  // gorunum: '' | 'favori' | 'l:<kendi listem>' | 'k:<kaydettiğim liste>' | 'yerlerim' (bütün kişisel yerlerim) | 'paylasilan'
   function gorunumKumesi(g = durum.gorunum) {
     if (g === 'favori') return favoriler;
+    if (g === 'yerlerim') return new Set([...kisiselYerler.keys()].map(yerKimligi));
+    if (g.startsWith('k:')) { const k = kayitlilar.find(x => x.id === g.slice(2) && x.erisim); return k ? new Set(k.mekanlar) : null; }
     if (g === 'paylasilan') return paylasilan ? new Set(paylasilan.idler) : null;
     if (g.startsWith('l:')) { const l = listeler.find(x => x.id === g.slice(2)); return l ? new Set(l.mekanlar) : null; }
     return null;
   }
   function gorunumAdi() {
     if (durum.gorunum === 'favori') return 'Favorilerim';
+    if (durum.gorunum === 'yerlerim') return 'Yerlerim';
+    if (durum.gorunum.startsWith('k:')) { const k = kayitlilar.find(x => x.id === durum.gorunum.slice(2)); return k && k.erisim ? `@${k.kullanici_adi}: ${k.ad}` : ''; }
     if (durum.gorunum === 'paylasilan') return paylasilan ? `${paylasilan.sahip ? `@${paylasilan.sahip}: ` : 'Paylaşılan: '}${paylasilan.ad}` : '';
     const l = seciliListe();
     return l ? `Liste: ${l.ad}` : '';
@@ -1971,20 +2010,25 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   function gorunumuYaz() {
     if (durum.gorunum.startsWith('l:') && !seciliListe()) durum.gorunum = '';
-    if (durum.gorunum === 'favori' && !hesapHazir()) durum.gorunum = '';
+    if ((durum.gorunum === 'favori' || durum.gorunum === 'yerlerim') && !hesapHazir()) durum.gorunum = '';
+    if (durum.gorunum.startsWith('k:') && !gorunumKumesi()) durum.gorunum = '';
     if (durum.gorunum === 'paylasilan' && !paylasilan) durum.gorunum = '';
     const say = kume => kumedekiler(kume).length;
     const sec = $('#gorunumSec');
     sec.replaceChildren(
       el('option', { value: '', text: 'Tüm kayıtlar' }),
       hesapHazir() ? el('option', { value: 'favori', text: `Favorilerim (${say(favoriler)})` }) : null,
+      hesapHazir() && kisiselYerler.size ? el('option', { value: 'yerlerim', text: `Yerlerim (${kisiselYerler.size})` }) : null,
       listeler.length ? el('optgroup', { label: 'Listelerim' }, listeler.map(l => el('option', { value: `l:${l.id}`, text: `${l.ad} (${say(new Set(l.mekanlar))})` }))) : null,
+      kayitlilar.some(k => k.erisim) ? el('optgroup', { label: 'Kaydettiklerim' }, kayitlilar.filter(k => k.erisim)
+        .map(k => el('option', { value: `k:${k.id}`, text: `@${k.kullanici_adi}: ${k.ad} (${say(new Set(k.mekanlar))})` }))) : null,
       paylasilan ? el('option', { value: 'paylasilan', text: `${gorunumAdiPaylasilan()} (${paylasilan.idler.length})` }) : null);
     sec.value = durum.gorunum;
     $('#listeYonet').textContent = hesapHazir() ? 'Listelerim' : 'Giriş yap';
   }
   const gorunumAdiPaylasilan = () => (paylasilan.sahip ? `@${paylasilan.sahip}: ${paylasilan.ad}` : `Paylaşılan: ${paylasilan.ad}`);
   function listeDugmesi(m) {
+    if (kisiselMi(m) && !m.benim) return null;
     const icinde = listeler.some(l => l.mekanlar.includes(m.id));
     const d = el('button', { class: 'favori liste-dugme', type: 'button', 'data-lst': m.id, 'aria-pressed': icinde ? 'true' : 'false',
       'aria-label': `${m.ad}: listeye ekle`, title: icinde ? 'Listelerini düzenle' : 'Listeye ekle' }, simge('liste'));
@@ -2028,12 +2072,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         kutu.disabled = false;
         adet.textContent = `${l.mekanlar.length} kayıt`;
       });
-      return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }), adet));
+      const gor = l.gorunurluk && l.gorunurluk !== 'gizli' ? el('span', { class: 'rozet-gor', text: GORUNURLUK[l.gorunurluk].ad }) : null;
+      return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }), gor, adet));
     });
     diyalogAc(`Listeye ekle: ${m.ad}`,
       listeler.length ? el('ul', { class: 'liste-satirlari' }, satirlar) : el('p', { class: 'ipucu', text: 'Henüz listen yok. Aşağıdan bir ad verip ilk listeni oluştur.' }),
       yeniListeFormu('Oluştur ve ekle', async ad => { if (await listeOlustur(ad, [m.id])) listeEkleDiyalogu(m); }),
-      el('p', { class: 'ipucu', text: 'Yeni listeler gizli başlar. Görünürlüğünü Sayfam\'dan değiştirebilirsin.' }));
+      el('p', { class: 'ipucu', text: kisiselMi(m)
+        ? 'Kendi yerin, eklediğin liste kimlere açıksa onlara görünür. Yeni listeler gizli başlar.'
+        : 'Yeni listeler gizli başlar. Görünürlüğünü Sayfam\'dan değiştirebilirsin.' }));
   }
   // Eski paylaşım bağlantıları (#liste=, hesap öncesi): listenin o anki kopyası bağlantının içindedir.
   const b64 = { yaz: s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
@@ -2059,11 +2106,28 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     kap.hidden = !paylasilan;
     if (!paylasilan) { kap.replaceChildren(); return; }
     const p = paylasilan;
-    const kaydet = el('button', { class: 'dugme', type: 'button', text: 'Listelerime kopyala' });
-    kaydet.addEventListener('click', () => {
-      const yap = async () => { const l = await listeOlustur(p.ad, p.idler); if (l) { paylasimiKapat(); gorunumeGec(`l:${l.id}`, true); } };
-      if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
-    });
+    // Hesaptaki bir liste (kimliği var): kaydet ya da kopyala (sunucuda). Eski "#liste=" bağlantısı: yalnız kopyala (tarayıcıda).
+    let kaydet = null, kopya = null;
+    if (!p.benim && !p.kopyalanamaz) {
+      kopya = el('button', { class: 'dugme', type: 'button', text: p.id ? 'Kopyasını al' : 'Listelerime kopyala' });
+      kopya.addEventListener('click', () => {
+        const yap = async () => {
+          const l = p.id ? await listeyiKopyala(p.id, p.ad) : await listeOlustur(p.ad, p.idler);
+          if (l) { paylasimiKapat(); gorunumeGec(`l:${l.id}`, true); }
+        };
+        if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
+      });
+      if (p.id) {
+        const var_ = kayitliMi(p.id);
+        kaydet = el('button', { class: 'dugme', type: 'button', text: var_ ? 'Kaydedildi ✓' : 'Kaydet', 'aria-pressed': var_ ? 'true' : 'false' });
+        kaydet.addEventListener('click', () => {
+          const yap = async () => { if (await listeyiKaydet(p.id)) { paylasimiKapat(); gorunumeGec(`k:${p.id}`, true); } };
+          if (!hesapHazir()) girisIste('Listeyi kaydetmek için giriş yap.', yap);
+          else if (kayitliMi(p.id)) { paylasimiKapat(); gorunumeGec(`k:${p.id}`, true); }
+          else yap();
+        });
+      }
+    }
     const goster = durum.gorunum === 'paylasilan' ? null : el('button', { class: 'dugme', type: 'button', text: 'Listeyi göster' });
     if (goster) goster.addEventListener('click', () => gorunumeGec('paylasilan', true));
     const kapat = el('button', { class: 'dugme', type: 'button', text: 'Kapat' });
@@ -2071,10 +2135,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     kap.replaceChildren(
       el('p', null, p.sahip ? `@${p.sahip} listesi: ` : 'Seninle paylaşılan liste: ', el('strong', { text: p.ad }), ` · ${p.idler.length} kayıt`,
         p.bilinmeyen ? ` (${p.bilinmeyen} kayıt artık yok)` : ''),
-      el('div', { class: 'eylemler' }, p.benim ? null : kaydet, goster, kapat));
+      el('div', { class: 'eylemler' }, kaydet, kopya, goster, kapat));
   }
 
-  const filtreler = (kat = durum.kategori) => kategoriler[kat].filtreler;
+  const filtreler = (kat = durum.kategori) => katOf(kat).filtreler;
   // Bilgiler: süzmede kullanılmayan, yalnızca gösterilen alanlar (tarife, kapasite, çalışma saatleri…). Kategori tanımından gelir.
   // Biçim: { alan, etiket, tip: 'metin' | 'sayi' | 'liste', birim?, kartta?, aranir? }. Bilinmeyen bilgi gösterilmez.
   // Her kategoride ortak: OSM/Overture'dan gelen ek bilgiler. Kategori kendi tanımında aynı alanı tanımlıyorsa onunki geçerlidir.
@@ -2091,7 +2155,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     { alan: 'klima', etiket: 'Klima' }, { alan: 'rezervasyon', etiket: 'Rezervasyon' },
   ];
   const bilgiler = kat => {
-    const kendi = kategoriler[kat].bilgiler || [];
+    const kendi = katOf(kat).bilgiler || [];
     return kendi.concat(ORTAK_BILGILER.filter(o => !kendi.some(b => b.alan === o.alan)));
   };
   const sayiBicim = new Intl.NumberFormat('tr-TR');
@@ -2267,6 +2331,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   // Kartta gösterilen tür: sınıflanmamış kayıtta (Diğer yerler) asıl türü (ör. "Banka"), diğerlerinde kategori adı.
   function turEtiketi(m) {
+    if (kisiselMi(m)) return m.benim ? 'Kendi yerin' : m.sahip ? `@${m.sahip} yeri` : 'Kişisel yer';
     const kat = kategoriler[m.kategori];
     const t = m.kategori === 'diger' && m.ozellikler && Array.isArray(m.ozellikler.tur) ? m.ozellikler.tur[0] : null;
     const f = t && kat.filtreler.find(x => x.alan === 'tur');
@@ -2290,6 +2355,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return el('li', { class: 'kart', 'data-id': m.id },
       bas, favoriDugmesi(m), listeDugmesi(m),
       el('ul', { class: 'ozet' }, ozetOgeleri(m)),
+      kisiselMi(m) && m.aciklama ? el('p', { class: 'neden', text: m.aciklama.length > 140 ? `${m.aciklama.slice(0, 140)}…` : m.aciklama }) : null,
       eksik && eksik.length ? el('p', { class: 'neden', text: `Bilinmeyen: ${eksik.map(f => f.etiket).join(', ')}` }) : null);
   }
 
@@ -2561,6 +2627,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
     if (AYAR.koordinatAraci) koordinatAraciKur();
     taraKur();
+    yerEklemeKur();
     bolgeyiCiz();
     yakinlik();
   }
@@ -2655,7 +2722,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
 
   const harfi = () => kategoriler[durum.kategori].simge || kategoriler[durum.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
-  const igneIkonu = (harf, secili) => L.divIcon({ className: secili ? 'igne secili' : 'igne', html: el('span', { class: 'levha', text: harf }), iconSize: [30, 40], iconAnchor: [15, 40] });
+  const igneIkonu = (harf, secili, ek) => L.divIcon({ className: ['igne', secili ? 'secili' : '', ek || ''].filter(Boolean).join(' '), html: el('span', { class: 'levha', text: harf }), iconSize: [30, 40], iconAnchor: [15, 40] });
   // İğne öğesi kümeden çıkınca yeniden yaratılır; erişilebilirlik bilgisi her seferinde yeniden yazılır.
   function igneyiEtiketle(k) {
     const e = k.igne.getElement();
@@ -2673,9 +2740,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const eklenen = [];
     for (const [id, m] of olmali) {
       if (igneler.has(id)) continue;
-      const harf = kategoriler[m.kategori].simge || kategoriler[m.kategori].ad.trim().charAt(0).toLocaleUpperCase(TR);
-      const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false) });
-      const k = { igne, m, harf, secili: false };
+      const harf = kategoriHarfi(m.kategori), ek = kisiselMi(m) ? 'kisisel' : '';
+      const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false, ek) });
+      const k = { igne, m, harf, ek, secili: false };
       igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
       igne.on('click', () => mekanSayfasiniAc(m, { kaynak: 'harita' }));
       igne.on('add', () => igneyiEtiketle(k));
@@ -2781,7 +2848,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       const s = id === durum.secili;
       if (k.secili !== s) {
         // Simge değiştirilir (sınıf değil): iğne kümeden çıkıp yeniden çizilse de seçili görünür.
-        k.igne.setIcon(igneIkonu(k.harf, s));
+        k.igne.setIcon(igneIkonu(k.harf, s, k.ek));
         k.secili = s;
         igneyiEtiketle(k);
       }
@@ -2797,7 +2864,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const kume = gorunumKumesi();
     bolgeBilgi = kume ? { durum: 'tamam' } : bolgeHazirla();
     // Liste görünümü: listedeki bütün kayıtlar, kategori ve şehir ayırmadan; filtreler uygulanmaz.
-    const tum = kume ? kumedekiler(kume).filter(m => kategoriler[m.kategori]).sort((a, b) => a.ad.localeCompare(b.ad, TR)) : bolgeMekanlari();
+    const tum = kume ? kumedekiler(kume).filter(m => katOf(m.kategori)).sort((a, b) => a.ad.localeCompare(b.ad, TR)) : bolgeMekanlari();
     document.querySelector('.panel .ikili').hidden = !!kume;
     $('#filtreler').hidden = !!kume;
     baglamiYaz(tum);
@@ -2858,7 +2925,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     bagKutu.hidden = !baglar.length;
     if (durum.gorunum) {   // liste görünümü: listedeki her kategorinin notu
       $('#baglam').textContent = gorunumAdi();
-      const notlar = [...new Set((listedekiler || []).map(m => kategoriler[m.kategori].bilgi_notu).filter(Boolean))];
+      const notlar = [...new Set((listedekiler || []).map(m => (katOf(m.kategori) || {}).bilgi_notu).filter(Boolean))];
       not.replaceChildren(...notlar.map(n => el('span', { class: 'not-satiri', text: n })));
       not.hidden = !notlar.length;
       return;
@@ -3025,6 +3092,32 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const profilBaglantisi = ad => `${siteAdresi()}#@${ad}`;
   const listeBaglantisi = id => `${siteAdresi()}#l=${id}`;
   const hesapHazir = () => hesap.durum === 'hazir';
+
+  // Kişisel yerler mekan dizisinde "yer-<uuid>" kimliğiyle durur (bkz. KISISEL). Aynı yer yeniden gelirse kaydı yerinde güncellenir.
+  const YER_ONEK = 'yer-';
+  const yerKimligi = uuid => `${YER_ONEK}${uuid}`;
+  const kisiselYerler = new Map();   // kendi yerlerim: uuid → kayıt (eklenme sırasıyla)
+  let kayitlilar = [];   // kaydettiğim listeler: { id, ad, tur, erisim, kullanici_adi, sahip_ad, mekanlar: [kimlik] }
+  function yerKaydi(y, sahip, benim = kisiselYerler.has(y.id)) {
+    const id = yerKimligi(y.id);
+    const alanlar = { ad: y.ad, aciklama: y.aciklama || '', konum: { lat: Number(y.lat), lng: Number(y.lng) }, il: y.il || '', ilce: y.ilce || '', sahip, benim: !!benim };
+    let m = bolge.dizin.get(id);
+    if (m) Object.assign(m, alanlar);
+    else { m = { id, yerId: y.id, kategori: KISISEL, ozellikler: {}, dogrulanacak: [], ...alanlar }; mekanlariEkle([m]); }
+    m.adres = yerYazisi(m);
+    return m;
+  }
+  function yerKaydiniKaldir(id) {
+    const m = bolge.dizin.get(id);
+    if (!m) return;
+    bolge.dizin.delete(id);
+    const i = mekanlar.indexOf(m);
+    if (i >= 0) mekanlar.splice(i, 1);
+    igneyiYenile(id);
+  }
+  // Başkasının listesindeki kimlikler: önce kişisel yerler, sonra mekanlar (ikisi de son eklenen başta).
+  const listeIdleri = (l, sahip) => [...(l.yerler || []).map(y => yerKaydi(y, sahip).id), ...(l.mekanlar || [])];
+  const kayitliMi = id => kayitlilar.some(k => k.id === id);
   const GORUNURLUK = {
     gizli: { ad: 'Gizli', not: 'Yalnızca sen görürsün.' },
     baglanti: { ad: 'Bağlantıyla', not: 'Bağlantıyı bilen görür; profilinde görünmez.' },
@@ -3097,7 +3190,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const o = hesap.oturum;
     if (!o) {
       hesap.durum = 'misafir'; hesap.profil = null; hesap.favori = null; hesap.yerel = null;
-      favoriler.clear(); listeler = [];
+      favoriler.clear(); listeler = []; kayitlilar = [];
+      for (const uuid of [...kisiselYerler.keys()]) yerKaydiniKaldir(yerKimligi(uuid));
+      kisiselYerler.clear();
+      if (typeof secimiBitir === 'function') secimiBitir(true);
       hesapCizildi();
       return;
     }
@@ -3115,7 +3211,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       if (no !== yuklemeNo) return;
       if (!profil) { hesap.durum = 'adsiz'; hesap.profil = null; hesapCizildi(); if (hesap.bekleyen) kullaniciAdiDiyalogu(); return; }
       hesap.profil = profil;
+      await yerleriYukle();
       await listeleriYukle();
+      try { await kayitlilariYukle(); } catch (h) { console.warn('Kaydedilen listeler alınamadı', h); }
       if (no !== yuklemeNo) return;
       hesap.durum = 'hazir';
       hesap.yerel = yerelVeriOku();
@@ -3132,13 +3230,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   async function listeleriYukle() {
     const { data, error } = await hesap.db.from('liste')
-      .select('id,ad,tur,gorunurluk,olusturma,liste_mekan(mekan_id,eklenme)').order('olusturma');
+      .select('id,ad,tur,gorunurluk,olusturma,liste_mekan(mekan_id,eklenme),liste_yer(yer_id,eklenme)').order('olusturma');
     if (error) throw error;
     const yeni = [];
     let fav = null;
     for (const l of data || []) {
-      // eskiden yeniye: ekrana basılırken ters çevrilir (son eklenen başta)
-      const idler = (l.liste_mekan || []).slice().sort((a, b) => String(a.eklenme).localeCompare(String(b.eklenme))).map(x => x.mekan_id);
+      // mekanlar ve kişisel yerler birlikte, eskiden yeniye: ekrana basılırken ters çevrilir (son eklenen başta)
+      const idler = [...(l.liste_mekan || []).map(x => ({ id: x.mekan_id, t: x.eklenme })), ...(l.liste_yer || []).map(x => ({ id: yerKimligi(x.yer_id), t: x.eklenme }))]
+        .sort((a, b) => String(a.t).localeCompare(String(b.t))).map(x => x.id);
       if (l.tur === 'favori') fav = { id: l.id, gorunurluk: l.gorunurluk, mekanlar: idler };
       else yeni.push({ id: l.id, ad: l.ad, gorunurluk: l.gorunurluk, mekanlar: idler });
     }
@@ -3147,6 +3246,32 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (fav) for (const id of fav.mekanlar) favoriler.add(id);
     listeler = yeni;
     await kimlikleriYukle([...favoriler, ...listeler.flatMap(l => l.mekanlar)]);
+  }
+  async function yerleriYukle() {
+    const { data, error } = await hesap.db.from('kisisel_yer').select('id,ad,aciklama,lat,lng,il,ilce,olusturma').order('olusturma');
+    if (error) throw error;
+    const gelen = new Set((data || []).map(y => y.id));
+    for (const uuid of [...kisiselYerler.keys()]) if (!gelen.has(uuid)) { yerKaydiniKaldir(yerKimligi(uuid)); kisiselYerler.delete(uuid); }
+    for (const y of data || []) kisiselYerler.set(y.id, yerKaydi(y, hesap.profil.kullanici_adi, true));
+  }
+  // Kaydettiğim listelerin güncel hâli (sahibi değiştirdikçe değişir). Sayfam açılınca bayatsa yenilenir.
+  async function kayitlilariYukle() {
+    const r = await uyeRpc('kayitli_listeler');
+    const yeni = [];
+    for (const k of Array.isArray(r) ? r : []) {
+      if (!k || !k.id) continue;
+      if (!k.erisim) { yeni.push({ id: k.id, erisim: false, kullanici_adi: k.kullanici_adi, mekanlar: [] }); continue; }
+      yeni.push({ id: k.id, ad: k.tur === 'favori' ? `${k.kullanici_adi} favorileri` : k.ad, tur: k.tur, erisim: true,
+        kullanici_adi: k.kullanici_adi, sahip_ad: k.sahip_ad, mekanlar: listeIdleri(k, k.kullanici_adi) });
+    }
+    kayitlilar = yeni;
+    hesap.kayitZamani = Date.now();
+    await kimlikleriYukle(kayitlilar.flatMap(k => k.mekanlar));
+  }
+  function kayitlilariTazele(zorla) {
+    if (!hesapHazir() || (!zorla && Date.now() - (hesap.kayitZamani || 0) < 30000)) return;
+    hesap.kayitZamani = Date.now();
+    kayitlilariYukle().then(() => listelerDegisti()).catch(h => console.warn('Kaydedilen listeler alınamadı', h));
   }
   function hesapCizildi() {
     if (!mekanlar) return;
@@ -3162,23 +3287,31 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     hesap.bekleyen = sonra || null;
     if (hesap.durum === 'adsiz') kullaniciAdiDiyalogu();
     else girisDiyalogu('giris', neden);
+    // Giriş yapmadan pencere kapatılırsa bekleyen iş unutulur (sonra başka bir girişte kendiliğinden çalışmasın).
+    $('#diyalog').addEventListener('close', () => { if (!hesap.oturum) hesap.bekleyen = null; }, { once: true });
   }
 
   /* --- veritabanına yazan işlemler: ekran hemen değişir, hata olursa geri alınır --- */
+  // Liste öğesi bir mekan (liste_mekan) ya da kişisel yer (liste_yer) olabilir.
+  async function ogeYaz(listeId, id, ekle) {
+    const yer = id.startsWith(YER_ONEK);
+    const tablo = yer ? 'liste_yer' : 'liste_mekan', alan = yer ? 'yer_id' : 'mekan_id', deger = yer ? id.slice(YER_ONEK.length) : id;
+    const t = hesap.db.from(tablo);
+    const { error } = ekle ? await t.insert({ liste_id: listeId, [alan]: deger }) : await t.delete().eq('liste_id', listeId).eq(alan, deger);
+    return error && !(ekle && error.code === '23505') ? error : null;
+  }
   async function favoriDegistir(id, ekle) {
     if (!hesapHazir() || !hesap.favori) return false;
     if (ekle) favoriler.add(id); else favoriler.delete(id);
     listelerDegisti();
-    const t = hesap.db.from('liste_mekan');
-    const { error } = ekle ? await t.insert({ liste_id: hesap.favori.id, mekan_id: id })
-      : await t.delete().eq('liste_id', hesap.favori.id).eq('mekan_id', id);
-    if (error && !(ekle && error.code === '23505')) {
+    const error = await ogeYaz(hesap.favori.id, id, ekle);
+    if (error) {
       if (ekle) favoriler.delete(id); else favoriler.add(id);
       listelerDegisti();
       bildir(hataMetni(error, 'Favori kaydedilemedi. Yeniden dene.'));
       return false;
     }
-    sayacGetir(sayac.favori, true);
+    if (!id.startsWith(YER_ONEK)) sayacGetir(sayac.favori, true);
     return true;
   }
   async function listeyeEkleCikar(l, id, ekle) {
@@ -3186,9 +3319,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const once = l.mekanlar.slice();
     if (ekle) { if (!l.mekanlar.includes(id)) l.mekanlar.push(id); } else l.mekanlar = l.mekanlar.filter(x => x !== id);
     listelerDegisti();
-    const t = hesap.db.from('liste_mekan');
-    const { error } = ekle ? await t.insert({ liste_id: l.id, mekan_id: id }) : await t.delete().eq('liste_id', l.id).eq('mekan_id', id);
-    if (error && !(ekle && error.code === '23505')) {
+    const error = await ogeYaz(l.id, id, ekle);
+    if (error) {
       l.mekanlar = once;
       listelerDegisti();
       bildir(hataMetni(error, 'Liste kaydedilemedi. Yeniden dene.'));
@@ -3202,12 +3334,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (error) { bildir(hataMetni(error, 'Liste oluşturulamadı. Yeniden dene.')); return null; }
     const l = { id: data.id, ad: data.ad, gorunurluk: data.gorunurluk, mekanlar: [] };
     listeler.push(l);
-    const idler = [...new Set(mekanIdleri || [])].filter(id => bolge.dizin.has(id)).slice(0, 1000);
-    if (idler.length) {
-      const r = await hesap.db.from('liste_mekan').insert(idler.map(id => ({ liste_id: l.id, mekan_id: id })));
-      if (r.error) bildir('Liste oluşturuldu ama yerler eklenemedi. Yeniden eklemeyi dene.');
-      else l.mekanlar = idler;
-    }
+    // Yalnız bilinen mekanlar ve kendi kişisel yerlerim eklenebilir (başkasının yeri: kopyalama sunucuda yapılır).
+    const idler = [...new Set(mekanIdleri || [])]
+      .filter(id => (id.startsWith(YER_ONEK) ? kisiselYerler.has(id.slice(YER_ONEK.length)) : bolge.dizin.has(id))).slice(0, 1000);
+    const mk = idler.filter(id => !id.startsWith(YER_ONEK)), yr = idler.filter(id => id.startsWith(YER_ONEK));
+    let hata = null;
+    if (mk.length) { ({ error: hata } = await hesap.db.from('liste_mekan').insert(mk.map(id => ({ liste_id: l.id, mekan_id: id })))); if (!hata) l.mekanlar.push(...mk); }
+    if (!hata && yr.length) { ({ error: hata } = await hesap.db.from('liste_yer').insert(yr.map(id => ({ liste_id: l.id, yer_id: id.slice(YER_ONEK.length) })))); if (!hata) l.mekanlar.push(...yr); }
+    if (hata) bildir('Liste oluşturuldu ama yerlerin bir kısmı eklenemedi. Yeniden eklemeyi dene.');
     listelerDegisti();
     return l;
   }
@@ -3219,6 +3353,34 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const { error } = await hesap.db.from('liste').update(degisiklik).eq('id', l.id);
     if (error) { Object.assign(l, once); listelerDegisti(); bildir(hataMetni(error, 'Değişiklik kaydedilemedi. Yeniden dene.')); return false; }
     return true;
+  }
+  // Başkasının listesini kaydet (liste onda kalır, güncel hâli bende görünür) ya da kopyasını al (bağımsız, gizli başlar).
+  async function listeyiKaydet(id) {
+    try { await uyeRpc('liste_kaydet', { p_id: id }); }
+    catch (h) { bildir(hataMetni(h, 'Liste kaydedilemedi. Yeniden dene.')); return false; }
+    try { await kayitlilariYukle(); } catch (h) { console.warn(h); }
+    listelerDegisti();
+    bildir('Liste kaydedildi. Sahibi değiştirdikçe Sayfam\'da güncel hâlini görürsün.');
+    return true;
+  }
+  async function kaydiKaldir(id) {
+    const { error } = await hesap.db.from('liste_kayit').delete().eq('liste_id', id);
+    if (error) { bildir(hataMetni(error, 'Kayıt kaldırılamadı. Yeniden dene.')); return false; }
+    kayitlilar = kayitlilar.filter(k => k.id !== id);
+    if (durum.gorunum === `k:${id}`) durum.gorunum = '';
+    listelerDegisti();
+    bildir('Kayıt kaldırıldı.');
+    return true;
+  }
+  async function listeyiKopyala(id, ad) {
+    let yeniId;
+    try { yeniId = await uyeRpc('liste_kopyala', { p_id: id, p_ad: benzersizAd(ad) }); }
+    catch (h) { bildir(hataMetni(h, 'Liste kopyalanamadı. Yeniden dene.')); return null; }
+    try { await yerleriYukle(); await listeleriYukle(); } catch (h) { console.warn(h); }
+    listelerDegisti();
+    const l = listeler.find(x => x.id === yeniId) || null;
+    bildir(`“${l ? l.ad : adDuzelt(ad)}” listelerine kopyalandı. Bundan sonra değişikliklerin yalnız sende olur.`);
+    return l;
   }
   async function listeSil(l) {
     const once = listeler.slice();
@@ -3480,20 +3642,95 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         el('h2', { class: 'raf-baslik', text: 'Listelerim' }),
         el('p', { class: 'raf-not', text: 'Yeni listeler gizli başlar. Bir yeri listeye eklemek için kartındaki ya da sayfasındaki liste düğmesine bas.' }),
         yeniListeFormu('Liste oluştur', async ad => { const l = await listeOlustur(ad, []); if (l) { acikKartlar.add(l.id); bildir(`“${l.ad}” oluşturuldu.`); } }),
-        kartlar));
+        kartlar),
+      el('section', { class: 'raf', 'aria-label': 'Kaydettiğim listeler' },
+        el('h2', { class: 'raf-baslik', text: 'Kaydettiğim listeler' }),
+        el('p', { class: 'raf-not', text: 'Başkalarının listeleri. Liste sahibinde kalır; o değiştirdikçe burada güncel hâli görünür. Kendin değiştirmek istersen kopyasını al.' }),
+        kayitlilar.length ? kayitlilar.map(kayitliKarti)
+          : el('p', { class: 'raf-bos', text: 'Henüz kaydettiğin liste yok. Keşfet\'te bir kişiyi kullanıcı adıyla bul, listesindeki "Kaydet"e bas.' })),
+      yerlerimBolumu());
+  }
+  // Liste içindeki bir satır (Sayfam). kaldir: verilirse satırda "listeden çıkar" düğmesi olur.
+  function kartSatiri(m, kaldir, kaldirEtiketi) {
+    const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(kategoriHarfi(m.kategori), kisiselMi(m) ? 'harf kisisel' : 'harf'),
+      el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: m.ad }),
+        el('span', { class: 'satir-alt', text: `${kisiselMi(m) ? turEtiketi(m) : kategoriler[m.kategori].ad} · ${yerYazisi(m)}` })));
+    ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'kesfet' }));
+    let k = null;
+    if (kaldir) {
+      k = el('button', { class: 'kaldir', type: 'button', title: 'Listeden çıkar', 'aria-label': kaldirEtiketi }, simge('yok'));
+      k.addEventListener('click', kaldir);
+    }
+    return el('li', { class: 'satir', 'data-id': m.id }, ac, k);
+  }
+  // Listenin kayıtları: kişisel yerler başta, sonra mekanlar (son eklenen başta).
+  const listeKayitlari = idler => idler.map(id => bolge.dizin.get(id)).filter(m => m && katOf(m.kategori))
+    .sort((a, b) => Number(kisiselMi(b)) - Number(kisiselMi(a)));
+  // Sayfam'daki kaydedilmiş (başkasının) liste kartı: salt okunur.
+  function kayitliKarti(k) {
+    const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    const sahip = eylem(`@${k.kullanici_adi}`, () => altGorunumeGit(`#@${k.kullanici_adi}`));
+    if (!k.erisim) {
+      return el('article', { class: 'lkart soluk', 'data-kayit': k.id },
+        el('p', null, sahip, ' bu listeyi artık paylaşmıyor. Sahibi yeniden açarsa burada görünür.'),
+        el('div', { class: 'liste-eylem' }, eylem('Kaydı kaldır', () => kaydiKaldir(k.id))));
+    }
+    const yuklu = listeKayitlari(k.mekanlar);   // sunucudan son eklenen başta gelir
+    const sinir = kartSiniri.get(k.id) || 10;
+    const daha = yuklu.length > sinir ? eylem(`${Math.min(yuklu.length - sinir, 20)} tane daha göster`, () => { kartSiniri.set(k.id, sinir + 20); sayfamCiz(); }, 'dugme raf-daha') : null;
+    const icerik = el('details', { 'data-kart': k.id }, el('summary', { text: yuklu.length ? `Yerleri göster (${yuklu.length})` : 'Bu listede henüz yer yok' }),
+      yuklu.length ? [el('ol', { class: 'satirlar' }, yuklu.slice(0, sinir).map(m => kartSatiri(m))), daha] : null);
+    if (acikKartlar.has(k.id)) icerik.open = true;
+    icerik.addEventListener('toggle', () => { if (icerik.open) acikKartlar.add(k.id); else acikKartlar.delete(k.id); });
+    return el('article', { class: 'lkart', 'data-kayit': k.id },
+      el('div', { class: 'lkart-ust' }, el('h3', { class: 'lkart-ad', text: k.ad }), el('span', { class: 'adet', text: `${yuklu.length} yer` })),
+      el('p', { class: 'ipucu' }, 'Sahibi: ', sahip, k.sahip_ad ? ` (${k.sahip_ad})` : '', ' · güncel hâli'),
+      el('div', { class: 'liste-eylem' },
+        eylem('Haritada göster', () => haritadaGoster(`k:${k.id}`)),
+        eylem('Kopyasını al', async () => { const l = await listeyiKopyala(k.id, k.ad); if (l) acikKartlar.add(l.id); }),
+        eylem('Bağlantıyı paylaş', () => baglantiPaylas(listeBaglantisi(k.id), `${k.ad} · @${k.kullanici_adi} · Keşif`)),
+        eylem('Kaydı kaldır', () => kaydiKaldir(k.id))),
+      icerik);
+  }
+  // Sayfam'daki "Yerlerim": haritada kendi işaretlediğim yerler.
+  function yerlerimBolumu() {
+    const yerler = [...kisiselYerler.values()].reverse();
+    const sinir = kartSiniri.get('yerlerim') || 10;
+    const ekle = el('button', { class: 'dugme', type: 'button' }, simge('arti'), 'Haritada yer ekle');
+    ekle.addEventListener('click', () => yerEklemeBaslat());
+    const listede = m => (favoriler.has(m.id) ? 1 : 0) + listeler.filter(l => l.mekanlar.includes(m.id)).length;
+    const satirlar = yerler.slice(0, sinir).map(m => {
+      const n = listede(m);
+      const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(KISISEL_TANIM.simge, 'harf kisisel'),
+        el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: m.ad }),
+          el('span', { class: 'satir-alt', text: `${yerYazisi(m)} · ${n ? `${n} listede` : 'hiçbir listede değil (yalnız sen)'}` })));
+      ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'kesfet' }));
+      return el('li', { class: 'satir', 'data-id': m.id }, ac);
+    });
+    const daha = yerler.length > sinir ? el('button', { class: 'dugme raf-daha', type: 'button', text: `${Math.min(yerler.length - sinir, 20)} tane daha göster` }) : null;
+    if (daha) daha.addEventListener('click', () => { kartSiniri.set('yerlerim', sinir + 20); sayfamCiz(); });
+    const haritada = yerler.length ? el('button', { class: 'bag', type: 'button', text: 'Hepsini haritada göster' }) : null;
+    if (haritada) haritada.addEventListener('click', () => haritadaGoster('yerlerim'));
+    return el('section', { class: 'raf', 'aria-label': 'Yerlerim' },
+      el('div', { class: 'raf-ust' }, el('h2', { class: 'raf-baslik', text: 'Yerlerim' }), ekle),
+      el('p', { class: 'raf-not', text: 'Haritada kendin işaretlediğin yerler (tarla, ev, buluşma noktası…). Genel haritada ve aramada görünmezler; yalnız eklediğin liste kimlere açıksa onlar görür.' }),
+      yerler.length ? [el('ol', { class: 'satirlar' }, satirlar), daha, haritada]
+        : el('p', { class: 'raf-bos', text: 'Henüz yer eklemedin. Haritada bir noktaya uzun bas (bilgisayarda sağ tıkla) ya da yukarıdaki düğmeye bas.' }));
   }
   // Sayfam'daki bir liste kartı. l.favori: Favorilerim (adı değişmez, silinmez; görünürlüğü değişebilir).
   function listeKarti(l) {
     const gercek = l.favori ? hesap.favori : l;
-    const idler = l.mekanlar.slice().reverse();   // son eklenen başta
-    const yuklu = idler.map(id => bolge.dizin.get(id)).filter(m => m && kategoriler[m.kategori]);
+    const yuklu = listeKayitlari(l.mekanlar.slice().reverse());   // kişisel yerler başta, sonra son eklenen başta
+    const kisiselSayi = yuklu.filter(kisiselMi).length;
     const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
 
-    const gor = el('select', { 'aria-label': `${l.ad}: görünürlük` },
+    const gor = el('select', { id: `gor${l.id}` },
       ...Object.entries(GORUNURLUK).map(([k, v]) => el('option', { value: k, text: v.ad })));
     gor.value = l.gorunurluk;
     gor.addEventListener('change', () => listeAyarla(gercek, { gorunurluk: gor.value }));
-    const gorNot = el('p', { class: 'ipucu', text: GORUNURLUK[l.gorunurluk].not });
+    // Listede kendi yerlerim varsa: liste açılınca onların konumu da görünür.
+    const gorNot = el('p', { class: 'ipucu', text: GORUNURLUK[l.gorunurluk].not
+      + (kisiselSayi && l.gorunurluk !== 'gizli' ? ` İçindeki ${kisiselSayi} kendi yerin de konumuyla birlikte görünür.` : '') });
 
     const adYeri = el('h3', { class: 'lkart-ad', text: l.ad });
     const paylasKutu = el('div', { class: 'eylemler', hidden: true });
@@ -3529,15 +3766,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     }
 
     const sinir = kartSiniri.get(l.id) || 10;
-    const satirlar = yuklu.slice(0, sinir).map(m => {
-      const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(kategoriHarfi(m.kategori), 'harf'),
-        el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: m.ad }),
-          el('span', { class: 'satir-alt', text: `${kategoriler[m.kategori].ad} · ${m.ilce}, ${m.il}` })));
-      ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: 'kesfet' }));
-      const kaldir = el('button', { class: 'kaldir', type: 'button', title: 'Listeden çıkar', 'aria-label': `${m.ad}: ${l.ad} listesinden çıkar` }, simge('yok'));
-      kaldir.addEventListener('click', () => (l.favori ? favoriDegistir(m.id, false) : listeyeEkleCikar(l, m.id, false)));
-      return el('li', { class: 'satir', 'data-id': m.id }, ac, kaldir);
-    });
+    const satirlar = yuklu.slice(0, sinir).map(m => kartSatiri(m,
+      () => (l.favori ? favoriDegistir(m.id, false) : listeyeEkleCikar(l, m.id, false)), `${m.ad}: ${l.ad} listesinden çıkar`));
     const daha = yuklu.length > sinir ? eylem(`${Math.min(yuklu.length - sinir, 20)} tane daha göster`, () => { kartSiniri.set(l.id, sinir + 20); sayfamCiz(); }, 'dugme raf-daha') : null;
     const icerik = el('details', { 'data-kart': l.id }, el('summary', { text: yuklu.length ? `Yerleri göster (${yuklu.length})` : 'Bu listede henüz yer yok' }),
       yuklu.length ? [el('ol', { class: 'satirlar' }, satirlar), daha] : el('p', { class: 'ipucu', text: l.favori ? 'Bir yeri favorilere eklemek için yanındaki yıldıza bas.' : 'Bir yeri eklemek için kartındaki liste düğmesine bas.' }));
@@ -3546,7 +3776,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
     return el('article', { class: 'lkart', 'data-liste': l.id },
       el('div', { class: 'lkart-ust' }, adYeri, el('span', { class: 'adet', text: `${yuklu.length} yer` })),
-      el('div', { class: 'gorunurluk' }, el('label', { class: 'gorunmez', for: `gor${l.id}`, text: 'Görünürlük' }), gor, gorNot),
+      el('div', { class: 'gorunurluk' }, el('label', { class: 'gorunmez', for: `gor${l.id}`, text: `${l.ad}: görünürlük` }), gor, gorNot),
       eylemler, paylasKutu, icerik);
   }
 
@@ -3579,8 +3809,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
           if (kesfetAlt !== bu) return;
           if (!veri) { bu.durum = 'yok'; }
           else {
-            const idler = a.tur === 'kisi' ? veri.listeler.flatMap(l => l.mekanlar) : veri.mekanlar;
-            await kimlikleriYukle(idler);
+            // Her listenin kimlikleri (kişisel yerler mekan dizisine kaydedilir), sahibi ve kaydedilme durumu.
+            const ls = a.tur === 'kisi' ? veri.listeler : [veri];
+            for (const l of ls) {
+              l.sahip = veri.kullanici_adi; l.benim = !!veri.benim;
+              l.idler = listeIdleri(l, veri.kullanici_adi);
+              l.kayitBaz = (Number(l.kayit_sayisi) || 0) - (l.kaydettim ? 1 : 0);   // benim kaydım hariç sayı
+            }
+            await kimlikleriYukle(ls.flatMap(l => l.idler));
             if (kesfetAlt !== bu) return;
             bu.veri = veri; bu.durum = 'tamam';
           }
@@ -3603,30 +3839,45 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     else { altGorunumuKapat(); kesfetCiz(); }
   }
   // Başkasının listesi: satırlar (yıldızla), haritada göster, kopyala, bağlantı
+  // Başkasının (ya da kendi herkese açık) listesi: Kaydet (liste onda kalır, güncel hâli bende) / Kopyasını al (benim olur).
   function digerListeBolumu(l, sahip, benim, sayfada) {
-    const yuklu = l.mekanlar.map(id => bolge.dizin.get(id)).filter(m => m && kategoriler[m.kategori]);
+    const yuklu = listeKayitlari(l.idler || l.mekanlar);
     const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
     const sinir = altSinir.get(l.id) || (sayfada ? 30 : 10);
     const ad = l.tur === 'favori' ? 'Favorileri' : l.ad;
+    const kopyaAdi = l.tur === 'favori' ? `@${sahip} favorileri` : l.ad;
+    const kayitli = kayitliMi(l.id);
+    const kayitSayisi = (l.kayitBaz || 0) + (kayitli ? 1 : 0);
     const eylemler = el('div', { class: 'liste-eylem' },
+      !benim ? eylem(kayitli ? 'Kaydedildi ✓' : 'Kaydet', () => {
+        const yap = async () => { if (await listeyiKaydet(l.id)) kesfetCiz(); };
+        if (!hesapHazir()) girisIste('Listeyi kaydetmek için giriş yap.', yap);
+        else if (kayitliMi(l.id)) kaydiKaldir(l.id).then(() => kesfetCiz());
+        else yap();
+      }, kayitli ? 'dugme secili-dugme' : 'dugme') : null,
+      !benim && yuklu.length ? eylem('Kopyasını al', () => {
+        const yap = () => listeyiKopyala(l.id, kopyaAdi);
+        if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
+      }, 'dugme') : null,
       yuklu.length ? eylem('Haritada göster', () => {
         const kendi = benim && (l.tur === 'favori' ? 'favori' : listeler.some(x => x.id === l.id) ? `l:${l.id}` : null);
         if (kendi) { haritadaGoster(kendi); return; }
-        paylasilan = { ad, idler: yuklu.map(m => m.id), bilinmeyen: 0, sahip, benim, id: l.id };
+        if (kayitliMi(l.id)) { haritadaGoster(`k:${l.id}`); return; }
+        paylasilan = { ad: kopyaAdi, idler: yuklu.map(m => m.id), bilinmeyen: 0, sahip, benim, id: l.id };
         haritadaGoster('paylasilan');
       }) : null,
-      !benim && yuklu.length ? eylem('Listelerime kopyala', () => {
-        const yap = async () => { const k = await listeOlustur(l.tur === 'favori' ? `@${sahip} favorileri` : l.ad, yuklu.map(m => m.id)); if (k) bildir(`“${k.ad}” listelerine eklendi.`); };
-        if (!hesapHazir()) girisIste('Listeyi kendi listelerine kopyalamak için giriş yap.', yap); else yap();
-      }) : null,
       eylem('Bağlantıyı paylaş', () => baglantiPaylas(listeBaglantisi(l.id), `${ad} · @${sahip} · Keşif`)));
+    const kisiselSayi = yuklu.filter(kisiselMi).length;
     return el('article', { class: 'lkart', 'data-liste': l.id },
-      el('div', { class: 'lkart-ust' }, el(sayfada ? 'h2' : 'h3', { class: 'lkart-ad', text: ad }), el('span', { class: 'adet', text: `${yuklu.length} yer` })),
+      el('div', { class: 'lkart-ust' }, el(sayfada ? 'h2' : 'h3', { class: 'lkart-ad', text: ad }),
+        el('span', { class: 'adet', text: [`${yuklu.length} yer`, kayitSayisi ? `${kayitSayisi} kişi kaydetti` : null].filter(Boolean).join(' · ') })),
+      kisiselSayi ? el('p', { class: 'ipucu', text: `${kisiselSayi} yer @${sahip} tarafından haritada işaretlendi.` }) : null,
       eylemler,
-      yuklu.length ? [el('ol', { class: 'satirlar' }, yuklu.slice(0, sinir).map(m => satir(m, levhaSol(kategoriHarfi(m.kategori), 'harf'), null, `alt-${l.id}`))),
+      yuklu.length ? [el('ol', { class: 'satirlar' }, yuklu.slice(0, sinir).map(m => satir(m, levhaSol(kategoriHarfi(m.kategori), kisiselMi(m) ? 'harf kisisel' : 'harf'), null, `alt-${l.id}`))),
         yuklu.length > sinir ? eylem(`${Math.min(yuklu.length - sinir, 30)} tane daha göster`, () => { altSinir.set(l.id, sinir + 30); kesfetCiz(); }, 'dugme raf-daha') : null]
         : el('p', { class: 'ipucu', text: 'Bu listede henüz yer yok.' }));
   }
+  const KAYDET_KOPYALA_NOTU = 'Kaydet: liste sahibinde kalır; o değiştirdikçe Sayfam\'da güncel hâlini görürsün. Kopyasını al: liste senin olur; bundan sonraki değişikliklerin yalnız sende.';
   function altGorunumCiz() {
     const a = kesfetAlt;
     $('#aramaForm').hidden = true;
@@ -3657,6 +3908,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
           return el('div', { class: 'profil-eylem' }, b, kendi);
         })()));
       if (v.benim) ogeler.push(el('p', { class: 'kutu vurgulu', text: 'Başkaları sayfanı böyle görür. Gizli ve yalnız bağlantıyla paylaşılan listelerin burada görünmez.' }));
+      else if (sayi) ogeler.push(el('p', { class: 'ipucu', text: KAYDET_KOPYALA_NOTU }));
       ogeler.push(sayi ? v.listeler.map(l => digerListeBolumu(l, v.kullanici_adi, v.benim, false))
         : el('p', { class: 'raf-bos', text: v.benim ? 'Herkese açık listen yok. Sayfam\'dan bir listenin görünürlüğünü "Herkese açık" yapabilirsin.' : 'Herkese açık listesi yok.' }));
     } else {
@@ -3665,6 +3917,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       kisi.addEventListener('click', () => altGorunumeGit(`#@${v.kullanici_adi}`));
       ogeler.push(el('p', { class: 'raf-not' }, 'Liste · ', kisi, v.benim ? ` · senin listen (${GORUNURLUK[v.gorunurluk].ad.toLocaleLowerCase(TR)})` : ''));
       ogeler.push(digerListeBolumu(v, v.kullanici_adi, v.benim, true));
+      if (!v.benim) ogeler.push(el('p', { class: 'ipucu', text: KAYDET_KOPYALA_NOTU }));
     }
     $('#raflar').replaceChildren(...ogeler.flat());
   }
@@ -3702,9 +3955,264 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     })));
   }
 
+  /* ---------- kişisel yerler: sayfa, kapsam, haritaya ekleme ---------- */
+  // Haritadaki iğne kümeden çıkarılır; bir sonraki çizimde güncel ad ve konumla yeniden eklenir.
+  function igneyiYenile(id) {
+    const k = igneler.get(id);
+    if (!k) return;
+    if (KUME_VAR) kume.removeLayers([k.igne]); else kume.removeLayer(k.igne);
+    igneler.delete(id);
+  }
+  // Kişisel yer haritada ancak bir liste görünümünde durur: içinde olduğu listeye geçilir (yoksa "Yerlerim" ya da yalnız o yer).
+  function kisiselKapsam(m) {
+    const kume = gorunumKumesi();
+    if (kume && kume.has(m.id)) return;
+    let g = null;
+    if (favoriler.has(m.id)) g = 'favori';
+    if (!g) { const l = listeler.find(x => x.mekanlar.includes(m.id)); if (l) g = `l:${l.id}`; }
+    if (!g) { const k = kayitlilar.find(x => x.erisim && x.mekanlar.includes(m.id)); if (k) g = `k:${k.id}`; }
+    if (!g && kisiselYerler.has(m.yerId)) g = 'yerlerim';
+    if (!g) {
+      const v = kesfetAlt && kesfetAlt.veri;
+      const l = v && (kesfetAlt.tur === 'kisi' ? v.listeler : [v]).find(x => x.idler && x.idler.includes(m.id));
+      paylasilan = l ? { ad: l.tur === 'favori' ? `${l.sahip} favorileri` : l.ad, idler: l.idler, bilinmeyen: 0, sahip: l.sahip, benim: l.benim, id: l.id }
+        : { ad: m.ad, idler: [m.id], bilinmeyen: 0, sahip: m.sahip, kopyalanamaz: true };
+      g = 'paylasilan';
+    }
+    gorunumeGec(g, false);
+    guncelle();
+  }
+
+  function kisiselSayfaCiz(m) {
+    const benim = kisiselYerler.has(m.yerId);
+    const eylem = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    const uzak = konum.son && m.konum ? uzaklik(konum.son, m.konum) : null;
+    const geri = el('button', { class: 'ms-geri', type: 'button', 'aria-label': 'Geri', title: 'Geri' }, simge('geri'));
+    geri.addEventListener('click', () => sayfayiKapat());
+    const ust = el('div', { class: 'ms-ust' }, geri, el('p', { class: 'ms-ust-ad', 'aria-hidden': 'true', text: m.ad }),
+      el('div', { class: 'ms-eylem', id: 'msEylem' }, sayfaEylemleri(m)));
+    const bas = el('header', { class: 'ms-bas' },
+      el('p', { class: 'ms-tur' }, el('span', { class: 'levha kisisel', 'aria-hidden': 'true', text: KISISEL_TANIM.simge }), turEtiketi(m)),
+      el('h2', { class: 'ms-ad', id: 'msAd', tabindex: '-1', text: m.ad }),
+      el('p', { class: 'ms-yer' },
+        uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
+        yerYazisi(m)),
+      el('p', { class: 'gorunmez', id: 'msDurum', role: 'status', 'aria-live': 'polite' }));
+    const hizli = el('div', { class: 'ms-hizli' },
+      hizliDugme('Yol tarifi', 'yol', { href: `https://www.google.com/maps/dir/?api=1&destination=${m.konum.lat},${m.konum.lng}`, target: '_blank', rel: 'noopener noreferrer' }),
+      hizliDugme('Haritada', 'harita', {}, () => {
+        if (harita && harita.getContainer().offsetWidth) haritadaOrtala(m.id);
+        else { sayfa.ortalanacak = m.id; sayfayiKapat(() => sekmeyeGec('harita')); }
+      }));
+    const not = m.aciklama ? bolum('Not', null, el('p', { class: 'ms-aciklama', text: m.aciklama })) : null;
+
+    let sahiplik;
+    if (benim) {
+      const icindeki = [favoriler.has(m.id) && hesap.favori ? { ad: 'Favorilerim', gorunurluk: hesap.favori.gorunurluk } : null,
+        ...listeler.filter(l => l.mekanlar.includes(m.id))].filter(Boolean);
+      const gorenler = icindeki.some(l => l.gorunurluk === 'herkes') ? 'Herkes (herkese açık bir listende; profilinde görünür)'
+        : icindeki.some(l => l.gorunurluk === 'baglanti') ? 'Liste bağlantısını bilenler'
+        : 'Yalnız sen';
+      const sil = eylem('Sil', e => {
+        const n = icindeki.length;
+        e.target.replaceWith(el('span', { class: 'ipucu', text: n ? `Bu yer ${n} listeden de çıkar. Silinsin mi? ` : 'Bu yer silinsin mi? ' }),
+          eylem('Evet, sil', () => yerSil(m), 'bag tehlike'), eylem('Vazgeç', () => kisiselSayfaCiz(m)));
+      }, 'dugme');
+      sahiplik = bolum('Senin yerin', null,
+        el('p', null, el('strong', { text: 'Kimler görür: ' }), gorenler),
+        icindeki.length ? el('ul', { class: 'ms-cipler' }, icindeki.map(l => el('li', { text: l.ad })))
+          : el('p', { class: 'ms-not', text: 'Hiçbir listede değil; yalnız Sayfam → Yerlerim\'de durur.' }),
+        el('div', { class: 'profil-eylem' },
+          eylem('Listelere ekle / çıkar', () => listeEkleDiyalogu(m), 'dugme'),
+          eylem('Düzenle', () => yerFormuAc({ m }), 'dugme'),
+          eylem('Konumunu değiştir', () => sayfayiKapat(() => { sekmeyeGec('harita'); secimModu('tasi', { m }); }, true), 'dugme'),
+          sil));
+    } else {
+      const sahip = m.sahip ? eylem(`@${m.sahip}`, () => sayfayiKapat(() => altGorunumeGit(`#@${m.sahip}`), true)) : 'Başka bir kullanıcı';
+      sahiplik = bolum('Kimin yeri', null,
+        el('p', null, sahip, ' bu yeri haritada kendisi işaretledi. Keşif bu yeri doğrulamadı.'),
+        el('p', { class: 'ms-not', text: 'Kendi listelerine eklemek için bu yerin bulunduğu listenin kopyasını alabilirsin.' }));
+    }
+    const koor = `${m.konum.lat.toFixed(6)}, ${m.konum.lng.toFixed(6)}`;
+    const koorDeger = el('span', { text: koor });
+    const koorKopya = el('button', { class: 'bag kopya', type: 'button', text: 'Kopyala' });
+    koorKopya.addEventListener('click', () => kopyala(koor, koorKopya, koorDeger));
+    const konumBolumu = bolum('Konum', null, el('dl', { class: 'ms-iletisim' },
+      el('dt', { text: 'Bölge' }), el('dd', { text: [m.ilce, m.il].filter(Boolean).join(', ') || 'Türkiye\'deki bir ilçenin dışında' }),
+      el('dt', { text: 'Koordinat' }), el('dd', null, koorDeger, koorKopya)));
+    $('#mekanSayfa').replaceChildren(ust, el('div', { class: 'ms-govde' }, bas, hizli, not, sahiplik, konumBolumu));
+  }
+
+  // Haritaya yer ekleme: "Yer ekle" düğmesi (ya da haritaya uzun basma / sağ tık) → nokta → ad, not, listeler.
+  // Konumunu değiştir: aynı seçim kipi; seçilen noktaya taşınır.
+  const yerSecim = { mod: null, m: null, taslak: null, isaret: null, ipucu: null, dugme: null };
+  function yerEklemeKur() {
+    const dugme = el('button', { type: 'button', class: 'yer-dugme', 'aria-pressed': 'false', title: 'Haritaya kendi yerini ekle' }, simge('arti'), el('span', { text: 'Yer ekle' }));
+    yerSecim.dugme = dugme;
+    const Arac = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd() { const kap = el('div', { class: 'leaflet-bar yer-arac' }, dugme); L.DomEvent.disableClickPropagation(kap); return kap; },
+    });
+    new Arac().addTo(harita);
+    dugme.addEventListener('click', () => (yerSecim.mod ? secimiBitir(true) : yerEklemeBaslat()));
+    const vazgec = el('button', { class: 'yer-ipucu-vazgec', type: 'button', text: 'Vazgeç' });
+    vazgec.addEventListener('click', () => secimiBitir(true));
+    yerSecim.ipucu = el('div', { class: 'yer-ipucu', role: 'status', hidden: true }, el('span'), vazgec);
+    $('.harita-kap').append(yerSecim.ipucu);
+    harita.on('click', e => {
+      if (!yerSecim.mod) return;
+      const { mod, m, taslak } = yerSecim;
+      secimiBitir(false);
+      if (mod === 'tasi') yerTasi(m, e.latlng); else yerNoktasi(e.latlng, taslak);
+    });
+    harita.on('contextmenu', e => { if (!yerSecim.mod && !AYAR.koordinatAraci) yerEklemeBaslat(e.latlng); });
+    // Form kapandı (kaydedildi ya da vazgeçildi): geçici iğne kalkar. "Konumu düzelt"te seçim kipi açık kalır, iğne durur.
+    $('#diyalog').addEventListener('close', () => { if (yerSecim.isaret && !yerSecim.mod) { yerSecim.isaret.remove(); yerSecim.isaret = null; } });
+  }
+  function yerEklemeBaslat(latlng) {
+    if (!harita) return;
+    if (!hesapHazir()) { girisIste('Haritaya kendi yerini eklemek için giriş yap.', () => yerEklemeBaslat(latlng)); return; }
+    const basla = () => {
+      if (durum.sekme !== 'harita') sekmeyeGec('harita');
+      if (dar.matches && panel.classList.contains('acik')) paneliAyarla(false, false);
+      if (latlng) yerNoktasi(latlng, null); else secimModu('ekle', {});
+    };
+    if (durum.sayfa) sayfayiKapat(basla, true); else basla();
+  }
+  function secimModu(mod, { m = null, taslak = null } = {}) {
+    if (!harita || !yerSecim.ipucu) return;
+    Object.assign(yerSecim, { mod, m, taslak });
+    harita.getContainer().classList.add('yer-modu');
+    yerSecim.ipucu.firstChild.textContent = mod === 'tasi' ? `Yeni konuma dokun: ${m.ad}` : 'Eklemek için haritada bir yere dokun';
+    yerSecim.ipucu.hidden = false;
+    yerSecim.dugme.setAttribute('aria-pressed', 'true');
+    taraGoster(false);
+  }
+  function secimiBitir(isaretiKaldir) {
+    if (!yerSecim.ipucu) return;
+    yerSecim.mod = null;
+    harita.getContainer().classList.remove('yer-modu');
+    yerSecim.ipucu.hidden = true;
+    yerSecim.dugme.setAttribute('aria-pressed', 'false');
+    if (isaretiKaldir && yerSecim.isaret) { yerSecim.isaret.remove(); yerSecim.isaret = null; }
+  }
+  function yerNoktasi(latlng, taslak) {
+    if (yerSecim.isaret) yerSecim.isaret.setLatLng(latlng);
+    else yerSecim.isaret = L.marker(latlng, { interactive: false, keyboard: false, icon: igneIkonu(KISISEL_TANIM.simge, true, 'kisisel taslak') }).addTo(harita);
+    kullaniciAni = 0;   // programla kaydırma "Bu alanı tara"yı çıkarmaz
+    if (!harita.getBounds().pad(-0.15).contains(latlng)) harita.panTo(latlng, { animate: !azHareket });
+    yerFormuAc({ nokta: latlng, taslak });
+  }
+  // Yeni yer formu (nokta verilir) ya da düzenleme (m verilir). taslak: "Konumu düzelt"ten dönünce yazılanlar korunur.
+  function yerFormuAc({ nokta = null, taslak = null, m = null }) {
+    const yeni = !m, t = taslak || {};
+    const ad = el('input', { type: 'text', maxlength: 80, required: true, autocomplete: 'off', value: t.ad != null ? t.ad : m ? m.ad : '' });
+    const aciklama = el('textarea', { maxlength: 500, rows: 3 });
+    aciklama.value = t.aciklama != null ? t.aciklama : m ? m.aciklama : '';
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: yeni ? 'Yeri kaydet' : 'Kaydet' });
+    let secim = null, yeniListe = null;
+    if (yeni) {
+      const secili = new Set(t.listeler || []);
+      const secenekler = [...(hesap.favori ? [{ id: hesap.favori.id, ad: 'Favorilerim', gorunurluk: hesap.favori.gorunurluk }] : []), ...listeler];
+      secim = el('ul', { class: 'liste-satirlari' }, secenekler.map(l => {
+        const kutu = el('input', { type: 'checkbox', value: l.id });
+        kutu.checked = secili.has(l.id);
+        return el('li', null, el('label', null, kutu, el('span', { class: 'liste-ad', text: l.ad }),
+          l.gorunurluk !== 'gizli' ? el('span', { class: 'rozet-gor', text: GORUNURLUK[l.gorunurluk].ad }) : null));
+      }));
+      yeniListe = el('input', { type: 'text', maxlength: AD_SINIRI, autocomplete: 'off', value: t.yeniListe || '' });
+    }
+    const taslakAl = () => ({ ad: ad.value, aciklama: aciklama.value, yeniListe: yeniListe ? yeniListe.value : '',
+      listeler: secim ? [...secim.querySelectorAll('input:checked')].map(x => x.value) : [] });
+    let duzelt = null;
+    if (yeni) {
+      duzelt = el('button', { class: 'bag', type: 'button', text: 'Konumu düzelt' });
+      duzelt.addEventListener('click', () => { secimModu('ekle', { taslak: taslakAl() }); $('#diyalog').close(); });
+    }
+    const form = el('form', { class: 'form-dikey', novalidate: true },
+      yeni ? el('p', { class: 'alan-not' }, `Konum: ${nokta.lat.toFixed(5)}, ${nokta.lng.toFixed(5)} · `, duzelt) : null,
+      alan('Ad', ad, el('p', { class: 'alan-not', text: 'Ör. Köydeki tarlam, Yazlık, Buluşma noktası' })),
+      alan('Not (isteğe bağlı)', aciklama),
+      yeni ? el('fieldset', { class: 'alan-grup' }, el('legend', { text: 'Hangi listelerine eklensin?' }),
+        secim.children.length ? secim : null,
+        alan('Yeni liste (isteğe bağlı)', yeniListe),
+        el('p', { class: 'alan-not', text: 'Yer, eklendiği liste kimlere açıksa onlara görünür. Hiçbir listeye eklemezsen yalnız sen görürsün (Sayfam → Yerlerim).' })) : null,
+      hata, gonder);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      const a = ad.value.replace(/\s+/g, ' ').trim().slice(0, 80);
+      if (!a) { hata.textContent = 'Yere bir ad ver.'; ad.focus(); return; }
+      const n = aciklama.value.trim().slice(0, 500) || null;
+      gonder.disabled = true;
+      try {
+        if (yeni) {
+          const tt = taslakAl();
+          const y = await yerKaydet({ ad: a, aciklama: n, nokta, listeIdler: tt.listeler, yeniListe: adDuzelt(tt.yeniListe) });
+          $('#diyalog').close();
+          bildir(`“${y.ad}” eklendi.`);
+          mekanSayfasiniAc(y, { kaynak: 'liste' });
+        } else if (await yerGuncelle(m, { ad: a, aciklama: n })) {
+          $('#diyalog').close();
+          bildir('Yer güncellendi.');
+        }
+      } catch (h) {
+        hata.textContent = hataMetni(h, 'Yer kaydedilemedi. Yeniden dene.');
+      } finally { gonder.disabled = false; }
+    });
+    diyalogAc(yeni ? 'Yeni yer' : 'Yeri düzenle', form);
+    setTimeout(() => ad.focus(), 0);
+  }
+  async function yerKaydet({ ad, aciklama, nokta, listeIdler, yeniListe }) {
+    const { data, error } = await hesap.db.from('kisisel_yer')
+      .insert({ sahip: hesap.profil.id, ad, aciklama, lat: Number(nokta.lat.toFixed(6)), lng: Number(nokta.lng.toFixed(6)) })
+      .select('id,ad,aciklama,lat,lng,il,ilce,olusturma').single();
+    if (error) throw error;
+    const m = yerKaydi(data, hesap.profil.kullanici_adi, true);
+    kisiselYerler.set(data.id, m);
+    for (const lid of listeIdler || []) {
+      if (hesap.favori && lid === hesap.favori.id) await favoriDegistir(m.id, true);
+      else { const l = listeler.find(x => x.id === lid); if (l) await listeyeEkleCikar(l, m.id, true); }
+    }
+    if (yeniListe) await listeOlustur(yeniListe, [m.id]);
+    listelerDegisti();
+    return m;
+  }
+  async function yerGuncelle(m, degisiklik) {
+    const { data, error } = await hesap.db.from('kisisel_yer').update(degisiklik).eq('id', m.yerId)
+      .select('id,ad,aciklama,lat,lng,il,ilce,olusturma').single();
+    if (error) { bildir(hataMetni(error, 'Yer güncellenemedi. Yeniden dene.')); return false; }
+    yerKaydi(data, hesap.profil.kullanici_adi, true);
+    igneyiYenile(m.id);
+    listelerDegisti();
+    return true;
+  }
+  async function yerTasi(m, latlng) {
+    if (await yerGuncelle(m, { lat: Number(latlng.lat.toFixed(6)), lng: Number(latlng.lng.toFixed(6)) })) {
+      bildir(`“${m.ad}” yeni konumuna taşındı.`);
+      mekanSayfasiniAc(m, { kaynak: 'liste' });
+    }
+  }
+  async function yerSil(m) {
+    const { error } = await hesap.db.from('kisisel_yer').delete().eq('id', m.yerId);
+    if (error) { bildir(hataMetni(error, 'Yer silinemedi. Yeniden dene.')); return; }
+    kisiselYerler.delete(m.yerId);
+    favoriler.delete(m.id);
+    for (const l of listeler) l.mekanlar = l.mekanlar.filter(x => x !== m.id);
+    const donus = sayfa.donus;
+    sayfayiKapat(() => {
+      yerKaydiniKaldir(m.id);
+      if (donus !== 'harita') sekmeyeGec(donus);
+      listelerDegisti();
+      bildir(`“${m.ad}” silindi.`);
+    }, true);
+  }
+
   /* ---------- sekmeler: Harita | Keşfet | Sayfam ---------- */
   // altKalsin: işletme sayfası Keşfet'teki bir kişi/liste sayfasından açılıyor (geri dönünce o sayfa yeniden görünsün).
   function sekmeyeGec(s, { altKalsin = false } = {}) {
+    if (s !== 'harita' && yerSecim.mod) secimiBitir(true);
     if (s !== 'kesfet' && kesfetAlt && !altKalsin) altGorunumuKapat();
     durum.sekme = s;
     kok.classList.toggle('kesfette', s === 'kesfet');
@@ -3721,6 +4229,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       kesfetCiz();
     } else if (s === 'sayfam') {
       sayfamCiz();
+      kayitlilariTazele();   // kaydettiğim listelerin sahipleri değiştirmiş olabilir
       $('#sayfam').scrollTop = 0;
     } else if (harita) {
       harita.invalidateSize({ pan: false });
@@ -3734,7 +4243,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const RAF_ADIM = 10;
   const rafSiniri = { favori: RAF_ADIM, yeni: RAF_ADIM, puan: RAF_ADIM, arama: 30, kapsam: '' };
   const kapsamUyanlar = () => bolgeMekanlari().filter(m => degerlendir(m, durum.secimler).sonuc === 'uyar');
-  const kategoriHarfi = k => kategoriler[k].simge || kategoriler[k].ad.trim().charAt(0).toLocaleUpperCase(TR);
+  const kategoriHarfi = k => { const t = katOf(k); return t.simge || t.ad.trim().charAt(0).toLocaleUpperCase(TR); };
   const aySiz = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short' });
   const ayYil = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
   const kisaTarih = ms => (new Date(ms).getFullYear() === new Date().getFullYear() ? aySiz : ayYil).format(ms);
@@ -3747,7 +4256,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         el('span', { class: 'satir-alt' },
           uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, uzaklikYaz(uzak)) : null,
           puanOzeti(m) && raf !== 'puan' ? el('span', { class: 'satir-puan', title: `${puanOzeti(m).sayi} puan` }, simge('yildiz'), `${virgul(puanOzeti(m).ort)} · `) : null,
-          `${kategoriler[m.kategori].ad} · ${m.ilce}, ${m.il}`)),
+          `${kisiselMi(m) ? turEtiketi(m) : kategoriler[m.kategori].ad} · ${yerYazisi(m)}`)),
       olcu);
     ac.addEventListener('click', () => mekanSayfasiniAc(m, { kaynak: raf === 'yakin' ? 'yakin' : 'kesfet' }));
     return el('li', { class: 'satir', 'data-id': m.id, 'data-raf': raf }, ac, favoriDugmesi(m));
@@ -3986,7 +4495,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const sayfa = { donus: 'harita', odakGeri: null, sonra: null, ortalanacak: null, baslik: document.title, tamamen: false };
   const MEKAN_HASH = /^#mekan=([a-z0-9]+(?:-[a-z0-9]+)*)$/;
   const mekanHashi = () => { const e = location.hash.match(MEKAN_HASH); return e ? e[1] : null; };
-  const mekanBul = id => mekanlar.find(m => m.id === id && kategoriler[m.kategori]);
+  const mekanBul = id => mekanlar.find(m => m.id === id && katOf(m.kategori));
   const mekanBaglantisi = id => `${location.href.split('#')[0]}#mekan=${id}`;
 
   // İşletme beyanı için tek giriş noktası. Sahiplenme ve hesaplar gelince veritabanından okunacak (bkz. claude/isletme-sayfasi.md).
@@ -3998,6 +4507,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   // Kayıt haritadaki seçime uyuyorsa seçim korunur; uymuyorsa kaydın il ve kategorisine geçilir (filtreler temizlenir).
   function kapsamaAl(m) {
+    if (kisiselMi(m)) { kisiselKapsam(m); return; }
     const kume = gorunumKumesi();
     const icinde = kume ? kume.has(m.id)
       : tumuMu() ? m.il === durum.il && (durum.ilce === TUM || m.ilce === durum.ilce)   // "Tümü": harita kayda gider, mod korunur
@@ -4080,6 +4590,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return d;
   }
   function sayfaEylemleri(m) {
+    if (kisiselMi(m)) return [listeDugmesi(m), favoriDugmesi(m)];   // kişisel yerin paylaşılabilir sayfası yok (listesiyle paylaşılır)
     const paylas = el('button', { class: 'favori', type: 'button', title: 'Bağlantıyı kopyala', 'aria-label': `${m.ad}: sayfa bağlantısını kopyala` }, simge('paylas'));
     paylas.addEventListener('click', async () => {
       let metin = 'Bağlantıyı adres çubuğundan kopyalayabilirsin.';
@@ -4091,6 +4602,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
 
   function mekanSayfasiniCiz(m) {
+    if (kisiselMi(m)) { kisiselSayfaCiz(m); return; }
     const kat = kategoriler[m.kategori];
     const bekleyen = new Set(m.dogrulanacak || []);
     const teyit = alan => (bekleyen.has(alan) ? el('span', { class: 'teyit', text: 'teyit bekliyor' }) : null);
@@ -4533,6 +5045,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#perde').addEventListener('click', () => paneliAyarla(false, true));
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
+      if (yerSecim.mod && !$('#diyalog').open) { secimiBitir(true); return; }
       if (panel.classList.contains('acik')) paneliAyarla(false, true);
       else if (durum.sayfa && !$('#diyalog').open && !$('#fotoKutusu').open && !(e.target.matches && e.target.matches('input') && e.target.value)) sayfayiKapat();
     });

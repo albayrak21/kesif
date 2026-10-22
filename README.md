@@ -45,6 +45,9 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - "En çok favorilenenler" sayımı hesaplardaki favori listelerinden gelir (kişi başına bir); kimin favorilediği gösterilmez.
 - Hesaplardan önce tarayıcıda (localStorage) tutulan favori ve listeler için Sayfam'da bir kez "Hesabıma aktar" sorulur. Eski `#liste=` bağlantıları (o anki kopya) hâlâ açılır.
 - Veritabanı: `profil`, `liste`, `liste_mekan` (RLS: herkes yalnız kendi kayıtlarını okur/yazar). Başkalarının sayfası yalnız `profil_getir`, `liste_getir`, `kullanici_ara`, `kullanici_adi_durumu` fonksiyonlarıyla okunur. Sınırlar: hesap başına 100 liste, liste başına 1000 yer.
+- **Başkasının listesi:** "Kaydet" → liste sahibinde kalır, Sayfam → "Kaydettiğim listeler"de güncel hâli görünür (sahibi gizlerse yalnız "artık paylaşmıyor" yazar). "Kopyasını al" → bağımsız, gizli bir kopya senin olur; içindeki kişisel yerler de kopyalanır. Kaydedilenler "Göster" menüsünde "Kaydettiklerim" altında da var. En çok 200 kayıt.
+- **Kendi yerin:** Haritadaki "Yer ekle" düğmesi ya da haritaya uzun basma / sağ tık → nokta → ad, not, listeler. Yer genel haritada ve aramada görünmez; yalnız eklendiği liste kimlere açıksa onlara görünür (hiçbir listede değilse yalnız sahibine). Sayfam → "Yerlerim"den açılır; düzenlenir, taşınır, silinir. İl/ilçe konumdan veritabanında bulunur. En çok 2000 yer.
+- Veritabanı (ek): `kisisel_yer`, `liste_yer` (listedeki kişisel yerler), `liste_kayit` (kaydedilen listeler); fonksiyonlar `liste_kaydet`, `kayitli_listeler`, `liste_kopyala`.
 - Puanlar henüz hesaba bağlı değil (tarayıcıya özel cihaz numarasıyla).
 
 ## İşletme sayfası
