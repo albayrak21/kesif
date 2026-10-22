@@ -1436,7 +1436,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Kategori tanımı ve sınırlar dosyadan okunur. Mekanlar, ayarda veritabanı varsa oradan okunur
   // (yönetim sayfasında yapılan değişiklik hemen görünür). Veritabanına ulaşılamazsa ya da boş dönerse
   // depodaki son kopya (mekanlar.json) kullanılır.
-  const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi,osm_ref,onem';
+  const MEKAN_ALANLARI = 'id,kategori,ad,lat,lng,adres,il,ilce,telefon,web,ozellikler,dogrulanacak,dogrulama_tarihi,osm_ref,onem,skor';
 
   // Veritabanı tek yanıtta en fazla 1000 satır döndürür; listeler sayfa sayfa okunur.
   // Toplam, "Content-Range: 0-999/1234" başlığından alınır; başlık yoksa eksik sayfa gelince durulur.
@@ -1558,8 +1558,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   /* ---------- "Tümü": filtresiz, Google Haritalar gibi gezinme ---------- */
   // Kategori listesinin başındaki sanal kategori (kategoriler.json'da yok, açılışta eklenir). Seçiliyken haritada görünen
-  // alandaki her kategoriden kayıt gösterilir. Uzakta yalnızca öne çıkanlar (mekan.onem yüksek olanlar), yakınlaştıkça
-  // daha fazlası gelir. Harita her kaydırılınca o alan veritabanından önem sırasıyla okunur (bkz. tumuHazirla).
+  // alandaki her kategoriden kayıt gösterilir. Uzakta yalnızca öne çıkanlar (mekan.skor yüksek olanlar), yakınlaştıkça
+  // daha fazlası gelir. Harita her kaydırılınca o alan veritabanından skor sırasıyla okunur (bkz. tumuHazirla).
+  // skor = kategori önemi + Overture güveni + bilgi doluluğu (veritabanında mekan_skor(); ağırlıklar orada).
   const TUMU = 'tumu';
   const tumuMu = () => durum.kategori === TUMU && !durum.gorunum;
   const TUMU_TANIM = {
@@ -1575,8 +1576,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const kisiselMi = m => !!m && m.kategori === KISISEL;
   const yerYazisi = m => [m.ilce, m.il].filter(Boolean).join(', ') || (m.konum ? `${m.konum.lat.toFixed(4)}, ${m.konum.lng.toFixed(4)}` : '');
   // Yakınlığa göre ekranda gösterilecek en çok kayıt (uzakta az, sokak ölçeğinde çok).
-  const tumuSiniri = z => (z >= 16 ? 1000 : z >= 15 ? 700 : z >= 14 ? 400 : z >= 13 ? 250 : 120);
-  const onemi = m => (typeof m.onem === 'number' ? m.onem : 50);
+  const tumuSiniri = z => (z >= 17 ? 1000 : z >= 16 ? 500 : z >= 15 ? 300 : z >= 14 ? 180 : z >= 13 ? 100 : 60);
+  const onemi = m => (typeof m.skor === 'number' ? m.skor : typeof m.onem === 'number' ? m.onem + 15 : 65);
   // Küçük kaydırmalarda aynı sorgu tekrarlanmasın: alan, yakınlığa göre bir ızgaraya dışa doğru yuvarlanır.
   function tumuAlani() {
     const z = Math.round(harita.getZoom());
@@ -1596,7 +1597,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const { url, anahtar: apikey } = AYAR.veritabani;
     const iptal = new AbortController();
     const sayac = setTimeout(() => iptal.abort(), 15000);
-    fetch(`${url}/rest/v1/mekan?select=${MEKAN_ALANLARI}&durum=eq.acik${kosulYaz('il', durum.il)}${alanKosulu(kutu)}&order=onem.desc,id&limit=${limit}`, {
+    fetch(`${url}/rest/v1/mekan?select=${MEKAN_ALANLARI}&durum=eq.acik${kosulYaz('il', durum.il)}${alanKosulu(kutu)}&order=skor.desc.nullslast,id&limit=${limit}`, {
       headers: { apikey, Accept: 'application/json' }, signal: iptal.signal,
     }).then(async y => {
       if (!y.ok) throw new Error(`mekan: ${y.status}`);
