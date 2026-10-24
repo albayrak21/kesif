@@ -2965,8 +2965,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     }
     return ic;
   }
-  // Noktanın bulunduğu il ve ilçe (sınır verisi olan iller içinde).
-  function yerBul(lat, lng) {
+  // Noktanın bulunduğu il ve ilçe. Karar her zaman ilçe poligonuyla verilir; il kutuları (dikdörtgen)
+  // yalnızca aday eler, çünkü komşu illerin kutuları köşelerde örtüşür (ör. Erdemli kıyısı Karaman kutusunda).
+  function kutuAdaylari(lat, lng) {
+    const adaylar = [];
+    for (const [il, v] of Object.entries(sinirlar.iller || {})) {
+      const [b, g, d, n] = v.kutu || [];
+      if (lng >= b && lng <= d && lat >= g && lat <= n) adaylar.push(il);
+    }
+    return adaylar;
+  }
+  function poligondaBul(lat, lng) {
     for (const f of sinirlar.features) {
       if (f.properties.tur !== 'ilce') continue;
       const g = f.geometry;
@@ -2974,14 +2983,54 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         if (halkaIcinde(lng, lat, c[0]) && !c.slice(1).some(d => halkaIcinde(lng, lat, d))) return { il: f.properties.il, ilce: f.properties.ad };
       }
     }
-    // Sınırı yüklenmemiş il ya da kıyı/su: ilin kutusu yeter (kutular örtüşebilir; en küçüğü seçilir).
-    let enIyi = null, enKucuk = Infinity;
-    for (const [il, v] of Object.entries(sinirlar.iller || {})) {
-      const [b, g, d, n] = v.kutu || [];
-      if (lng >= b && lng <= d && lat >= g && lat <= n && (d - b) * (n - g) < enKucuk) { enIyi = il; enKucuk = (d - b) * (n - g); }
-    }
-    if (enIyi) { ilSinirYukle(enIyi); return { il: enIyi, ilce: null }; }
     return null;
+  }
+  // Kıyı/su noktası: hiçbir poligonun içinde değilse en yakın ilçe kenarının ili (boylam enleme göre ölçeklenir).
+  function enYakinIl(lat, lng, iller) {
+    const k = Math.cos(lat * Math.PI / 180);
+    let enIyi = null, enAz = Infinity;
+    for (const f of sinirlar.features) {
+      if (f.properties.tur !== 'ilce' || !iller.includes(f.properties.il)) continue;
+      const g = f.geometry;
+      for (const c of g.type === 'MultiPolygon' ? g.coordinates : [g.coordinates]) {
+        const h = c[0];
+        for (let i = 0, j = h.length - 1; i < h.length; j = i++) {
+          const ax = h[j][0] * k, ay = h[j][1], bx = h[i][0] * k, by = h[i][1], px = lng * k, py = lat;
+          const dx = bx - ax, dy = by - ay, uz = dx * dx + dy * dy;
+          const t = uz ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / uz)) : 0;
+          const ex = ax + t * dx - px, ey = ay + t * dy - py, m = ex * ex + ey * ey;
+          if (m < enAz) { enAz = m; enIyi = f.properties.il; }
+        }
+      }
+    }
+    return enIyi;
+  }
+  // Eşzamanlı sürüm: yalnızca şu an yüklü sınırlarla karar verir; emin değilse null döner (tahmin etmez).
+  function yerBul(lat, lng) {
+    const ic = poligondaBul(lat, lng);
+    if (ic) return ic;
+    const adaylar = kutuAdaylari(lat, lng);
+    if (!adaylar.length) return null;
+    adaylar.forEach(ilSinirYukle);
+    if (!AYAR.veritabani && adaylar.length === 1) return { il: adaylar[0], ilce: null };   // sınır verisi hiç gelmeyecekse
+    if (!adaylar.every(ilSiniriYuklu)) return null;   // aday illerin sınırları yükleniyor
+    const il = enYakinIl(lat, lng, adaylar);
+    return il ? { il, ilce: null } : null;
+  }
+  // Kesin sürüm: noktayı kutusuna alan bütün illerin ilçe sınırlarını yükleyip sonra karar verir.
+  function yerBulKesin(lat, lng) {
+    const ic = poligondaBul(lat, lng);
+    if (ic) return Promise.resolve(ic);
+    const adaylar = kutuAdaylari(lat, lng);
+    if (!adaylar.length) return Promise.resolve(null);
+    return Promise.all(adaylar.map(ilSinirYukle)).then(() => {
+      const ic2 = poligondaBul(lat, lng);
+      if (ic2) return ic2;
+      const yuklu = adaylar.filter(ilSiniriYuklu);
+      if (!yuklu.length) return adaylar.length === 1 ? { il: adaylar[0], ilce: null } : null;
+      const il = enYakinIl(lat, lng, yuklu);
+      return il ? { il, ilce: null } : null;
+    });
   }
 
   function konumDugmesiKur() {
@@ -3057,15 +3106,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     }
     if (konum.ilk) {
       konum.ilk = false;
-      const yer = yerBul(yeni.lat, yeni.lng);
-      const ilSec = $('#ilSec');
-      if (yer && yer.il !== durum.il && [...ilSec.options].some(o => o.value === yer.il)) {   // başka bir ildeysen o ilin tamamına geçilir
-        ilSec.value = yer.il;
-        ilSec.dispatchEvent(new Event('change'));
-      }
-      if (yer) harita.setView([yeni.lat, yeni.lng], Math.max(harita.getZoom(), 14), { animate: !azHareket });
-      konumMesaji(yer ? 'Konumun yalnızca bu cihazda kullanılır, kaydedilmez.'
-        : 'Bulunduğun yer, haritası açık illerin dışında. Sonuçlar yine de sana yakınlığa göre sıralı.', 7000);
+      yerBulKesin(yeni.lat, yeni.lng).then(yer => {
+        if (!konum.aktif) return;
+        const ilSec = $('#ilSec');
+        if (yer && yer.il !== durum.il && [...ilSec.options].some(o => o.value === yer.il)) {   // başka bir ildeysen o ilin tamamına geçilir
+          ilSec.value = yer.il;
+          ilSec.dispatchEvent(new Event('change'));
+        }
+        if (yer) harita.setView([yeni.lat, yeni.lng], Math.max(harita.getZoom(), 14), { animate: !azHareket });
+        konumMesaji(yer ? 'Konumun yalnızca bu cihazda kullanılır, kaydedilmez.'
+          : 'Bulunduğun yer, haritası açık illerin dışında. Sonuçlar yine de sana yakınlığa göre sıralı.', 7000);
+      });
     }
     // Liste her küçük kıpırtıda değil, 100 metreden fazla yer değişince yeniden sıralanır.
     if (!konum.listeKonumu || uzaklik(konum.listeKonumu, yeni) > 100) {
