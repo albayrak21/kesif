@@ -1716,11 +1716,17 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     uzakArama.metin = anahtar; uzakArama.durum = 'yukleniyor';
     clearTimeout(uzakArama.zamanlayici);
     uzakArama.zamanlayici = setTimeout(async () => {
-      const kelimeler = q.split(' ').filter(Boolean).slice(0, 5);
-      const kosul = `&kategori=in.(${kats.join(',')})${kelimeler.map(w => `&arama=ilike.*${encodeURIComponent(w)}*`).join('')}`;
+      // Sunucu fonksiyonu mekan_ara: önce adı aramayla başlayanlar, sonra adında kelime başı eşleşenler,
+      // sonra adında geçenler, en son yalnız ilçesi eşleşenler (en çok ARAMA_UST_SINIR kayıt).
+      const vt = AYAR.veritabani;
+      const iptal = new AbortController();
+      const sayac_ = setTimeout(() => iptal.abort(), 10000);
       try {
-        const s = mekanSorgusu(kosul, 10000);
-        const y = await s.iste(0, ARAMA_UST_SINIR).finally(s.bitir);
+        const y = await fetch(`${vt.url}/rest/v1/rpc/mekan_ara?select=${MEKAN_ALANLARI}`, {
+          method: 'POST', signal: iptal.signal,
+          headers: { apikey: vt.anahtar, 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ q, kats, sinir: ARAMA_UST_SINIR }),
+        }).finally(() => clearTimeout(sayac_));
         if (!y.ok) throw new Error(`arama: ${y.status}`);
         const satirlar = satirdanMekan(await y.json());
         if (uzakArama.metin !== anahtar) return;
