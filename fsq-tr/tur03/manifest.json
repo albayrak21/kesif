@@ -1,0 +1,42 @@
+{
+ "tur": 3,
+ "iller": [
+  "Aydın",
+  "Mersin",
+  "Adana",
+  "Kocaeli"
+ ],
+ "toplam": 189856,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "0bf0363a9fab85a6219b7fff4bad4753e87c1349c803e98c97ada5bac33e85e9",
+   "bayt": 11219623
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "d072a4a0814b1e43c9486f50a4a826400b4b8731f649342db666ffe47d02f5af",
+   "bayt": 10459175
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "cf090d11c4fad8c57d0b3f034562beb9c9123791231baa6fa54fe9f53b41cb02",
+   "bayt": 10185870
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "9b4efba6ff9f01dacd30ce20b91ccc39b513d5606d7e564078803d09daf2c7e0",
+   "bayt": 10263406
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 29856,
+   "sha256": "bc888170604cea6dbe82a81f35ce82f58c2f46edf137fd0411220e613c88467d",
+   "bayt": 8642872
+  }
+ ]
+}
