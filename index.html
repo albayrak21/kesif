@@ -1704,32 +1704,54 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return n;
   }
   // Aramada büyük kategoriler sunucuda aranır (ad ve ilçe; Türkçe harf ve büyük/küçük harf fark etmez).
-  const uzakArama = { metin: null, durum: 'bos', zamanlayici: null };
+  const uzakArama = { metin: null, durum: 'bos', zamanlayici: null, sayi: 0 };
   // Aramanın kapsamı: bir kategori seçiliyse yalnızca o kategori, "Tümü" (ya da liste görünümü) seçiliyse hepsi.
   const aramaKategorisi = () => (durum.gorunum || durum.kategori === TUMU || !kategoriler[durum.kategori] ? null : durum.kategori);
+  // Aramanın yeri (durum.aramaKapsam): 'bolge' seçili il / ilçe · 'alan' haritada görünen alan · 'tr' bütün Türkiye.
+  function aramaYeri() {
+    let k = durum.aramaKapsam;
+    if (k === 'bolge' && !durum.il) k = 'tr';
+    if (k === 'alan' && !(durum.alan || harita)) k = 'tr';
+    if (k === 'bolge') {
+      const ilce = durum.ilce && durum.ilce !== TUM ? durum.ilce : null;
+      return { k, il: durum.il, ilce, etiket: ilce ? `${ilce}, ${durum.il}` : durum.il,
+        uyar: m => m.il === durum.il && (!ilce || m.ilce === ilce) };
+    }
+    if (k === 'alan') {
+      const b = durum.alan || harita.getBounds();
+      const y = v => Math.round(v * 1e5) / 1e5;
+      const kutu = [y(b.getSouth()), y(b.getWest()), y(b.getNorth()), y(b.getEast())];
+      return { k, kutu, etiket: 'Haritadaki alan',
+        uyar: m => !!(m.konum && m.konum.lat >= kutu[0] && m.konum.lat <= kutu[2] && m.konum.lng >= kutu[1] && m.konum.lng <= kutu[3]) };
+    }
+    return { k: 'tr', etiket: 'Bütün Türkiye', uyar: () => true };
+  }
   function uzakAra(q) {
     const kk = aramaKategorisi();
     const kats = Object.keys(kategoriler).filter(k => bolgeselMi(k) && (!kk || k === kk));
     if (!AYAR.veritabani || !kats.length) { uzakArama.metin = null; uzakArama.durum = 'bos'; return; }
-    const anahtar = `${q}|${kats.join(',')}`;
+    const yer = aramaYeri();
+    const govde = { q, kats, sinir: ARAMA_UST_SINIR, il: yer.il || null, ilce: yer.ilce || null, kutu: yer.kutu || null };
+    const anahtar = JSON.stringify(govde);
     if (uzakArama.metin === anahtar) return;
-    uzakArama.metin = anahtar; uzakArama.durum = 'yukleniyor';
+    uzakArama.metin = anahtar; uzakArama.durum = 'yukleniyor'; uzakArama.sayi = 0;
     clearTimeout(uzakArama.zamanlayici);
     uzakArama.zamanlayici = setTimeout(async () => {
-      // Sunucu fonksiyonu mekan_ara: önce adı aramayla başlayanlar, sonra adında kelime başı eşleşenler,
-      // sonra adında geçenler, en son yalnız ilçesi eşleşenler (en çok ARAMA_UST_SINIR kayıt).
+      // Sunucu fonksiyonu mekan_ara_kapsam: önce adı aramayla başlayanlar, sonra adında kelime başı eşleşenler,
+      // sonra adında geçenler, en son yalnız ilçesi eşleşenler (en çok ARAMA_UST_SINIR kayıt), seçilen il / ilçe / alan içinde.
       const vt = AYAR.veritabani;
       const iptal = new AbortController();
       const sayac_ = setTimeout(() => iptal.abort(), 10000);
       try {
-        const y = await fetch(`${vt.url}/rest/v1/rpc/mekan_ara?select=${MEKAN_ALANLARI}`, {
+        const y = await fetch(`${vt.url}/rest/v1/rpc/mekan_ara_kapsam?select=${MEKAN_ALANLARI}`, {
           method: 'POST', signal: iptal.signal,
           headers: { apikey: vt.anahtar, 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ q, kats, sinir: ARAMA_UST_SINIR }),
+          body: anahtar,
         }).finally(() => clearTimeout(sayac_));
         if (!y.ok) throw new Error(`arama: ${y.status}`);
         const satirlar = satirdanMekan(await y.json());
         if (uzakArama.metin !== anahtar) return;
+        uzakArama.sayi = satirlar.length;
         mekanlariEkle(satirlar);
         uzakArama.durum = 'tamam';
       } catch (hata) {
@@ -1742,7 +1764,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // gorunum: '' (tüm kayıtlar) | 'favori' | 'l:<liste kimliği>' | 'paylasilan'
   // sekme: 'harita' | 'kesfet'. alan: "Bu alanı tara" ile seçilen harita alanı (Leaflet sınırı) ya da null.
   const durum = { il: null, ilce: null, kategori: null, secimler: {}, secili: null, gorunum: '', sekme: 'harita', alan: null, sayfa: null,
-    siralama: 'puan', siralamaElle: false, aramaSiralama: 'eslesme' };   // siralamaElle: ziyaretçi kendisi seçti mi   // sayfa: açık işletme sayfasının kimliği
+    siralama: 'puan', siralamaElle: false, aramaSiralama: 'eslesme', aramaKapsam: 'bolge' };   // siralamaElle: ziyaretçi kendisi seçti mi   // sayfa: açık işletme sayfasının kimliği
 
   /* ---------- favoriler ---------- */
   // Favoriler hesaptaki "Favorilerim" listesidir (giriş zorunlu). Yıldıza giriş yapmadan basılınca giriş penceresi açılır;
@@ -4488,7 +4510,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const puan = d => (d.ad.startsWith(q) ? 0 : kelimeBasi(d.ad, q) ? 1 : d.ad.includes(q) ? 2 : 3);
     const uzak = m => (konum.son && m.konum ? uzaklik(konum.son, m.konum) : Infinity);
     const kk = aramaKategorisi();   // kategori seçiliyse arama o kategoride yapılır
-    const bulunan = aramaDizini.filter(d => (!kk || d.m.kategori === kk) && parcalar.every(p => d.hepsi.includes(p)))
+    const yer = aramaYeri();        // seçili il / ilçe, haritadaki alan ya da bütün Türkiye
+    const bulunan = aramaDizini.filter(d => (!kk || d.m.kategori === kk) && yer.uyar(d.m) && parcalar.every(p => d.hepsi.includes(p)))
       .map(d => ({ m: d.m, p: puan(d) }))
       .sort((a, b) => a.p - b.p || uzak(a.m) - uzak(b.m) || a.m.ad.localeCompare(b.m.ad, TR));
     // Aramada sıralama: en iyi eşleşme (varsayılan), puan ya da yakınlık.
@@ -4498,6 +4521,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const aramaSec = siralamaSecimi('aramaSirala', durum.aramaSiralama,
       [['eslesme', 'En iyi eşleşme'], ['puan', 'Puana göre', !aramaPuanVar], ['yakinlik', 'Yakınlığa göre', !yakinlikMumkun()]],
       v => { durum.aramaSiralama = v; rafSiniri.arama = 30; kesfetCiz(); const s = $('#aramaSirala'); if (s) s.focus(); });
+    // Aramanın yeri: seçili il / ilçe, haritada görünen alan ya da bütün Türkiye.
+    const yerSecenekleri = [
+      ['bolge', durum.il ? (durum.ilce && durum.ilce !== TUM ? `${durum.ilce}, ${durum.il}` : durum.il) : 'Seçili il', !durum.il],
+      ['alan', 'Haritadaki alan', !(durum.alan || harita)],
+      ['tr', 'Bütün Türkiye'],
+    ];
+    const yerSec = el('select', { id: 'aramaYeri', class: 'sirala-sec', 'aria-label': 'Nerede aransın' },
+      yerSecenekleri.map(([v, etiket, kapali]) => el('option', { value: v, text: etiket, disabled: kapali || null })));
+    yerSec.value = yer.k;
+    yerSec.addEventListener('change', () => {
+      durum.aramaKapsam = yerSec.value; rafSiniri.arama = 30; kesfetCiz();
+      const s = $('#aramaYeri'); if (s) s.focus();
+    });
+    const yerSecimi = el('label', { class: 'sirala' }, el('span', { text: 'Nerede' }), yerSec);
     const oneriler = q.length >= 2 ? oneriBul(q) : [];
     kisiAra(ham);
     const kisiler = kisilerRafi(ham);
@@ -4532,16 +4569,19 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       });
       kapsamSatiri = el('p', { class: 'arama-ozet' }, `Arama seçili kategoride: ${kategoriler[kk].ad}. `, genislet);
     }
-    const uzakSayi = bulunan.filter(({ m }) => bolgeselMi(m.kategori)).length;
     const uzakNotu = uzakArama.durum === 'yukleniyor' ? ' · büyük kategorilerde aranıyor…'
       : uzakArama.durum === 'hata' ? ' · büyük kategorilerde şu an aranamadı'
-      : uzakSayi >= ARAMA_UST_SINIR ? ' · çok sonuç var, aramayı daraltabilirsin' : '';
+      : uzakArama.sayi >= ARAMA_UST_SINIR ? ' · çok sonuç var, aramayı daraltabilirsin' : '';
+    const ozet = `${bulunan.length} sonuç · ${yer.etiket}${kk ? ` · yalnızca ${kategoriler[kk].ad.toLocaleLowerCase(TR)}` : ''}${uzakNotu}${durum.aramaSiralama === 'yakinlik' && !konum.son ? ' · yakınlık için konumun bekleniyor' : ''}`;
+    const genisletNotu = yer.k !== 'tr' ? ' Aramayı “Nerede” seçimiyle genişletebilirsin.' : '';
     ogeler.push(raf(mekanBasligi, null, bulunan.length
-      ? [kapsamSatiri, el('div', { class: 'arama-ust' }, el('p', { class: 'arama-ozet', text: `${bulunan.length} sonuç · ${kk ? `yalnızca ${kategoriler[kk].ad.toLocaleLowerCase(TR)} içinde` : 'bütün il ve kategorilerde'}${uzakNotu}${durum.aramaSiralama === 'yakinlik' && !konum.son ? ' · yakınlık için konumun bekleniyor' : ''}` }), bulunan.length > 1 ? aramaSec : null),
+      ? [kapsamSatiri, el('p', { class: 'arama-ozet', text: ozet }),
+        el('div', { class: 'arama-ust' }, yerSecimi, bulunan.length > 1 ? aramaSec : null),
         el('ul', { class: 'satirlar' }, bulunan.slice(0, rafSiniri.arama).map(({ m }) => satir(m, levhaSol(kategoriHarfi(m.kategori), 'harf'), null, 'arama'))),
         bulunan.length > rafSiniri.arama ? dahaDugmesi('arama', bulunan.length - rafSiniri.arama) : null]
-      : [kapsamSatiri, el('p', { class: 'raf-bos', text: uzakArama.durum === 'yukleniyor' ? 'Aranıyor…'
-        : `“${ham}” adıyla, adresiyle ya da ilçesiyle eşleşen yer yok${kk ? ` (${kategoriler[kk].ad})` : ''}.${uzakNotu}${oneriler.length ? ' Yukarıdaki filtre önerilerine bakabilirsin.' : ''}` })]));
+      : [kapsamSatiri, el('div', { class: 'arama-ust' }, yerSecimi),
+        el('p', { class: 'raf-bos', text: uzakArama.durum === 'yukleniyor' ? 'Aranıyor…'
+        : `“${ham}” adıyla, adresiyle ya da ilçesiyle eşleşen yer yok (${yer.etiket}${kk ? `, ${kategoriler[kk].ad}` : ''}).${uzakNotu}${genisletNotu}${oneriler.length ? ' Yukarıdaki filtre önerilerine bakabilirsin.' : ''}` })]));
     $('#aramaSonuc').replaceChildren(...ogeler);
   }
 
