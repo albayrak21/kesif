@@ -1,0 +1,55 @@
+{
+ "tur": 7,
+ "iller": [
+  "Van",
+  "Kütahya",
+  "Uşak",
+  "Giresun",
+  "Malatya",
+  "Rize",
+  "Nevşehir",
+  "Batman",
+  "Burdur",
+  "Osmaniye",
+  "Sivas",
+  "Niğde",
+  "Düzce",
+  "Çorum",
+  "Zonguldak",
+  "Amasya",
+  "Elazığ"
+ ],
+ "toplam": 164335,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "1e6e4275e6d462a8eeea1e658c4f1aac02ab362ee3fbffa648ebdfe4740361a4",
+   "bayt": 10822899
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "edd52cfcd335ef6efb0025b452f85415a510a6904404c4f6dd16525a328a1154",
+   "bayt": 10219646
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "5e5e2230de333f699e90947f5c79276c0cd6e521c19925e6728464c7fad27424",
+   "bayt": 9779731
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "bff66878c0043b56f2588bd7ceb727e8982974f1ed549eab1f27644d6c3c8856",
+   "bayt": 10626074
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 4335,
+   "sha256": "75d4fd0e6a40b4a67825d24bbe375766ac549af326f0f3ce2f2ca1ec5b0f20fe",
+   "bayt": 1237175
+  }
+ ]
+}
