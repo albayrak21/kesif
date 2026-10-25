@@ -1,0 +1,57 @@
+{
+ "tur": 8,
+ "iller": [
+  "Tokat",
+  "Kastamonu",
+  "Karabük",
+  "Adıyaman",
+  "Ağrı",
+  "Erzincan",
+  "Karaman",
+  "Kars",
+  "Aksaray",
+  "Sinop",
+  "Eskişehir",
+  "Artvin",
+  "Şırnak",
+  "Bartın",
+  "Yozgat",
+  "Bitlis",
+  "Iğdır",
+  "Gümüşhane",
+  "Muş",
+  "Bingöl",
+  "Hakkari",
+  "Siirt",
+  "Kilis",
+  "Ardahan",
+  "Tunceli",
+  "Bayburt",
+  "Çankırı",
+  "Kırşehir",
+  "Bolu",
+  "?",
+  "Kırıkkale"
+ ],
+ "toplam": 104683,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "db53e3c86acc256b360e5d99c22654c52d0c4a38d7cf82aa6214abc52506dc50",
+   "bayt": 10509207
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "1b529dce259f3c35b144b7841f804d818dd50fb26d4eb3d684b331fe072be21b",
+   "bayt": 9839661
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 24683,
+   "sha256": "fddcb9c7a163edfe1c5c668bb4ee4e0b30a1c8be6a2713643075a78ce2c8d282",
+   "bayt": 6539477
+  }
+ ]
+}
