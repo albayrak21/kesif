@@ -1,0 +1,37 @@
+{
+ "kaynak": "foursquare/fsq-os-places release/dt=2026-10-15",
+ "kutu": "lat 38.6-40.8, lng 30.7-34.2 (Ankara ve cevresi; il atamasi veritabaninda ilce sinirlariyla)",
+ "toplam": 163284,
+ "parcalar": [
+  {
+   "dosya": "parca-00.csv",
+   "satir": 40000,
+   "sha256": "281a90f2b05d5b1d0c65775132cb6b39ed4bf815400f4e9d0e31be1cc5f1dc12",
+   "bayt": 7729959
+  },
+  {
+   "dosya": "parca-01.csv",
+   "satir": 40000,
+   "sha256": "210145453200aad3e33ac29a162fe51a6ed75cd8de6f268a6b32140b85f0e5c6",
+   "bayt": 7235424
+  },
+  {
+   "dosya": "parca-02.csv",
+   "satir": 40000,
+   "sha256": "a9908616a634642ac2fed801a32c301b69e129645fb48a579b6aefd750802ede",
+   "bayt": 6846205
+  },
+  {
+   "dosya": "parca-03.csv",
+   "satir": 40000,
+   "sha256": "c46b5e027718a4aaed1e9148de76fb74a046ff35d0131249aba8dc97f5a570a4",
+   "bayt": 7749841
+  },
+  {
+   "dosya": "parca-04.csv",
+   "satir": 3284,
+   "sha256": "5585fb3922d098dae9ef500650e229964a1fa2a02071848792698df878d78e7c",
+   "bayt": 645918
+  }
+ ]
+}
