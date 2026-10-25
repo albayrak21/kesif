@@ -1,0 +1,138 @@
+[
+ {
+  "tur": 1,
+  "iller": [
+   "İzmir",
+   "Antalya"
+  ],
+  "toplam": 279533,
+  "parca": 7
+ },
+ {
+  "tur": 2,
+  "iller": [
+   "Bursa",
+   "Muğla",
+   "Konya"
+  ],
+  "toplam": 192938,
+  "parca": 5
+ },
+ {
+  "tur": 3,
+  "iller": [
+   "Aydın",
+   "Mersin",
+   "Adana",
+   "Kocaeli"
+  ],
+  "toplam": 189856,
+  "parca": 5
+ },
+ {
+  "tur": 4,
+  "iller": [
+   "Gaziantep",
+   "Çanakkale",
+   "Tekirdağ",
+   "Denizli",
+   "Balıkesir"
+  ],
+  "toplam": 168598,
+  "parca": 5
+ },
+ {
+  "tur": 5,
+  "iller": [
+   "Hatay",
+   "Sakarya",
+   "Kayseri",
+   "Samsun",
+   "Bilecik",
+   "Trabzon",
+   "Şanlıurfa"
+  ],
+  "toplam": 178493,
+  "parca": 5
+ },
+ {
+  "tur": 6,
+  "iller": [
+   "Diyarbakır",
+   "Isparta",
+   "Manisa",
+   "Kahramanmaraş",
+   "Edirne",
+   "Afyonkarahisar",
+   "Ordu",
+   "Yalova",
+   "Kırklareli",
+   "Mardin",
+   "Erzurum"
+  ],
+  "toplam": 172201,
+  "parca": 5
+ },
+ {
+  "tur": 7,
+  "iller": [
+   "Van",
+   "Kütahya",
+   "Uşak",
+   "Giresun",
+   "Malatya",
+   "Rize",
+   "Nevşehir",
+   "Batman",
+   "Burdur",
+   "Osmaniye",
+   "Sivas",
+   "Niğde",
+   "Düzce",
+   "Çorum",
+   "Zonguldak",
+   "Amasya",
+   "Elazığ"
+  ],
+  "toplam": 164335,
+  "parca": 5
+ },
+ {
+  "tur": 8,
+  "iller": [
+   "Tokat",
+   "Kastamonu",
+   "Karabük",
+   "Adıyaman",
+   "Ağrı",
+   "Erzincan",
+   "Karaman",
+   "Kars",
+   "Aksaray",
+   "Sinop",
+   "Eskişehir",
+   "Artvin",
+   "Şırnak",
+   "Bartın",
+   "Yozgat",
+   "Bitlis",
+   "Iğdır",
+   "Gümüşhane",
+   "Muş",
+   "Bingöl",
+   "Hakkari",
+   "Siirt",
+   "Kilis",
+   "Ardahan",
+   "Tunceli",
+   "Bayburt",
+   "Çankırı",
+   "Kırşehir",
+   "Bolu",
+   "?",
+   "Kırıkkale"
+  ],
+  "toplam": 104683,
+  "parca": 3
+ }
+]

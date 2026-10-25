@@ -1,0 +1,52 @@
+{
+ "tur": 1,
+ "iller": [
+  "İzmir",
+  "Antalya"
+ ],
+ "toplam": 279533,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "be9ea4acfd5acbbdf5fda0c645e59167f242f09d050750b52db3db46c2a9c12b",
+   "bayt": 11590816
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "fe3acc6a80704b48f85ff7ea4c5829cf1415a6fb559c67258d7234fb928cf7b6",
+   "bayt": 10540245
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "75fe1a693dfeff17085790cb6ab3a92a4e99ebe10129d26e04d05ebeca4f2e45",
+   "bayt": 10469966
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "e59178ab834a90ca57dd1cc4980b4acf77c7db54bfb45e2fe3c080d2dfc5a87a",
+   "bayt": 10220255
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 40000,
+   "sha256": "26d860913721f90f1b96e02ccdf1473652354d310e226383ee75576b58f3ed37",
+   "bayt": 10005385
+  },
+  {
+   "dosya": "parca-05.json",
+   "satir": 40000,
+   "sha256": "6d3991cac29e3ef9b217e934e4181bd882b9fce04e297eff92a6d947c7648c44",
+   "bayt": 10944802
+  },
+  {
+   "dosya": "parca-06.json",
+   "satir": 39533,
+   "sha256": "a9d5e13e625b2628b710b049f9cc24f65e6b116b9bd5a4a9abc0d9d8ade36e03",
+   "bayt": 11524976
+  }
+ ]
+}
