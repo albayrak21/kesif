@@ -2215,7 +2215,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Büyük kategoride bölge henüz yüklenmediyse (ya da il geneli seçiliyse) boş döner: eksik bir liste gösterilmez.
   // Haritada ada göre arama: seçili il / ilçe ya da alan içinde ("Tümü"de ekrandaki alan), adı aranan kelimelerin hepsini içerenler.
   // Büyük kategoriler sunucudan gelir (haritaAramaHazirla); "Tümü"deki yakınlık sınırı burada uygulanmaz.
-  const adUyar = m => { const a = duz(m.ad || ''); return durum.adAra.split(' ').every(p => a.includes(p)); };
+  // Her kelime adda bir kelimenin başında geçmeli ("meriç" → "Meriç Gıda" evet, "American" hayır).
+  const adUyar = m => { const a = duz(m.ad || ''); return durum.adAra.split(' ').every(p => a.startsWith(p) || a.includes(` ${p}`)); };
   function adaGoreBolgeMekanlari() {
     const tumu = tumuMu();
     const b = tumu && harita ? harita.getBounds() : null;
