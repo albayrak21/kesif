@@ -1,0 +1,45 @@
+{
+ "tur": 5,
+ "iller": [
+  "Hatay",
+  "Sakarya",
+  "Kayseri",
+  "Samsun",
+  "Bilecik",
+  "Trabzon",
+  "Şanlıurfa"
+ ],
+ "toplam": 178493,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "700d1c6fd2ecb7aace68f31bb55ee948c2eae4ee4ddc3079fee5ff210e0cb126",
+   "bayt": 10992905
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "f0312c3c85249ed1909d5d3836afb9d96abee48267b751b291a8b48c96f0b803",
+   "bayt": 10453799
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "c2077c8caa536d763bf42b54a577162b70b68eb086a3f67ebf1707d01abd5de1",
+   "bayt": 10028433
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "85c33ea3fe1fff2e6edf310ee7289c75af98b58983aa68abfea608190e7a5de0",
+   "bayt": 10461696
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 18493,
+   "sha256": "67b6a9a9ab700d4b5126f3de8b89c7f7e8a773f3217666d4ff6470e865ff45fd",
+   "bayt": 5362656
+  }
+ ]
+}
