@@ -1,0 +1,41 @@
+{
+ "tur": 2,
+ "iller": [
+  "Bursa",
+  "Muğla",
+  "Konya"
+ ],
+ "toplam": 192938,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "4a83fc5d13437d80afc78440fd73205ca8d300bc939e887fff382d15fb27b5a7",
+   "bayt": 11446277
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "5ad28d769809608859af20ac079ab3c3c4d200417b8781d1f81cc129d2abd97f",
+   "bayt": 10600883
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "16aeb1cfdd4611bc168fae5f58aea7933e0937f24499abf22913d985aa9e69c4",
+   "bayt": 10108765
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "731dc36d524cb400814d11ea618ae3f9b114a9708f7144208b0148b834db010a",
+   "bayt": 10518524
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 32938,
+   "sha256": "256afb7d0ce5b20be3a673476daeaf6e086ae004710270dab9a1ee1b1e00f4f0",
+   "bayt": 9627990
+  }
+ ]
+}
