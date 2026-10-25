@@ -1,0 +1,49 @@
+{
+ "tur": 6,
+ "iller": [
+  "Diyarbakır",
+  "Isparta",
+  "Manisa",
+  "Kahramanmaraş",
+  "Edirne",
+  "Afyonkarahisar",
+  "Ordu",
+  "Yalova",
+  "Kırklareli",
+  "Mardin",
+  "Erzurum"
+ ],
+ "toplam": 172201,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "4ecbbdb093eb444c14e48b11e40a98b7acc6c444d4566ea54ee0c99246bb2a44",
+   "bayt": 10836606
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "91f4cc05ef96e04556493dc8888482779cff0f5eb45aa2296c2439dfda105a75",
+   "bayt": 10296317
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "d02225892f2e24841717c79b7fdd6dd39da91a25e26bd816e1d4b7ff58009a81",
+   "bayt": 9866263
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "8068a92c3e0f521e04981149946902f246fab35442c380f66699e513285c2b8b",
+   "bayt": 10442889
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 12201,
+   "sha256": "07a9affa69b06cc29e5bd4d578e6852ab334d18bb4d1d208f5ad05a09873988c",
+   "bayt": 3461994
+  }
+ ]
+}
