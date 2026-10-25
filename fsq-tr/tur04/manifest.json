@@ -1,0 +1,43 @@
+{
+ "tur": 4,
+ "iller": [
+  "Gaziantep",
+  "Çanakkale",
+  "Tekirdağ",
+  "Denizli",
+  "Balıkesir"
+ ],
+ "toplam": 168598,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "bd3037bb10f3ddf2e33d614d404745dca58d9e763a200ecce3788a3c8237a21f",
+   "bayt": 10910481
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "1827acced8cfd9ba71a36c4fcd851aaef17c950a8fd7e56414989e8c90dcf4a6",
+   "bayt": 10368466
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "5d8f886de1e3422a259b950498cad4bd9cba21ba283bb9adca79a6fd54e1ec70",
+   "bayt": 9850077
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "e60bd82981d80fa9dee37be66b1448390448281b725b93f0356c0299f4af7c77",
+   "bayt": 10821229
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 8598,
+   "sha256": "6f3dd2b7c12ec29ca72b6d40208af908399294afd6e0dbc1f5e937b10edcd685",
+   "bayt": 2513169
+  }
+ ]
+}
