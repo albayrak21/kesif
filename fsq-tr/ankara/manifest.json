@@ -4,34 +4,34 @@
  "toplam": 163284,
  "parcalar": [
   {
-   "dosya": "parca-00.csv",
+   "dosya": "parca-00.json",
    "satir": 40000,
-   "sha256": "281a90f2b05d5b1d0c65775132cb6b39ed4bf815400f4e9d0e31be1cc5f1dc12",
-   "bayt": 7729959
+   "sha256": "2340523e218bba9e07cf720816b51d6ebd0041af4943e1b9c3cbe57b3718e6b2",
+   "bayt": 11379853
   },
   {
-   "dosya": "parca-01.csv",
+   "dosya": "parca-01.json",
    "satir": 40000,
-   "sha256": "210145453200aad3e33ac29a162fe51a6ed75cd8de6f268a6b32140b85f0e5c6",
-   "bayt": 7235424
+   "sha256": "a5325eea2e8dbfd74bafd665e1fdd6b5971c4a3a258415283736aac278073e1a",
+   "bayt": 10611001
   },
   {
-   "dosya": "parca-02.csv",
+   "dosya": "parca-02.json",
    "satir": 40000,
-   "sha256": "a9908616a634642ac2fed801a32c301b69e129645fb48a579b6aefd750802ede",
-   "bayt": 6846205
+   "sha256": "276811f81b8f97833e9360ab69b21556bb87ee2a1c48a94de015aaf2a2dc0e9b",
+   "bayt": 10202830
   },
   {
-   "dosya": "parca-03.csv",
+   "dosya": "parca-03.json",
    "satir": 40000,
-   "sha256": "c46b5e027718a4aaed1e9148de76fb74a046ff35d0131249aba8dc97f5a570a4",
-   "bayt": 7749841
+   "sha256": "ae88bafbc3efdb9fd175f3cd78e81b7ce9541103a599889fe175b780b0cdfe0b",
+   "bayt": 11635268
   },
   {
-   "dosya": "parca-04.csv",
+   "dosya": "parca-04.json",
    "satir": 3284,
-   "sha256": "5585fb3922d098dae9ef500650e229964a1fa2a02071848792698df878d78e7c",
-   "bayt": 645918
+   "sha256": "fbd69901ef8e27078913c41cc055567a05b6f9f0007cdfcd6e50912f6e9d1089",
+   "bayt": 997173
   }
  ]
 }
