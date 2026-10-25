@@ -1722,14 +1722,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function aramaYeri() {
     let k = durum.aramaKapsam;
     if (k === 'bolge' && !durum.il) k = 'tr';
-    if (k === 'alan' && !(durum.alan || harita)) k = 'tr';
+    if (k === 'alan' && !(durum.alan || sonGorunenAlan)) k = 'tr';
     if (k === 'bolge') {
       const ilce = durum.ilce && durum.ilce !== TUM ? durum.ilce : null;
       return { k, il: durum.il, ilce, etiket: ilce ? `${ilce}, ${durum.il}` : durum.il,
         uyar: m => m.il === durum.il && (!ilce || m.ilce === ilce) };
     }
     if (k === 'alan') {
-      const b = durum.alan || sonGorunenAlan || harita.getBounds();
+      const b = durum.alan || sonGorunenAlan;
       const y = v => Math.round(v * 1e5) / 1e5;
       const kutu = [y(b.getSouth()), y(b.getWest()), y(b.getNorth()), y(b.getEast())];
       return { k, kutu, etiket: 'Haritadaki alan',
@@ -2854,8 +2854,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const isaretle = () => { kullaniciAni = Date.now(); };
     for (const olay of ['pointerdown', 'pointerup', 'wheel', 'touchstart', 'touchend', 'keydown']) kap.addEventListener(olay, isaretle, { passive: true });
     let tumuBekliyor = null;
-    const gorunuyorsa = () => { if (harita.getSize().x > 0) sonGorunenAlan = harita.getBounds(); };
-    gorunuyorsa();
+    // Harita henüz konumlanmamışken getBounds() hata verir; alan ilk 'moveend'de alınır.
+    const gorunuyorsa = () => { try { if (harita.getSize().x > 0) sonGorunenAlan = harita.getBounds(); } catch (e) { /* henüz konumlanmadı */ } };
     harita.on('moveend', gorunuyorsa);
     haritaAramaKur();
     harita.on('moveend', () => {
@@ -4622,7 +4622,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     // Aramanın yeri: seçili il / ilçe, haritada görünen alan ya da bütün Türkiye.
     const yerSecenekleri = [
       ['bolge', durum.il ? (durum.ilce && durum.ilce !== TUM ? `${durum.ilce}, ${durum.il}` : durum.il) : 'Seçili il', !durum.il],
-      ['alan', 'Haritadaki alan', !(durum.alan || harita)],
+      ['alan', 'Haritadaki alan', !(durum.alan || sonGorunenAlan)],
       ['tr', 'Bütün Türkiye'],
     ];
     const yerSec = el('select', { id: 'aramaYeri', class: 'sirala-sec', 'aria-label': 'Nerede aransın' },
