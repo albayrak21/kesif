@@ -1,0 +1,78 @@
+{
+ "tur": "istanbul",
+ "kutu": [
+  27.97085,
+  40.73767,
+  29.9588,
+  41.671
+ ],
+ "toplam": 426294,
+ "parcalar": [
+  {
+   "dosya": "parca-00.json",
+   "satir": 40000,
+   "sha256": "9f48eb2a99dd274389933491b2a0155306afef5f2b4c77a24f7d7137bf4c8a7d",
+   "bayt": 12650000
+  },
+  {
+   "dosya": "parca-01.json",
+   "satir": 40000,
+   "sha256": "ff222cbed947ba45091989d284e2c8654cb64470e4d142f31d64103a011d25a6",
+   "bayt": 11642863
+  },
+  {
+   "dosya": "parca-02.json",
+   "satir": 40000,
+   "sha256": "9d446fad5976e4fea038ceaed751fb5a600614318f01c4dc9412c97817f28a97",
+   "bayt": 10892251
+  },
+  {
+   "dosya": "parca-03.json",
+   "satir": 40000,
+   "sha256": "25fdfeb907e3c4762ac5ac06eb56b002a2c51b9d58453ca496c821cd6bcbc2f2",
+   "bayt": 10828006
+  },
+  {
+   "dosya": "parca-04.json",
+   "satir": 40000,
+   "sha256": "ab5e4262f3b79dfc8a4c86bc10b2e672beff26c4afca783c28ceb46eacf95ffe",
+   "bayt": 10842316
+  },
+  {
+   "dosya": "parca-05.json",
+   "satir": 40000,
+   "sha256": "fdfb18a60c84be3142e4e7341a1ae73b4f1d7f45a78ec8e49d29d88b63872bf6",
+   "bayt": 10916764
+  },
+  {
+   "dosya": "parca-06.json",
+   "satir": 40000,
+   "sha256": "540222e52f67ceda150fe79340e4709bce4ff3b5121b67bcb8060990e9ac6d99",
+   "bayt": 10483129
+  },
+  {
+   "dosya": "parca-07.json",
+   "satir": 40000,
+   "sha256": "35e73fa66501800713d76280cd4ecb525214210903fc2509e34b22b509c4d558",
+   "bayt": 10960005
+  },
+  {
+   "dosya": "parca-08.json",
+   "satir": 40000,
+   "sha256": "df4964b88068fc977445fe9631fe8256b7f29e7cc7da261437c9720711c8c556",
+   "bayt": 11629570
+  },
+  {
+   "dosya": "parca-09.json",
+   "satir": 40000,
+   "sha256": "d5c5da38968e2dc6d088eb42e6984b8e4af3d4d9d416212286312ad75ca71f11",
+   "bayt": 12415401
+  },
+  {
+   "dosya": "parca-10.json",
+   "satir": 26294,
+   "sha256": "e794718e2a2421d73924f4962e0d59ce4ff4cb9e0ae08c821438f7b19d2d2979",
+   "bayt": 7986134
+  }
+ ]
+}
