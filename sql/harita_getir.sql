@@ -110,8 +110,10 @@ begin
         ad_haric := ad_haric || format(' and not (m.kategori = %L and coalesce(m.ozellikler->''tur'' ?| array(select jsonb_array_elements_text(%L::jsonb)), false))', f->>'k', f->'t');
       end loop;
     end if;
-    taban := format('select p.id, p.lat, p.lng, p.skor as puan%s from (select m.id from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) a join mekan_nokta p on p.id = a.id',
-      tur_s, s, n, w, e, il_k, ad_k, m_kat_k, ad_haric, ad_sinir);
+    -- Ad parçası nokta tablosuna gitmez (rastgele okuma yavaş): konum ve skor doğrudan mekan satırından.
+    taban := format('select * from (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) a',
+      case when tur_s <> '' then ', case when jsonb_typeof(m.ozellikler->''tur'') = ''array'' then array(select jsonb_array_elements_text(m.ozellikler->''tur'')) end as tur' else '' end,
+      s, n, w, e, il_k, ad_k, m_kat_k, ad_haric, ad_sinir);
     if p_q_kats is not null and cardinality(p_q_kats) > 0 then
       taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s', tur_s, kutu_k, p_q_kats, kat_k);
     end if;
@@ -172,7 +174,7 @@ begin
   elsif p_ne = 'sayi' then
     -- Filtre sayıları: alan başına, ekrandaki sonuçlarda her değerin kaç kayıtta olduğu. Diğer alanların seçimleri uygulanır.
     -- Çok kalabalık alanda (20.000 üstü) hesaplanmaz.
-    -- "tur" (nokta tablosunda da duruyor) 50.000 kayda kadar, diğer alanlar 1.500 kayda kadar sayılır.
+    -- "tur" (nokta tablosunda da duruyor) 50.000 kayda kadar, diğer alanlar 1.000 kayda kadar sayılır.
     execute format('select count(*) from (select 1 from (%s) t limit 50001) c', taban) into toplam;
     if toplam > 50000 or p_alanlar is null or jsonb_typeof(p_alanlar) <> 'array' then return jsonb_build_object('toplam', toplam, 'sayilar', null); end if;
     sonuc := '{}';
@@ -189,7 +191,7 @@ begin
         sonuc := sonuc || jsonb_build_object(alan, esle::jsonb);
         continue;
       end if;
-      if toplam > 1500 then continue; end if;
+      if toplam > 1000 then continue; end if;
       execute format($q$
         select coalesce(jsonb_object_agg(v.deger, v.n), '{}') from (
           select v.deger, count(*) n from (%s) t join mekan m on m.id = t.id
