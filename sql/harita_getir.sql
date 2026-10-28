@@ -208,6 +208,14 @@ begin
         sonuc := sonuc || jsonb_build_object(alan, esle::jsonb);
         continue;
       end if;
+      -- Etiket sayıları küçük etiket tablosundan: alan kalabalık olsa da (50.000'e kadar) sayılır.
+      if alan = 'etiket' and filtre_k = '' then
+        execute format($q$
+          select coalesce(jsonb_object_agg(v.d, v.n), '{}') from (
+            select c.etiket d, count(*) n from (%s) t join public.etiket_ciftleri() c on c.mekan_id = t.id group by c.etiket) v$q$, taban0) into esle;
+        sonuc := sonuc || jsonb_build_object(alan, esle::jsonb);
+        continue;
+      end if;
       if toplam > 1000 then continue; end if;
       execute format($q$
         select coalesce(jsonb_object_agg(v.deger, v.n), '{}') from (

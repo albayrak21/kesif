@@ -191,3 +191,10 @@ language sql stable security definer set search_path = public as $$
 $$;
 grant execute on function public.etiket_mekan_sira(text[]) to anon, authenticated;
 grant execute on function public.duz_metin(text) to anon, authenticated;
+
+-- Filtre sayıları için: görünen (mekan, etiket) çiftleri.
+create or replace function public.etiket_ciftleri() returns table (mekan_id text, etiket text)
+language sql stable security definer set search_path = public as $$
+  select g.mekan_id, g.etiket from etiket_gorunur g
+$$;
+grant execute on function public.etiket_ciftleri() to anon, authenticated;

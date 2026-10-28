@@ -1595,8 +1595,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       v.filtreler = v.filtreler.filter(f => f.alan !== ETIKET_ALANI);
       const uygun = [...ETIKETLER.values()].filter(e => etiketGecerli(e, k));
       if (!uygun.length) continue;
-      v.filtreler.push({ alan: ETIKET_ALANI, etiket: 'Etiketler', tip: 'coklu', eslesme: 'herhangi', seyrek: true,
-        secenekler: uygun.map(e => ({ deger: e.kod, etiket: e.ad })) });
+      const f = { alan: ETIKET_ALANI, etiket: 'Etiketler', tip: 'coklu', eslesme: 'herhangi', seyrek: true,
+        secenekler: uygun.map(e => ({ deger: e.kod, etiket: e.ad })) };
+      // Yeme-içme kategorilerinde (Michelin, Şık…) panelin en üstünde; diğerlerinde sonda.
+      if (v.grup === 'Yeme-içme') v.filtreler.unshift(f); else v.filtreler.push(f);
     }
   }
   const etiketAdi = kod => (ETIKETLER.get(kod) || {}).ad || kod;
