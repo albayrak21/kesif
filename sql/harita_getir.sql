@@ -3,7 +3,9 @@
 -- p_ne: 'igne' (ekran ızgarasında hücre başına en iyiler) | 'liste' (sayfa sayfa, puana göre) | 'sayi' (filtre sayıları)
 -- Kapsam:
 --   p_q boş ve p_kats boş -> öne çıkanlar (mekan_nokta.ilgi > 0), ilgi sırasıyla
---   p_q dolu              -> adı eşleşenler + p_q_kats (aramanın eşleştiği kategoriler) + p_q_turler ([kategori, tür] çiftleri)
+--   p_q dolu              -> aramanın eşleştiği etiketleri taşıyanlar (en önde) + adı eşleşenler + p_q_kats (aramanın eşleştiği
+--                            kategoriler) + p_q_turler ([kategori, tür] çiftleri). Etiket eşleşmesi sunucuda: etiket adı ya da eş
+--                            anlamlılarında her kelime bir kelimenin başında geçmeli (ör. "michelin", "michelin yıldızlı", "şık").
 --   p_kats dolu           -> yalnız bu kategoriler (aramayla birlikte: arama sonuçları bu kategorilerle sınırlanır)
 -- p_filtre: [{alan, tip: secim|evet_hayir|coklu, eslesme: herhangi|hepsi, s}] (yalnız etkin olanlar). Bilgisi olmayan kayıt elenmez.
 -- p_izgara: [sütun, satır, hücre başına]. Dönüş: {toplam, kayitlar} ya da {toplam, sayilar}.
@@ -47,6 +49,8 @@ declare
   m_kat_k text := '';
   tur_s text := '';
   ad_sinir int := 5000;
+  etk text[];
+  et_k text := '';
 begin
   if p_kutu is null or cardinality(p_kutu) <> 4 then return jsonb_build_object('hata', 'kutu'); end if;
   select array_agg(x) into kel from (select x from unnest(string_to_array(tam, ' ')) x where x <> '' limit 5) q;
@@ -71,7 +75,9 @@ begin
           case when f->>'eslesme' = 'herhangi' then '?|' else '?&' end, f->'s')
         end;
       if esle is null then continue; end if;
-      parca := format(' and (coalesce(jsonb_typeof(m.ozellikler->%L), ''null'') = ''null'' or %s)', alan, esle);
+      -- Etiketlerde "bilgisi yok" diye bir durum yok: etiketi olmayan kayıt etiket filtresinde elenir.
+      parca := case when alan = 'etiket' then format(' and (%s)', esle)
+                    else format(' and (coalesce(jsonb_typeof(m.ozellikler->%L), ''null'') = ''null'' or %s)', alan, esle) end;
       filtre_k := filtre_k || parca;
       -- "herhangi" çoklu ve tekli seçimde alanın kendi sayıları kendi seçimi olmadan hesaplanır.
       kosullar := kosullar || jsonb_build_object(alan, jsonb_build_object('k', parca, 'kendi', (f->>'tip' = 'coklu' and f->>'eslesme' = 'herhangi') or f->>'tip' = 'secim'));
@@ -101,18 +107,28 @@ begin
     -- Ad eşleşmeleri önce alınır (en çok ad_sinir; geniş alanda 1000), diğer parçalar onları tekrar etmez (hash ile dışlama).
     -- Ad parçası nokta tablosuna gitmez (rastgele okuma yavaş): konum ve skor doğrudan mekan satırından.
     if (n - s) * (e - w) >= 4 and ad_sinir > 1000 then ad_sinir := 1000; end if;
-    taban := format('with ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s limit %s) select * from ad',
+    -- Etiket: aramanın her kelimesi etiket adında ya da bir eş anlamlısında bir kelimenin başında geçmeli (≥3 harf).
+    if (select max(length(x)) from unnest(kel) x) >= 3 then
+      select array_agg(et.kod) into etk from etiket et
+        where et.aktif and (select bool_and(exists (select 1 from unnest(array[duz_metin(et.ad)] || et.es_anlam) a where (' ' || a) like '% ' || x || '%')) from unnest(kel) x);
+    end if;
+    -- Etiketli yerler en önde (puan + 1000); ad parçası onları tekrar etmez.
+    if etk is not null then
+      et_k := ' and m.id not in (select id from et)';
+    end if;
+    taban := format('with et as materialized (select p.id, p.lat, p.lng, p.skor + 1000 as puan%s from mekan_nokta p where p.id = any(%L::text[]) and %s%s), ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) select * from et union all select * from ad',
+      tur_s, coalesce(public.etiket_mekanlari(etk), '{}'), kutu_k, kat_k,
       case when tur_s <> '' then ', case when jsonb_typeof(m.ozellikler->''tur'') = ''array'' then array(select jsonb_array_elements_text(m.ozellikler->''tur'')) end as tur' else '' end,
-      s, n, w, e, il_k, ad_k, m_kat_k, ad_sinir);
+      s, n, w, e, il_k, ad_k, m_kat_k, et_k, ad_sinir);
     if p_q_kats is not null and cardinality(p_q_kats) > 0 then
-      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s and p.id not in (select id from ad)',
+      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s and p.id not in (select id from ad) and p.id not in (select id from et)',
         tur_s, kutu_k, p_q_kats, kat_k);
     end if;
     if p_q_turler is not null and jsonb_typeof(p_q_turler) = 'array' and jsonb_array_length(p_q_turler) > 0 then
       -- Kategori başına ayrı parça: (kategori, lat, lng) indeksi kullanılsın. Aramanın eşleştiği kategoriler zaten yukarıda.
       for f in select jsonb_build_object('k', x->>0, 't', jsonb_agg(x->>1)) from jsonb_array_elements(p_q_turler) x
                where p_q_kats is null or not ((x->>0) = any(p_q_kats)) group by x->>0 loop
-        taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where p.kategori = %L and %s and p.tur && array(select jsonb_array_elements_text(%L::jsonb))%s and p.id not in (select id from ad)',
+        taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where p.kategori = %L and %s and p.tur && array(select jsonb_array_elements_text(%L::jsonb))%s and p.id not in (select id from ad) and p.id not in (select id from et)',
           tur_s, f->>'k', kutu_k, f->'t', kat_k);
       end loop;
     end if;

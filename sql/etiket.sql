@@ -172,3 +172,11 @@ insert into public.etiket (kod, ad, grup, tur, es_anlam, aciklama, kategoriler, 
   ('michelin_rehber', 'Michelin Rehberi', 'michelin', 'resmi', '{michelin,michelin rehberi}', 'Michelin Rehberi seçkisinde (yıldızsız).', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 15),
   ('sik', 'Şık', 'atmosfer', 'topluluk', '{}', 'Kullanıcılar bu yeri şık buluyor.', null, 50)
 on conflict (kod) do nothing;
+
+-- Arama için: verilen etiketleri (görünür olarak) taşıyan mekânların kimlikleri. Topluluk oyları anon'a kapalı olduğu için definer.
+create or replace function public.etiket_mekanlari(p_etiketler text[]) returns text[]
+language sql stable security definer set search_path = public as $$
+  select case when p_etiketler is null or cardinality(p_etiketler) = 0 then null
+              else (select array_agg(distinct g.mekan_id) from etiket_gorunur g where g.etiket = any(p_etiketler)) end
+$$;
+grant execute on function public.etiket_mekanlari(text[]) to anon, authenticated;
