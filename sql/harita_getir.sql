@@ -47,7 +47,6 @@ declare
   m_kat_k text := '';
   tur_s text := '';
   ad_sinir int := 5000;
-  ad_haric text := '';
 begin
   if p_kutu is null or cardinality(p_kutu) <> 4 then return jsonb_build_object('hata', 'kutu'); end if;
   select array_agg(x) into kel from (select x from unnest(string_to_array(tam, ' ')) x where x <> '' limit 5) q;
@@ -99,29 +98,21 @@ begin
     if iller is not null and cardinality(iller) between 1 and 3 then
       il_k := ' and (' || (select string_agg(format('m.il = %L', x), ' or ') from unnest(iller) x) || ')';
     end if;
-    -- Parçalar birbirini dışlar (union all, tekilleştirme sıralaması yok): ad parçası aramanın eşleştiği kategori ve türleri,
-    -- tür parçası eşleşen kategorileri içermez. Ad eşleşmeleri en çok ad_sinir (çok genel kelime geniş alanda aranırsa).
-    if p_q_kats is not null and cardinality(p_q_kats) > 0 then
-      ad_haric := format(' and not (m.kategori = any(%L::text[]))', p_q_kats);
-    end if;
-    if p_q_turler is not null and jsonb_typeof(p_q_turler) = 'array' and jsonb_array_length(p_q_turler) > 0 then
-      for f in select jsonb_build_object('k', x->>0, 't', jsonb_agg(x->>1)) from jsonb_array_elements(p_q_turler) x
-               where p_q_kats is null or not ((x->>0) = any(p_q_kats)) group by x->>0 loop
-        ad_haric := ad_haric || format(' and not (m.kategori = %L and coalesce(m.ozellikler->''tur'' ?| array(select jsonb_array_elements_text(%L::jsonb)), false))', f->>'k', f->'t');
-      end loop;
-    end if;
+    -- Ad eşleşmeleri önce alınır (en çok ad_sinir; geniş alanda 1000), diğer parçalar onları tekrar etmez (hash ile dışlama).
     -- Ad parçası nokta tablosuna gitmez (rastgele okuma yavaş): konum ve skor doğrudan mekan satırından.
-    taban := format('select * from (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) a',
+    if (n - s) * (e - w) >= 4 and ad_sinir > 1000 then ad_sinir := 1000; end if;
+    taban := format('with ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s limit %s) select * from ad',
       case when tur_s <> '' then ', case when jsonb_typeof(m.ozellikler->''tur'') = ''array'' then array(select jsonb_array_elements_text(m.ozellikler->''tur'')) end as tur' else '' end,
-      s, n, w, e, il_k, ad_k, m_kat_k, ad_haric, ad_sinir);
+      s, n, w, e, il_k, ad_k, m_kat_k, ad_sinir);
     if p_q_kats is not null and cardinality(p_q_kats) > 0 then
-      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s', tur_s, kutu_k, p_q_kats, kat_k);
+      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s and p.id not in (select id from ad)',
+        tur_s, kutu_k, p_q_kats, kat_k);
     end if;
     if p_q_turler is not null and jsonb_typeof(p_q_turler) = 'array' and jsonb_array_length(p_q_turler) > 0 then
-      -- Kategori başına ayrı parça: (kategori, lat, lng) indeksi kullanılsın.
+      -- Kategori başına ayrı parça: (kategori, lat, lng) indeksi kullanılsın. Aramanın eşleştiği kategoriler zaten yukarıda.
       for f in select jsonb_build_object('k', x->>0, 't', jsonb_agg(x->>1)) from jsonb_array_elements(p_q_turler) x
                where p_q_kats is null or not ((x->>0) = any(p_q_kats)) group by x->>0 loop
-        taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where p.kategori = %L and %s and p.tur && array(select jsonb_array_elements_text(%L::jsonb))%s',
+        taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where p.kategori = %L and %s and p.tur && array(select jsonb_array_elements_text(%L::jsonb))%s and p.id not in (select id from ad)',
           tur_s, f->>'k', kutu_k, f->'t', kat_k);
       end loop;
     end if;
