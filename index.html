@@ -888,6 +888,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .eylemler .dugme { min-height: 38px; padding: 6px 12px; font-size: 14.5px; }
 
 .bos-durum { padding: 18px 16px; border: 1px dashed var(--cizgi-koyu); border-radius: 12px; color: var(--soluk); }
+.daha-kap { list-style: none; padding: 10px 0 4px; text-align: center; }
 .bos-durum p { margin: 0 0 10px; }
 .ilce-dugmeleri { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .raflar-bolge { list-style: none; margin: 0; padding: 0; }
@@ -1714,8 +1715,141 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     }
     return n;
   }
+  /* ---------- harita öncelikli: kapsam ekrandaki alan ---------- */
+  // Liste görünümü (favoriler, listeler) dışında sonuçlar her zaman haritada görünen alandan gelir; il sınırı yoktur.
+  // Sunucu fonksiyonu harita_getir üç şey döndürür: ekrandaki iğneler (ekran ızgarasında hücre başına en iyiler; uzakta az,
+  // yakında hepsi), liste (sayfa sayfa, hepsi) ve filtre sayıları.
+  //   Arama yok ve kategori "Tümü"  -> yalnız öne çıkan yerler (tarihi yapı, müze, doğa, meydan…; mekan_nokta.ilgi)
+  //   Arama ya da kategori var      -> eşleşen her şey, skora göre (mekan_nokta.skor)
+  const hk = {
+    igne: { anahtar: null, durum: 'bos', ids: [], toplam: null },
+    liste: { anahtar: null, durum: 'bos', ids: [], toplam: null, bitti: false },
+    sayi: { anahtar: null, durum: 'bos', veri: null },
+    zamanlayici: null,
+  };
+  const LISTE_SAYFA = 100;
+  const haritaModu = () => !durum.gorunum && !!harita && !!AYAR.veritabani;
+  const hkGezinme = () => !durum.adAra && durum.kategori === TUMU;
+  // Arama kategori ya da tür adına uyuyorsa ("berber", "müze", "kafe") o türdeki her yer de gelir (adında geçmese de).
+  function aramaEslesmeleri(q) {
+    const kats = [], turler = [];
+    if (!q || q.replace(/ /g, '').length < 3) return { kats, turler };
+    const kel = q.split(' ').filter(Boolean);
+    const uyar = etiket => { const a = duz(etiket || ''); return kel.every(w => a.startsWith(w) || a.includes(` ${w}`)); };
+    for (const [k, v] of Object.entries(kategoriler)) {
+      if (k === TUMU || !v) continue;
+      if (uyar(v.ad)) { kats.push(k); continue; }
+      for (const f of v.filtreler || []) {
+        if (f.alan !== 'tur') continue;
+        for (const o of f.secenekler || []) if (uyar(o.etiket)) turler.push([k, o.deger]);
+      }
+    }
+    return { kats, turler };
+  }
+  function hkKutu() {
+    // Harita gizliyken (Keşfet açık) getBounds() bozuk: son görünen alan kullanılır.
+    const b = harita.getContainer().offsetWidth || !sonGorunenAlan ? harita.getBounds() : sonGorunenAlan, y = v => Math.round(v * 1e5) / 1e5;
+    return [y(b.getSouth()), y(b.getWest()), y(b.getNorth()), y(b.getEast())];
+  }
+  // Ekran hücrelere bölünür (piksel); her hücreden en iyi k kayıt iğne olur.
+  function hkIzgara() {
+    const sz = harita.getContainer().offsetWidth ? harita.getSize() : (hkIzgara.son || harita.getSize()), z = harita.getZoom();
+    if (harita.getContainer().offsetWidth) hkIzgara.son = sz;
+    const [h, k] = hkGezinme() ? [150, 1] : z >= 16 ? [60, 50] : z >= 15 ? [70, 3] : z >= 13 ? [90, 2] : [110, 1];
+    return [Math.max(1, Math.round(sz.x / h)), Math.max(1, Math.round(sz.y / h)), k];
+  }
+  function hkFiltre() {
+    if (durum.kategori === TUMU) return null;
+    const f = [];
+    for (const x of filtreler()) {
+      const s = durum.secimler[x.alan];
+      if (!aktifMi(x, s)) continue;
+      f.push({ alan: x.alan, tip: x.tip, eslesme: x.eslesme || 'hepsi', s: x.tip === 'coklu' ? [...s] : x.tip === 'evet_hayir' ? true : s });
+    }
+    return f.length ? f : null;
+  }
+  function hkTemel() {
+    const es = aramaEslesmeleri(durum.adAra);
+    const kats = durum.kategori === TUMU ? null : [durum.kategori];
+    return {
+      p_kutu: hkKutu(), p_q: durum.adAra || null, p_kats: kats,
+      // Kategori seçiliyse aramanın tür eşleşmeleri yalnız o kategoride anlamlıdır.
+      p_q_kats: es.kats.filter(k => !kats || kats.includes(k)).length ? es.kats.filter(k => !kats || kats.includes(k)) : null,
+      p_q_turler: es.turler.filter(([k]) => !kats || kats.includes(k)).length ? es.turler.filter(([k]) => !kats || kats.includes(k)) : null,
+      p_filtre: hkFiltre(),
+    };
+  }
+  const hkSatirlar = d => satirdanMekan(Array.isArray(d && d.kayitlar) ? d.kayitlar : []).map(m => { mekanlariEkle([m]); return bolge.dizin.get(m.id) || m; });
+  function hkIste(ne, govde) { return rpc('harita_getir', { ...govde, p_ne: ne }); }
+  function hkListeSayfasi() {
+    const l = hk.liste, anahtar = l.anahtar;
+    if (l.durum === 'yukleniyor' || l.bitti) return;
+    l.durum = 'yukleniyor';
+    hkIste('liste', { ...JSON.parse(anahtar), p_limit: LISTE_SAYFA, p_offset: l.ids.length }).then(d => {
+      if (hk.liste.anahtar !== anahtar) return;
+      const yeni = hkSatirlar(d);
+      for (const m of yeni) if (!l.ids.includes(m.id)) l.ids.push(m.id);
+      l.toplam = d && typeof d.toplam === 'number' ? d.toplam : l.toplam;
+      l.bitti = yeni.length < LISTE_SAYFA;
+      l.durum = 'tamam';
+    }).catch(h => {
+      console.warn('Liste alınamadı', h);
+      if (hk.liste.anahtar === anahtar) l.durum = 'hata';
+    }).finally(() => { if (hk.liste.anahtar === anahtar && haritaModu()) { puanOrtalamalariniKur(); guncelle(); } });
+  }
+  // guncelle() her çağrıldığında: ekrandaki alan / arama / kategori / filtre değiştiyse istekler (kısa beklemeyle) yenilenir.
+  function hkHazirla() {
+    const temel = JSON.stringify(hkTemel());
+    const igneAnahtar = JSON.stringify([temel, hkIzgara()]);
+    const alanlar = durum.kategori === TUMU ? [] : filtreler().map(f => f.alan);
+    if (hk.liste.anahtar !== temel) {
+      hk.liste = { anahtar: temel, durum: 'bekliyor', ids: [], toplam: null, bitti: false };
+    }
+    if (hk.igne.anahtar !== igneAnahtar) { hk.igne.anahtar = igneAnahtar; hk.igne.durum = 'bekliyor'; }
+    if (alanlar.length && hk.sayi.anahtar !== temel) { hk.sayi = { anahtar: temel, durum: 'bekliyor', veri: hk.sayi.veri }; }
+    if (!alanlar.length) hk.sayi = { anahtar: null, durum: 'bos', veri: null };
+    if ([hk.liste, hk.igne, hk.sayi].some(x => x.durum === 'bekliyor')) {
+      clearTimeout(hk.zamanlayici);
+      hk.zamanlayici = setTimeout(() => {
+        if (hk.liste.durum === 'bekliyor') { hk.liste.durum = 'bos'; hkListeSayfasi(); }
+        if (hk.igne.durum === 'bekliyor') {
+          const ia = hk.igne.anahtar, [t, izgara] = JSON.parse(ia);
+          hk.igne.durum = 'yukleniyor';
+          hkIste('igne', { ...JSON.parse(t), p_izgara: izgara }).then(d => {
+            if (hk.igne.anahtar !== ia) return;
+            hk.igne.ids = hkSatirlar(d).map(m => m.id);
+            hk.igne.toplam = d && d.toplam;
+            hk.igne.durum = 'tamam';
+          }).catch(h => { console.warn('İğneler alınamadı', h); if (hk.igne.anahtar === ia) hk.igne.durum = 'hata'; })
+            .finally(() => { if (hk.igne.anahtar === ia && haritaModu()) guncelle(); });
+        }
+        if (hk.sayi.durum === 'bekliyor') {
+          const sa = hk.sayi.anahtar;
+          hk.sayi.durum = 'yukleniyor';
+          hkIste('sayi', { ...JSON.parse(sa), p_alanlar: alanlar }).then(d => {
+            if (hk.sayi.anahtar !== sa) return;
+            hk.sayi.veri = d && d.sayilar ? d.sayilar : null;
+            hk.sayi.durum = 'tamam';
+          }).catch(h => { console.warn('Filtre sayıları alınamadı', h); if (hk.sayi.anahtar === sa) { hk.sayi.veri = null; hk.sayi.durum = 'hata'; } })
+            .finally(() => { if (hk.sayi.anahtar === sa && haritaModu()) guncelle(); });
+        }
+      }, 200);
+    }
+    const l = hk.liste;
+    if (l.durum === 'hata' && !l.ids.length) return { durum: 'hata' };
+    if (!l.ids.length && l.durum !== 'tamam') return { durum: 'yukleniyor' };
+    return { durum: 'tamam', toplam: l.toplam };
+  }
+  const hkListe = () => hk.liste.ids.map(id => bolge.dizin.get(id)).filter(Boolean);
+  // İğneler: sunucunun seçtikleri; seçili ya da sayfası açık kayıt da görünür.
+  function hkIgneler() {
+    const ids = new Set(hk.igne.ids);
+    for (const id of [durum.secili, durum.sayfa]) if (id && bolge.dizin.has(id)) ids.add(id);
+    return [...ids].map(id => bolge.dizin.get(id)).filter(m => m && m.konum && degerlendir(m, durum.secimler).sonuc !== 'uymaz');
+  }
+
   // Aramada büyük kategoriler sunucuda aranır (ad ve ilçe; Türkçe harf ve büyük/küçük harf fark etmez).
-  const uzakArama = { metin: null, durum: 'bos', zamanlayici: null, sayi: 0 };
+  const uzakArama ={ metin: null, durum: 'bos', zamanlayici: null, sayi: 0 };
   // Aramanın kapsamı: bir kategori seçiliyse yalnızca o kategori, "Tümü" (ya da liste görünümü) seçiliyse hepsi.
   const aramaKategorisi = () => (durum.gorunum || durum.kategori === TUMU || !kategoriler[durum.kategori] ? null : durum.kategori);
   // Aramanın yeri (durum.aramaKapsam): 'bolge' seçili il / ilçe · 'alan' haritada görünen alan · 'tr' bütün Türkiye.
@@ -2041,7 +2175,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     durum.il = il; durum.ilce = TUM; durum.kategori = kategori;
     durum.secimler = {}; durum.secili = null; durum.alan = null;
     $('#ilSec').value = il; $('#kategoriSec').value = kategori; ilceleriCiz();
-    if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(); guncelle(); }
+    if (ciz) { baglamiYaz(); filtreleriCiz(); bolgeyiCiz(true); guncelle(); }
   }
   // Favoriler ya da bir liste gösterilirken bölge, kategori ve filtreler uygulanmaz: listedeki her kayıt görünür.
   function gorunumeGec(g, ciz) {
@@ -2254,10 +2388,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     }, 250);
     return { durum: 'yukleniyor' };
   }
-  const bolgeMekanlari = () => (durum.adAra && !durum.gorunum ? adaGoreBolgeMekanlari() : bolgeHazirla().durum !== 'tamam' ? [] : tumuMu() ? tumuGorunenler().sort((a, b) => a.ad.localeCompare(b.ad, TR)) : mekanlar
+  const bolgeMekanlari = () => (haritaModu() ? hkListe() : durum.adAra && !durum.gorunum ?adaGoreBolgeMekanlari() : bolgeHazirla().durum !== 'tamam' ? [] : tumuMu() ? tumuGorunenler().sort((a, b) => a.ad.localeCompare(b.ad, TR)) : mekanlar
     .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce)))
     .sort((a, b) => a.ad.localeCompare(b.ad, TR)));
-  const bolgeAdi = () => (durum.alan ? 'Haritadaki alan' : durum.ilce === TUM ? durum.il : durum.ilce);
+  const bolgeAdi = () => (durum.alan && !haritaModu() ? 'Haritadaki alan' : durum.ilce === TUM ? durum.il : durum.ilce);
   const aktifMi = (f, s) => f.tip === 'coklu' ? !!(s && s.size) : s != null && s !== false;
   const secenekEtiketi = (f, deger) => (f.secenekler.find(o => o.deger === deger) || { etiket: deger }).etiket;
 
@@ -2347,6 +2481,27 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   // Girişleri duruma eşitler ve her seçeneğin yanına "bunu seçersem kaç sonuç kalır" sayısını yazar.
   function paneliEsle(tum) {
+    // Harita modunda sayılar sunucudan (ekrandaki alan): değerin kaç kayıtta olduğu. Alan çok kalabalıksa ya da sayı
+    // henüz gelmediyse boş bırakılır (yanıltıcı 0 yazılmaz).
+    if (haritaModu()) {
+      const v = hk.sayi.veri;
+      for (const g of girdiler) {
+        const { f } = g, s = durum.secimler[f.alan];
+        if (f.tip === 'secim') g.giris.checked = (s ?? null) === g.deger;
+        else if (f.tip === 'evet_hayir') g.giris.checked = s === true;
+        else g.giris.checked = !!(s && s.has(g.deger));
+        const a = v && v[f.alan];
+        const n = !a ? null : g.deger == null ? null : Number(a[String(g.deger)] || 0);
+        g.adet.textContent = n == null ? '' : sayiBicim.format(n);
+        g.kutu.classList.toggle('bos', n === 0 && !g.giris.checked);
+      }
+      for (const f of filtreler()) {
+        if (f.tip !== 'coklu') continue;
+        const n = (durum.secimler[f.alan] || new Set()).size;
+        $(`#ss-${f.alan}`).textContent = n ? `${n} seçili` : '';
+      }
+      return;
+    }
     const say = degistir => {
       const s = { ...durum.secimler };
       degistir(s);
@@ -2373,7 +2528,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const a = [];
     if (durum.gorunum) a.push({ etiket: gorunumAdi(), kaldir: () => { durum.gorunum = ''; } });
     else if (durum.alan) a.push({ etiket: 'Haritadaki alan', kaldir: () => { durum.alan = null; } });
-    if (durum.adAra && !durum.gorunum) a.push({ etiket: `Adında “${$('#haritaAra') ? $('#haritaAra').value.trim() : durum.adAra}”`, kaldir: () => adAramayiTemizle() });
+    if (durum.adAra && !durum.gorunum) a.push({ etiket: `Arama: “${$('#haritaAra') ? $('#haritaAra').value.trim() : durum.adAra}”`, kaldir: () => adAramayiTemizle() });
     for (const f of filtreler()) {
       const s = durum.secimler[f.alan];
       if (!aktifMi(f, s)) continue;
@@ -2449,13 +2604,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function listeyiCiz(tum, uyan, belirsiz) {
     const aktif = aktifler();
     const bb = bolgeBilgi;
+    const hm = haritaModu();
+    const hmToplam = hm && typeof hk.liste.toplam === 'number' ? hk.liste.toplam : null;
     $('#sonucSayi').textContent = bb.durum === 'yukleniyor' ? 'Yükleniyor…'
+      : hmToplam != null ? (hmToplam > 10000 ? '10.000+ sonuç' : `${sayiBicim.format(hmToplam)} sonuç`)
       : bb.durum === 'secim' ? `${sayiBicim.format(bb.toplam || 0)} kayıt` : `${uyan.length} sonuç`;
     const notlar = [];
-    if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);
+    if (hm) {
+      if (hkGezinme()) notlar.push('Haritadaki alanda öne çıkan yerler. Bir şey ara ya da kategori seç; o zaman alandaki her şey listelenir.');
+      else if (hk.igne.durum === 'tamam' && typeof hk.igne.toplam === 'number' && hk.igne.ids.length < hk.igne.toplam) notlar.push('Haritada en öne çıkanlar gösteriliyor, yaklaştıkça hepsi görünür. Listede hepsi var.');
+      if (hk.igne.durum === 'hata' || hk.liste.durum === 'hata') notlar.push('bazı sonuçlar şu an alınamadı');
+    } else if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);
     if (durum.gorunum && tum.length) notlar.push('bütün kategoriler ve şehirler');
     // "Tümü": haritadaki alanda gösterilen kayıt sayısı yakınlığa göre sınırlı; sınıra varıldıysa söylenir.
-    if (durum.adAra && !durum.gorunum) {
+    if (hm) { /* yukarıda */ } else if (durum.adAra && !durum.gorunum) {
       notlar.push(haritaArama.durum === 'hata' ? 'büyük kategorilerde şu an aranamadı'
         : haritaArama.sayi >= ARAMA_UST_SINIR ? 'çok sonuç var: yakınlaş ya da aramayı daralt' : '');
     } else if (tumuMu() && !durum.gorunum && harita && bb.durum !== 'yukleniyor') {
@@ -2487,8 +2649,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#panelUygula').textContent = durum.sekme === 'kesfet' ? 'Keşfet\'e dön' : uyan.length ? `${uyan.length} sonucu göster` : 'Listeye dön';
 
     const liste = $('#liste');
-    if (uyan.length) liste.replaceChildren(...uyan.map(m => kart(m)));
-    else if (!tum.length && durum.gorunum) {
+    if (uyan.length) {
+      liste.replaceChildren(...uyan.map(m => kart(m)));
+      if (hm && !hk.liste.bitti && hk.liste.ids.length) {
+        const daha = el('button', { class: 'dugme', type: 'button',
+          text: hk.liste.durum === 'yukleniyor' ? 'Yükleniyor…' : `Daha fazla göster (${sayiBicim.format(hk.liste.ids.length)} / ${hmToplam > 10000 ? '10.000+' : sayiBicim.format(hmToplam || 0)})` });
+        daha.disabled = hk.liste.durum === 'yukleniyor';
+        daha.addEventListener('click', () => { hkListeSayfasi(); guncelle(); });
+        liste.append(el('li', { class: 'daha-kap' }, daha));
+      }
+    } else if (hm && !tum.length && bb.durum === 'tamam') {
+      liste.replaceChildren(el('li', { class: 'bos-durum' },
+        el('p', { text: hkGezinme() ? 'Haritadaki bu alanda öne çıkan bir yer yok.' : 'Haritadaki bu alanda sonuç yok.' }),
+        el('p', { text: 'Haritayı kaydırabilir ya da uzaklaşabilirsin.' })));
+    } else if (!tum.length && durum.gorunum) {
       const hepsi = el('button', { class: 'dugme', type: 'button', text: 'Tüm kayıtları göster' });
       hepsi.addEventListener('click', () => { durum.gorunum = ''; guncelle(); });
       const favori = durum.gorunum === 'favori';
@@ -2718,7 +2892,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (AYAR.koordinatAraci) koordinatAraciKur();
     taraKur();
     yerEklemeKur();
-    bolgeyiCiz();
+    bolgeyiCiz(true);
     yakinlik();
   }
 
@@ -2771,7 +2945,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
 
   // Seçili bölge: ilçe seçiliyse sınırı çizilir; harita seçili ilin içinde tutulur.
-  function bolgeyiCiz() {
+  // sigdir: harita seçili bölgeye (liste görünümünde listedekilere) sığdırılsın mı. Harita modunda yalnız il / ilçe
+  // seçilince sığdırılır; harita bir ile kilitlenmez (her yere kaydırılabilir).
+  function bolgeyiCiz(sigdir = !!durum.gorunum) {
     if (!harita) return;
     taraGoster(false);
     if (bolgeKatmani) { bolgeKatmani.remove(); bolgeKatmani = null; }
@@ -2783,10 +2959,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       }
     }
     harita.setMaxBounds(null);
-    bolgeyeSigdir(false);
-    if (durum.gorunum) return;
-    const sinir = ilKutusu(durum.il, 0.15);
-    if (sinir) harita.setMaxBounds(sinir);
+    if (sigdir) bolgeyeSigdir(false);
   }
 
   function bolgeKutusu() {
@@ -2846,7 +3019,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   /* ---------- "Bu alanı tara" ---------- */
   // Ziyaretçi haritayı kendisi kaydırınca ya da yakınlaştırınca düğme çıkar; basınca liste o anki harita alanıyla sınırlanır
   // (seçili kategori ve filtreler geçerli kalır, ilçe seçimi yerine alan geçer). Programla yapılan kaydırmalar düğmeyi çıkarmaz.
-  let kullaniciAni = 0, taraDugmesi = null, alanKatmani = null;
+  let kullaniciAni = 0, taraDugmesi = null, alanKatmani = null, bekleyenOrta = null;
   function taraKur() {
     taraDugmesi = el('button', { class: 'tara-dugme', type: 'button', hidden: true }, simge('ara'), 'Bu alanı tara');
     taraDugmesi.addEventListener('click', alaniTara);
@@ -2860,16 +3033,37 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     harita.on('moveend', gorunuyorsa);
     haritaAramaKur();
     harita.on('moveend', () => {
+      // Harita modu: harita her durduğunda o alan kendiliğinden yüklenir; il / ilçe seçimi haritanın ortasını izler.
+      if (haritaModu()) { merkezIliniYaz(); clearTimeout(tumuBekliyor); tumuBekliyor = setTimeout(guncelle, 150); return; }
       // "Tümü"de tarama düğmesi yok: harita her durduğunda o alan kendiliğinden yüklenir.
       if (tumuMu()) { clearTimeout(tumuBekliyor); tumuBekliyor = setTimeout(guncelle, 200); return; }
       if (durum.gorunum || Date.now() - kullaniciAni > 1200) return;
       taraGoster(true);
     });
   }
+  // Haritanın ortası başka bir ile geçtiyse il seçimi ona döner (ilçe "Tüm ilçeler"); seçili ilçeden çıkıldıysa ilçe bırakılır.
+  function merkezIliniYaz() {
+    if (!harita.getContainer().offsetWidth) return;
+    const c = harita.getCenter();
+    // İlçe sınırları gerekirse önce yüklenir; bu arada harita başka yere kaydıysa sonuç yok sayılır.
+    yerBulKesin(c.lat, c.lng).then(yer => { if (harita.getCenter().equals(c)) merkezIliniUygula(yer); }).catch(() => {});
+  }
+  function merkezIliniUygula(yer) {
+    if (!yer || !yer.il || durum.gorunum) return;
+    const ilSec = $('#ilSec');
+    if (yer.il !== durum.il) {
+      if (![...ilSec.options].some(o => o.value === yer.il)) return;
+      durum.il = yer.il; durum.ilce = TUM; ilSec.value = yer.il;
+      ilceleriCiz(); baglamiYaz(); bolgeyiCiz(false);
+    } else if (durum.ilce !== TUM && yer.ilce && yer.ilce !== durum.ilce) {
+      durum.ilce = TUM; $('#ilceSec').value = TUM;
+      baglamiYaz(); bolgeyiCiz(false);
+    }
+  }
   function taraGoster(goster) { if (taraDugmesi) taraDugmesi.hidden = !goster; }
   // Haritanın üstündeki "Haritada ara" kutusu: yazdıkça yalnız adı eşleşen yerler haritada ve listede kalır.
   function haritaAramaKur() {
-    const giris = el('input', { id: 'haritaAra', type: 'search', placeholder: 'Haritada ada göre ara', 'aria-label': 'Haritada ada göre ara',
+    const giris = el('input', { id: 'haritaAra', type: 'search', placeholder: 'Haritada ara: ad ya da tür (berber, müze…)', 'aria-label': 'Haritada ara: yer adı ya da tür',
       autocomplete: 'off', enterkeyhint: 'search' });
     const sil = el('button', { type: 'button', 'aria-label': 'Aramayı temizle', hidden: true }, simge('yok'));
     const form = el('form', { class: 'harita-ara', role: 'search' }, simge('ara'), giris, sil);
@@ -2947,7 +3141,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Programla yapılan bu kaydırma "Bu alanı tara"yı çıkarmaz.
   function haritadaOrtala(id) {
     const k = igneler.get(id);
-    if (!k && tumuMu() && harita && harita.getContainer().offsetWidth) {
+    if (!k && (tumuMu() || haritaModu()) && harita && harita.getContainer().offsetWidth) {
       // "Tümü"de iğne yalnızca ekrandaki alan için çizilir: kayda gidilir, iğnesi harita durunca gelir.
       const m = mekanBul(id);
       if (!m || !m.konum) return false;
@@ -2986,7 +3180,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function guncelle() {
     gorunumuYaz();
     const kume = gorunumKumesi();
-    bolgeBilgi = kume ? { durum: 'tamam' } : durum.adAra ? haritaAramaHazirla() : bolgeHazirla();
+    bolgeBilgi = kume ? { durum: 'tamam' } : haritaModu() ? hkHazirla() : durum.adAra ? haritaAramaHazirla() : bolgeHazirla();
     // Liste görünümü: listedeki bütün kayıtlar, kategori ve şehir ayırmadan; filtreler uygulanmaz.
     const tum = kume ? kumedekiler(kume).filter(m => katOf(m.kategori)).sort((a, b) => a.ad.localeCompare(b.ad, TR)) : bolgeMekanlari();
     document.querySelector('.panel .ikili').hidden = !!kume;
@@ -3012,7 +3206,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     ss.value = durum.siralama === 'puan' && !puanVar ? 'ad' : durum.siralama === 'yakinlik' && !yakinlikMumkun() ? 'ad' : durum.siralama;
     if (!kume) paneliEsle(tum);
     listeyiCiz(tum, uyan, belirsiz);
-    igneleriCiz(uyan);
+    igneleriCiz(haritaModu() ? hkIgneler() : uyan);
     alaniCiz();
     seciliyiUygula();
     if (durum.sekme === 'kesfet') kesfetCiz();
@@ -4411,6 +4605,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       $('#sayfam').scrollTop = 0;
     } else if (harita) {
       harita.invalidateSize({ pan: false });
+      // Harita gizliyken açılan kayda (Keşfet'ten) şimdi gidilir.
+      const m = bekleyenOrta && mekanBul(bekleyenOrta);
+      bekleyenOrta = null;
+      if (m && m.konum && !harita.getBounds().contains([m.konum.lat, m.konum.lng])) {
+        kullaniciAni = 0;
+        harita.setView([m.konum.lat, m.konum.lng], Math.max(harita.getZoom(), 15), { animate: false });
+      }
       guncelle();
     }
   }
@@ -4704,6 +4905,14 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Kayıt haritadaki seçime uyuyorsa seçim korunur; uymuyorsa kaydın il ve kategorisine geçilir (filtreler temizlenir).
   function kapsamaAl(m) {
     if (kisiselMi(m)) { kisiselKapsam(m); return; }
+    // Harita modunda kategori ve arama korunur: harita kayda gider (iğnesi seçili olarak görünür).
+    if (!durum.gorunum && harita && AYAR.veritabani) {
+      if (m.konum && harita.getContainer().offsetWidth && !harita.getBounds().contains([m.konum.lat, m.konum.lng])) {
+        kullaniciAni = 0;
+        harita.setView([m.konum.lat, m.konum.lng], Math.max(harita.getZoom(), 15), { animate: false });
+      } else if (m.konum && !harita.getContainer().offsetWidth) bekleyenOrta = m.id;
+      return;
+    }
     const kume = gorunumKumesi();
     const icinde = kume ? kume.has(m.id)
       : tumuMu() ? m.il === durum.il && (durum.ilce === TUM || m.ilce === durum.ilce)   // "Tümü": harita kayda gider, mod korunur
@@ -5101,12 +5310,13 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const iller = new Set([...mekanlar.map(m => m.il), ...[...bolge.sayim.keys()].map(a => a.split('|')[1])]);
     const sayim = new Map([...iller].map(il => [il, oneriSayisi(o, il)]).filter(([, n]) => n > 0));
     const il = sayim.has(durum.il) ? durum.il : [...sayim].sort((a, b) => b[1] - a[1])[0][0];
+    const oncekiIl = durum.il;
     sekmeyeGec('harita');
     durum.gorunum = '';
     grubaGit(il, o.k, false);
     if (o.tur === 'filtre') durum.secimler[o.f.alan] = o.f.tip === 'coklu' ? new Set([o.deger]) : o.deger;
     $('#aramaGir').value = '';
-    baglamiYaz(); filtreleriCiz(); bolgeyiCiz();
+    baglamiYaz(); filtreleriCiz(); bolgeyiCiz(il !== oncekiIl);
     guncelle();
     $('#sonuclar').scrollTop = 0;
   }
@@ -5169,24 +5379,30 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     durum.kategori = kategoriSec.value;
     ilceleriCiz();
 
+    // İl ve ilçe seçimi yalnızca "oraya git" kısayoludur: harita oraya gider, sonuçlar her zaman ekrandaki alandan gelir.
     ilSec.addEventListener('change', () => {
       durum.il = ilSec.value; durum.ilce = TUM;   // il değişince ilçe seçimi sıfırlanır
       durum.secili = null; durum.alan = null;
-      ilceleriCiz(); baglamiYaz(); bolgeyiCiz(); guncelle();
+      if (durum.gorunum) durum.gorunum = '';
+      ilceleriCiz(); baglamiYaz(); bolgeyiCiz(true); guncelle();
     });
     ilceSec.addEventListener('change', () => {
       durum.ilce = ilceSec.value;
       durum.secili = null; durum.alan = null;
-      baglamiYaz(); bolgeyiCiz(); guncelle();
+      if (durum.gorunum) durum.gorunum = '';
+      baglamiYaz(); bolgeyiCiz(true); guncelle();
+      // İlçe sınırı henüz yüklenmediyse gelince sığdırılır.
+      if (durum.ilce !== TUM && !ilSiniriYuklu(durum.il)) {
+        const il = durum.il, ilce = durum.ilce;
+        ilSinirYukle(il).then(() => { if (durum.il === il && durum.ilce === ilce) bolgeyiCiz(true); });
+      }
     });
     kategoriSec.addEventListener('change', () => {
       durum.kategori = kategoriSec.value;
       durum.secimler = {}; durum.secili = null;
       if (durum.kategori === TUMU) { durum.alan = null; taraGoster(false); }   // "Tümü" alanı kendisi izler
-      const onceki = durum.ilce;
-      ilceleriCiz();   // seçili ilçede bu kategoriden kayıt yoksa "Tüm ilçeler"e döner
+      ilceleriCiz();   // seçili ilçede bu kategoriden kayıt yoksa "Tüm ilçeler"e döner (harita yerinde kalır)
       baglamiYaz(); filtreleriCiz();
-      if (onceki !== durum.ilce) bolgeyiCiz();
       guncelle();
     });
     $('#temizle').addEventListener('click', filtreleriTemizle);
