@@ -7,7 +7,7 @@ create or replace function public.mekan_ilgi3(id text, osm_ref text, kategori te
 returns smallint language sql immutable parallel safe set search_path = '' as $$
   select (case when b.t = 0 or coalesce(oz->>'adsiz', '') = 'true'
       or (kategori <> 'tarihi' and lower(translate(coalesce(ad, ''), 'ÇĞİIÖŞÜÂÎÛçğıöşüâîû', 'cgiiosuaiucgiosuaiu'))
-          ~ '(hastane|saglik|klinik|tip merkezi|universite|fakulte|kampus|okul|lise|kolej|anaokul|kres|belediye|mudurlugu|otel|hotel|pansiyon|cafe|kafe|restoran|restaurant|market|magaza|showroom|ofis|plaza|apartman|sitesi|residence|surf|dernek|vakfi|kariyer)')
+          ~ '(hastane|saglik|sagligi|klinik|tip merkezi|universite|fakulte|kampus|okul|lise|kolej|anaokul|kres|belediye|mudurlugu|otel|hotel|pansiyon|cafe|kafe|restoran|restaurant|market|magaza|showroom|ofis|plaza|apartman|sitesi|residence|surf|dernek|dernegi|vakfi|kariyer|orduevi)')
     then 0 else greatest(1, b.t
     + case when id like 'wd-%' then 15 when osm_ref is not null then 3 when id like '%-ov-%' or id like 'fsq-%' then -10 else 0 end
     + case when coalesce(web, '') <> '' then 3 else 0 end
