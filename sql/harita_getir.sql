@@ -193,6 +193,14 @@ begin
     -- Çok kalabalık alanda (20.000 üstü) hesaplanmaz.
     -- "tur" (nokta tablosunda da duruyor) 50.000 kayda kadar, diğer alanlar 1.000 kayda kadar sayılır.
     execute format('select count(*) from (select 1 from (%s) t limit 50001) c', taban) into toplam;
+    if toplam > 50000 and kel is null and filtre_k = '' and p_alanlar ? 'etiket' then
+      -- Çok kalabalık alanda yalnız etiket sayıları (etiket tablosundan başlayarak, ucuz).
+      execute format($q$
+        select coalesce(jsonb_object_agg(v.d, v.n), '{}') from (
+          select c.etiket d, count(*) n from public.etiket_ciftleri() c join mekan_nokta p on p.id = c.mekan_id where %s%s group by c.etiket) v$q$,
+        kutu_k, kat_k) into esle;
+      return jsonb_build_object('toplam', toplam, 'sayilar', jsonb_build_object('etiket', esle::jsonb));
+    end if;
     if toplam > 50000 or p_alanlar is null or jsonb_typeof(p_alanlar) <> 'array' then return jsonb_build_object('toplam', toplam, 'sayilar', null); end if;
     sonuc := '{}';
     for alan in select jsonb_array_elements_text(p_alanlar) loop
