@@ -180,3 +180,12 @@ language sql stable security definer set search_path = public as $$
               else (select array_agg(distinct g.mekan_id) from etiket_gorunur g where g.etiket = any(p_etiketler)) end
 $$;
 grant execute on function public.etiket_mekanlari(text[]) to anon, authenticated;
+
+-- Arama sıralaması için: etiketleri taşıyan mekânlar ve en öndeki eşleşen etiketin sırası (küçük = önce).
+create or replace function public.etiket_mekan_sira(p_etiketler text[]) returns table (mekan_id text, sira int)
+language sql stable security definer set search_path = public as $$
+  select g.mekan_id, min(e.sira)::int from etiket_gorunur g join etiket e on e.kod = g.etiket
+  where g.etiket = any(p_etiketler) group by g.mekan_id
+$$;
+grant execute on function public.etiket_mekan_sira(text[]) to anon, authenticated;
+grant execute on function public.duz_metin(text) to anon, authenticated;

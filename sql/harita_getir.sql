@@ -112,12 +112,12 @@ begin
       select array_agg(et.kod) into etk from etiket et
         where et.aktif and (select bool_and(exists (select 1 from unnest(array[duz_metin(et.ad)] || et.es_anlam) a where (' ' || a) like '% ' || x || '%')) from unnest(kel) x);
     end if;
-    -- Etiketli yerler en önde (puan + 1000); ad parçası onları tekrar etmez.
+    -- Etiketli yerler en önde (puan + 1000 + etiket sırası: 2 yıldız > 1 yıldız > Yeşil Yıldız > Bib > rehber); ad parçası onları tekrar etmez.
     if etk is not null then
       et_k := ' and m.id not in (select id from et)';
     end if;
-    taban := format('with et as materialized (select p.id, p.lat, p.lng, p.skor + 1000 as puan%s from mekan_nokta p where p.id = any(%L::text[]) and %s%s), ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) select * from et union all select * from ad',
-      tur_s, coalesce(public.etiket_mekanlari(etk), '{}'), kutu_k, kat_k,
+    taban := format('with et as materialized (select p.id, p.lat, p.lng, p.skor + 1000 + (100 - least(t.sira, 99)) * 100 as puan%s from etiket_mekan_sira(%L::text[]) t join mekan_nokta p on p.id = t.mekan_id where %s%s), ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) select * from et union all select * from ad',
+      tur_s, coalesce(etk, '{}'), kutu_k, kat_k,
       case when tur_s <> '' then ', case when jsonb_typeof(m.ozellikler->''tur'') = ''array'' then array(select jsonb_array_elements_text(m.ozellikler->''tur'')) end as tur' else '' end,
       s, n, w, e, il_k, ad_k, m_kat_k, et_k, ad_sinir);
     if p_q_kats is not null and cardinality(p_q_kats) > 0 then
