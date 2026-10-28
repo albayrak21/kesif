@@ -916,10 +916,38 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
 .diger-nokta { fill: var(--vurgu-dolgu); fill-opacity: .55; stroke: var(--yuzey-2); stroke-width: 2; stroke-opacity: 1; }
 
 /* ---------- dar ekran: liste ve form sırayla ---------- */
+/* Öne çıkan listeler (seçki) */
+.ust-sekme { display: flex; gap: 4px; }
+.ust-sekme button { min-height: 34px; padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--soluk); font: 600 14.5px/1 var(--yazi-dar); cursor: pointer; }
+.ust-sekme button[aria-current="true"] { border-color: var(--cizgi-koyu); background: var(--yuzey-2); color: var(--murekkep); }
+.sk-satir { display: flex; align-items: center; gap: 4px; }
+.sk-satir { padding-right: 4px; }
+.sk-satir > button.sk-ac { flex: 1; min-width: 0; display: block; padding: 10px 10px 9px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.sk-satir > button.sk-ac:hover { background: var(--zemin); }
+.sk-satir > button.sk-ac[aria-current="true"] { background: var(--vurgu-soluk); box-shadow: inset 3px 0 0 var(--vurgu-dolgu); }
+.sk-ok { flex: none; min-width: 34px; min-height: 34px; padding: 0 6px; border: 1px solid var(--cizgi); border-radius: 6px; background: var(--yuzey-2); color: var(--murekkep); font: 600 15px/1 var(--yazi-dar); cursor: pointer; }
+.sk-ok:disabled { opacity: .35; cursor: default; }
+.sk-yerler { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sk-yer { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 10px; border: 1px solid var(--cizgi); border-radius: 8px; background: var(--yuzey); }
+.sk-yer .sk-no { flex: none; width: 22px; color: var(--soluk); font: 600 13px/1 var(--yazi-dar); }
+.sk-yer .sk-govde { flex: 1; min-width: 0; }
+.sk-oneriler { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid var(--cizgi); border-radius: 8px; }
+.sk-oneriler:empty { display: none; }
+.sk-oneriler button { display: block; width: 100%; padding: 8px 10px; border: 0; border-bottom: 1px solid var(--cizgi); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.sk-oneriler button:hover { background: var(--zemin); }
+.sk-oneriler button:disabled { opacity: .5; cursor: default; }
+.sk-eylem { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sk-eylem .sag { margin-left: auto; }
+.sk-onay { display: flex; align-items: center; gap: 8px; font: 500 15px/1.2 var(--yazi-dar); }
+.sk-form { display: flex; flex-direction: column; gap: 16px; }
+
 @media (max-width: 899.98px) {
   .calisma { grid-template-columns: minmax(0, 1fr); }
   .calisma[data-gorunum="liste"] .duzenleyici { display: none; }
   .calisma[data-gorunum="duzen"] .liste-panel { display: none; }
+  .ust-sekme button { padding: 6px 7px; font-size: 13.5px; white-space: nowrap; }
+  .ust-sekme .uzun { display: none; }
+  .ust .baglam, .ust-sag > a.dugme { display: none; }
   .liste-panel { border-right: 0; }
   .geri { display: inline-flex; }
   .form { padding: 12px 12px 28px; }
@@ -944,6 +972,10 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
   <header class="ust">
     <a class="marka" href="./" title="Siteye dön"><span class="levha" aria-hidden="true">K</span>Keşif</a>
     <p class="baglam">Yönetim</p>
+    <nav class="ust-sekme" id="ustSekme" aria-label="Bölümler" hidden>
+      <button type="button" data-bolum="calisma" aria-current="true">Mekanlar</button>
+      <button type="button" data-bolum="secki"><span class="uzun">Öne çıkan </span>Listeler</button>
+    </nav>
     <div class="ust-sag">
       <span class="kullanici" id="kullanici" hidden></span>
       <a class="dugme ince" href="./" target="_blank" rel="noopener">Siteyi aç</a>
@@ -976,6 +1008,52 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
         <button class="dugme dugme-dolu tam" id="mesajEylem" type="button" hidden></button>
       </div>
     </section>
+
+    <div class="calisma" id="seckiBolumu" data-gorunum="liste" hidden>
+      <aside class="liste-panel" aria-label="Öne çıkan listeler">
+        <div class="liste-bas">
+          <div class="liste-ust">
+            <h2 class="baslik-kucuk" id="skSayi">Öne çıkan listeler</h2>
+            <button class="bag" id="skYenile" type="button">Yenile</button>
+          </div>
+          <p class="ipucu">Keşfet'in başında bu sırayla görünür. Okla sırayı değiştir.</p>
+          <button class="dugme dugme-dolu tam" id="skYeni" type="button">+ Yeni liste</button>
+        </div>
+        <ul class="mekan-liste" id="skListe"></ul>
+      </aside>
+      <main class="duzenleyici" aria-label="Liste düzenleme">
+        <div class="kaydirma">
+          <div class="bos-secim" id="skBos"><p>Düzenlemek için soldan bir liste seç ya da yeni liste oluştur.</p></div>
+          <form class="form sk-form" id="skForm" novalidate hidden>
+            <div class="form-bas">
+              <button class="bag geri" id="skGeri" type="button">← Listeler</button>
+              <h1 id="skBaslik" tabindex="-1"></h1>
+              <span class="durum-rozet" id="skRozet"></span>
+            </div>
+            <section class="bolum">
+              <div class="alan"><label for="skAd">Liste adı</label><input class="giris-alani" id="skAd" maxlength="60" required autocomplete="off"></div>
+              <div class="alan"><label for="skAciklama">Kısa açıklama (Keşfet'te ve liste sayfasında görünür)</label><textarea class="giris-alani" id="skAciklama" rows="2" maxlength="300"></textarea></div>
+              <label class="sk-onay"><input type="checkbox" id="skYayinda"> Yayında (işaretli değilse taslak; sitede görünmez)</label>
+            </section>
+            <section class="bolum">
+              <h2 id="skYerBaslik">Yerler</h2>
+              <ol class="sk-yerler" id="skYerler"></ol>
+              <div class="alan"><label for="skAra">Yer ekle</label><input class="giris-alani" id="skAra" type="search" placeholder="Ad ya da ilçe yaz (en az 2 harf)" autocomplete="off"></div>
+              <p class="ipucu" id="skAraDurum" aria-live="polite"></p>
+              <ul class="sk-oneriler" id="skOneriler"></ul>
+            </section>
+            <p class="alan-hata" id="skHata" role="alert" hidden></p>
+            <div class="sk-eylem">
+              <button class="dugme dugme-dolu" id="skKaydet" type="submit">Kaydet</button>
+              <button class="dugme" id="skVazgec" type="button">Değişiklikleri geri al</button>
+              <a class="bag" id="skSitede" target="_blank" rel="noopener" hidden>Sitede aç</a>
+              <button class="dugme sag" id="skSil" type="button">Listeyi sil</button>
+            </div>
+            <p class="kayit-durumu" id="skDurum" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </main>
+    </div>
 
     <div class="calisma" id="calisma" data-gorunum="liste" hidden>
       <aside class="liste-panel" aria-label="Mekanlar">
@@ -1342,9 +1420,11 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   let kaydediliyor = false;
 
   /* ---------- görünümler ---------- */
-  const BOLUMLER = { yukleniyor: '#yukleniyor', giris: '#girisBolumu', mesaj: '#mesajBolumu', calisma: '#calisma' };
+  const BOLUMLER = { yukleniyor: '#yukleniyor', giris: '#girisBolumu', mesaj: '#mesajBolumu', calisma: '#calisma', secki: '#seckiBolumu' };
   function goster(ad) {
     for (const [k, s] of Object.entries(BOLUMLER)) $(s).hidden = k !== ad;
+    $('#ustSekme').hidden = !(ad === 'calisma' || ad === 'secki');
+    for (const b of $('#ustSekme').querySelectorAll('button')) b.setAttribute('aria-current', String(b.dataset.bolum === ad));
     $('#kullanici').textContent = kullanici ? kullanici.email || '' : '';
     $('#kullanici').hidden = !kullanici;
     $('#cikis').hidden = !kullanici;
@@ -1395,6 +1475,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     fetch(`${AYAR.veriYolu}sinirlar.json`).then(y => (y.ok ? y.json() : null)).then(v => { sinirlar = v; oneriListeleri(); }).catch(() => {});
     girisFormunuKur();
     formOlaylariniKur();
+    seckiOlaylariniKur();
     const { data } = await db.auth.getSession();
     if (data && data.session) await oturumAc(data.session.user);
     else goster('giris');
@@ -1454,11 +1535,168 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   }
   function oturumKapandi(neden) {
     if (!kullanici && !$('#girisBolumu').hidden) return;
-    kullanici = null; mekanlar = []; formuKapat();
+    kullanici = null; mekanlar = []; formuKapat(); sk.listeler = []; sk.secili = null; sk.taslak = null;
     const hata = $('#girisHata');
     hata.textContent = neden || '';
     hata.hidden = !neden;
     goster('giris');
+  }
+
+  /* ---------- öne çıkan listeler (seçki) ---------- */
+  // Sahibi olmayan, ekibin hazırladığı herkese açık listeler. Sitede Keşfet'in başında "Öne çıkan listeler" rafında görünür.
+  // Sunucu: secki_yonet_listele / _kaydet / _sirala / _sil (yalnız yöneticiler).
+  const sk = { listeler: [], secili: null, taslak: null, arama: { metin: '', zaman: null, sonuc: [] } };
+  const skKopya = l => ({ id: l.id, ad: l.ad || '', aciklama: l.aciklama || '', yayinda: !!l.yayinda, mekanlar: (l.mekanlar || []).map(m => ({ ...m })) });
+  const skImza = t => t ? JSON.stringify([t.ad.trim(), t.aciklama.trim(), t.yayinda, t.mekanlar.map(m => m.id)]) : '';
+  function skKirli() {
+    if (!sk.taslak) return false;
+    const asil = sk.taslak.id ? sk.listeler.find(l => l.id === sk.taslak.id) : null;
+    return skImza(sk.taslak) !== skImza(asil ? skKopya(asil) : { ad: '', aciklama: '', yayinda: false, mekanlar: [] });
+  }
+  async function bolumeGec(ad) {
+    if (ad === 'secki' && !$('#seckiBolumu').hidden) return;
+    if (ad === 'calisma' && !$('#calisma').hidden) return;
+    if (ad === 'secki' && !(await ayrilabilirMi())) return;
+    if (ad === 'calisma' && skKirli() && !confirm('Listede kaydedilmemiş değişiklik var. Yine de çıkılsın mı?')) return;
+    goster(ad);
+    if (ad === 'secki') await skYukle();
+  }
+  async function skYukle(secilecek) {
+    $('#skSayi').textContent = 'Yükleniyor…';
+    const { data, error } = await db.rpc('secki_yonet_listele');
+    if (error) { $('#skSayi').textContent = 'Listeler alınamadı'; $('#skListe').replaceChildren(el('li', { class: 'ipucu bos-liste', text: hataMetni(error) })); return; }
+    sk.listeler = Array.isArray(data) ? data : [];
+    const id = secilecek !== undefined ? secilecek : sk.secili;
+    if (id && sk.listeler.some(l => l.id === id)) skAc(id, true); else if (id !== 'yeni') { sk.secili = null; sk.taslak = null; skFormuCiz(); }
+    skListeyiCiz();
+  }
+  function skListeyiCiz() {
+    const n = sk.listeler.length;
+    $('#skSayi').textContent = n ? `${n} liste · ${sk.listeler.filter(l => l.yayinda).length} yayında` : 'Henüz liste yok';
+    $('#skListe').replaceChildren(...sk.listeler.map((l, i) => {
+      const ac = el('button', { class: 'sk-ac', type: 'button', 'aria-current': l.id === sk.secili ? 'true' : null },
+        el('span', { class: 'oge-ad', text: l.ad }),
+        el('span', { class: 'oge-bilgi' }, el('span', { text: `${l.mekanlar.length} yer` }),
+          el('span', { class: l.yayinda ? null : 'uyari', text: l.yayinda ? 'Yayında' : 'Taslak' }),
+          l.kayit_sayisi ? el('span', { text: `${l.kayit_sayisi} kişi kaydetti` }) : null));
+      ac.addEventListener('click', () => { if (l.id !== sk.secili && skKirli() && !confirm('Kaydedilmemiş değişiklik var. Yine de başka listeye geçilsin mi?')) return; skAc(l.id); });
+      const yukari = el('button', { class: 'sk-ok', type: 'button', text: '↑', title: 'Yukarı taşı', 'aria-label': `${l.ad}: yukarı taşı`, disabled: i === 0 ? '' : null });
+      const asagi = el('button', { class: 'sk-ok', type: 'button', text: '↓', title: 'Aşağı taşı', 'aria-label': `${l.ad}: aşağı taşı`, disabled: i === n - 1 ? '' : null });
+      yukari.addEventListener('click', () => skSirala(i, -1));
+      asagi.addEventListener('click', () => skSirala(i, 1));
+      return el('li', { class: 'sk-satir' }, ac, yukari, asagi);
+    }));
+  }
+  async function skSirala(i, yon) {
+    const yeni = [...sk.listeler];
+    [yeni[i], yeni[i + yon]] = [yeni[i + yon], yeni[i]];
+    const onceki = sk.listeler;
+    sk.listeler = yeni; skListeyiCiz();
+    const { error } = await db.rpc('secki_yonet_sirala', { p_idler: yeni.map(l => l.id) });
+    if (error) { sk.listeler = onceki; skListeyiCiz(); alert(`Sıra kaydedilemedi: ${hataMetni(error)}`); }
+  }
+  function skAc(id, sessiz) {
+    sk.secili = id;
+    const l = id === 'yeni' ? null : sk.listeler.find(x => x.id === id);
+    sk.taslak = l ? skKopya(l) : { id: null, ad: '', aciklama: '', yayinda: false, mekanlar: [] };
+    $('#skAra').value = ''; sk.arama.sonuc = []; $('#skAraDurum').textContent = '';
+    skFormuCiz(); skListeyiCiz();
+    $('#seckiBolumu').dataset.gorunum = 'duzen';
+    if (!sessiz) $('#skBaslik').focus({ preventScroll: true });
+  }
+  function skFormuCiz() {
+    const t = sk.taslak;
+    $('#skBos').hidden = !!t; $('#skForm').hidden = !t;
+    if (!t) { $('#seckiBolumu').dataset.gorunum = 'liste'; return; }
+    $('#skBaslik').textContent = t.id ? (sk.listeler.find(l => l.id === t.id) || t).ad : 'Yeni liste';
+    $('#skAd').value = t.ad; $('#skAciklama').value = t.aciklama; $('#skYayinda').checked = t.yayinda;
+    $('#skSil').hidden = !t.id;
+    const s = $('#skSitede'); s.hidden = !t.id; if (t.id) s.href = `./#l=${t.id}`;
+    $('#skHata').hidden = true;
+    skYerleriCiz(); skOnerileriCiz(); skDurum();
+  }
+  function skYerleriCiz() {
+    const ys = sk.taslak.mekanlar, n = ys.length;
+    $('#skYerBaslik').textContent = n ? `Yerler (${n})` : 'Yerler';
+    $('#skYerler').replaceChildren(...(n ? ys.map((m, i) => {
+      const kat = kategoriler[m.kategori];
+      const bilgi = [kat ? kat.ad : m.kategori, [m.ilce, m.il].filter(Boolean).join(', '), m.durum && m.durum !== 'acik' ? (m.durum === 'kapali' ? 'Kapalı' : 'İncelemede — sitede görünmez') : null].filter(Boolean);
+      const ok = (metin, baslik, kapali, is) => { const b = el('button', { class: 'sk-ok', type: 'button', text: metin, title: baslik, 'aria-label': `${m.ad}: ${baslik}`, disabled: kapali ? '' : null }); b.addEventListener('click', is); return b; };
+      return el('li', { class: 'sk-yer' }, el('span', { class: 'sk-no', text: String(i + 1) }),
+        el('span', { class: 'sk-govde' }, el('span', { class: 'oge-ad', text: m.ad }),
+          el('span', { class: 'oge-bilgi' }, bilgi.map((b, j) => el('span', { class: j === 2 ? 'uyari' : null, text: b })))),
+        ok('↑', 'Yukarı', i === 0, () => { [ys[i - 1], ys[i]] = [ys[i], ys[i - 1]]; skYerleriCiz(); skDurum(); }),
+        ok('↓', 'Aşağı', i === n - 1, () => { [ys[i + 1], ys[i]] = [ys[i], ys[i + 1]]; skYerleriCiz(); skDurum(); }),
+        ok('✕', 'Listeden çıkar', false, () => { ys.splice(i, 1); skYerleriCiz(); skOnerileriCiz(); skDurum(); }));
+    }) : [el('li', { class: 'ipucu', text: 'Henüz yer yok. Aşağıdan ara ve ekle.' })]));
+  }
+  function skAraBaslat() {
+    const q = duz($('#skAra').value.trim());
+    clearTimeout(sk.arama.zaman);
+    if (q.length < 2) { sk.arama.metin = q; sk.arama.sonuc = []; $('#skAraDurum').textContent = ''; skOnerileriCiz(); return; }
+    $('#skAraDurum').textContent = 'Aranıyor…';
+    sk.arama.zaman = setTimeout(async () => {
+      sk.arama.metin = q;
+      let sorgu = db.from('mekan').select('id,ad,kategori,il,ilce,durum').eq('durum', 'acik');
+      for (const w of q.split(' ').filter(Boolean).slice(0, 5)) sorgu = sorgu.ilike('arama', `%${w}%`);
+      const { data, error } = await sorgu.order('onem', { ascending: false }).order('ad').limit(30);
+      if (sk.arama.metin !== q) return;
+      if (error) { $('#skAraDurum').textContent = `Aranamadı: ${hataMetni(error)}`; sk.arama.sonuc = []; skOnerileriCiz(); return; }
+      sk.arama.sonuc = data || [];
+      $('#skAraDurum').textContent = data.length ? (data.length === 30 ? 'İlk 30 sonuç; aramayı daraltabilirsin (ör. ilçe adı ekle).' : `${data.length} sonuç`) : 'Eşleşen açık kayıt yok.';
+      skOnerileriCiz();
+    }, 300);
+  }
+  function skOnerileriCiz() {
+    const var_ = new Set((sk.taslak ? sk.taslak.mekanlar : []).map(m => m.id));
+    $('#skOneriler').replaceChildren(...sk.arama.sonuc.map(m => {
+      const kat = kategoriler[m.kategori];
+      const b = el('button', { type: 'button', disabled: var_.has(m.id) ? '' : null },
+        el('span', { class: 'oge-ad', text: m.ad }),
+        el('span', { class: 'oge-bilgi' }, el('span', { text: kat ? kat.ad : m.kategori }), el('span', { text: [m.ilce, m.il].filter(Boolean).join(', ') }),
+          var_.has(m.id) ? el('span', { text: 'Listede' }) : null));
+      b.addEventListener('click', () => { sk.taslak.mekanlar.push({ ...m }); skYerleriCiz(); skOnerileriCiz(); skDurum(); });
+      return el('li', null, b);
+    }));
+  }
+  function skDurum(yazi) { $('#skDurum').textContent = yazi || (skKirli() ? 'Kaydedilmemiş değişiklik var.' : ''); $('#skRozet').textContent = sk.taslak && sk.taslak.yayinda ? 'Yayında' : 'Taslak'; }
+  async function skKaydet(e) {
+    e.preventDefault();
+    const t = sk.taslak; if (!t) return;
+    t.ad = $('#skAd').value.trim(); t.aciklama = $('#skAciklama').value.trim(); t.yayinda = $('#skYayinda').checked;
+    const hata = !t.ad ? 'Liste adı boş olamaz.' : t.yayinda && !t.mekanlar.length ? 'Yayındaki listede en az bir yer olmalı.' : '';
+    $('#skHata').textContent = hata; $('#skHata').hidden = !hata;
+    if (hata) return;
+    const b = $('#skKaydet'); b.disabled = true; skDurum('Kaydediliyor…');
+    const { data, error } = await db.rpc('secki_yonet_kaydet', { p_id: t.id, p_ad: t.ad, p_aciklama: t.aciklama, p_yayinda: t.yayinda, p_mekanlar: t.mekanlar.map(m => m.id) });
+    b.disabled = false;
+    if (error) { $('#skHata').textContent = `Kaydedilemedi: ${hataMetni(error)}`; $('#skHata').hidden = false; skDurum(); return; }
+    await skYukle(data);
+    skDurum('Kaydedildi. Sitede birkaç dakika içinde güncel hâli görünür.');
+  }
+  async function skSil() {
+    const t = sk.taslak; if (!t || !t.id) return;
+    const l = sk.listeler.find(x => x.id === t.id);
+    const kayit = l && l.kayit_sayisi ? ` ${l.kayit_sayisi} kişinin "Kaydettiğim listeler" bölümünden de kalkar.` : '';
+    if (!confirm(`"${l ? l.ad : t.ad}" listesi silinsin mi? Bu geri alınamaz.${kayit}`)) return;
+    const { error } = await db.rpc('secki_yonet_sil', { p_id: t.id });
+    if (error) { $('#skHata').textContent = `Silinemedi: ${hataMetni(error)}`; $('#skHata').hidden = false; return; }
+    sk.secili = null; sk.taslak = null;
+    await skYukle(null);
+  }
+  function seckiOlaylariniKur() {
+    for (const b of $('#ustSekme').querySelectorAll('button')) b.addEventListener('click', () => bolumeGec(b.dataset.bolum));
+    $('#skYenile').addEventListener('click', () => { if (skKirli() && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Yenilensin mi?')) return; sk.taslak = null; skYukle(); });
+    $('#skYeni').addEventListener('click', () => { if (skKirli() && !confirm('Kaydedilmemiş değişiklik var. Yine de yeni liste açılsın mı?')) return; skAc('yeni'); });
+    $('#skGeri').addEventListener('click', () => { $('#seckiBolumu').dataset.gorunum = 'liste'; });
+    $('#skAd').addEventListener('input', () => { sk.taslak.ad = $('#skAd').value; skDurum(); });
+    $('#skAciklama').addEventListener('input', () => { sk.taslak.aciklama = $('#skAciklama').value; skDurum(); });
+    $('#skYayinda').addEventListener('change', () => { sk.taslak.yayinda = $('#skYayinda').checked; skDurum(); });
+    $('#skAra').addEventListener('input', skAraBaslat);
+    $('#skForm').addEventListener('submit', skKaydet);
+    $('#skVazgec').addEventListener('click', () => { if (!sk.taslak) return; if (sk.taslak.id) skAc(sk.taslak.id, true); else { sk.secili = null; sk.taslak = null; skFormuCiz(); skListeyiCiz(); } });
+    $('#skSil').addEventListener('click', skSil);
+    window.addEventListener('beforeunload', e => { if (skKirli()) { e.preventDefault(); e.returnValue = ''; } });
   }
 
   /* ---------- mekan listesi ---------- */
