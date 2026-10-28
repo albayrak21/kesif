@@ -1163,6 +1163,17 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .arama-ust { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
 .arama-ust .arama-ozet { flex: 1; }
 .puan-cip { color: var(--uyari); font-weight: 600; }
+.etiket-cip { display: inline-flex; align-items: center; padding: 3px 8px 2px; border-radius: 999px; background: var(--vurgu); color: var(--vurgu-ustu, #fff); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .02em; }
+.etiket-cip.topluluk { background: none; color: inherit; border: 1px solid var(--cizgi-koyu); }
+.etiket-cip.g-michelin { background: #B3121C; color: #fff; }
+.etiket-cip.e-michelin_yesil_yildiz { background: #2F6B3A; }
+.ms-etiketler { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ms-resmi-etiketler, .ms-topluluk-etiketler { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 10px; }
+.ms-resmi-etiketler li { display: grid; gap: 3px; justify-items: start; }
+.ms-topluluk-etiketler li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.etiket-oy { min-height: 36px; padding: 6px 12px; border: 1px solid var(--cizgi-koyu); border-radius: 999px; background: none; color: inherit; font: 600 14px/1.2 var(--yazi-dar); cursor: pointer; }
+.etiket-oy:hover { background: var(--vurgu-soluk); }
+.etiket-oy.secili { background: var(--vurgu); color: var(--vurgu-ustu, #fff); border-color: var(--vurgu); }
 .puan-cip .simge path, .satir-puan .simge path, .ms-puan-ozet .simge path, .yildizlar .dolu path, .puan-dugme.dolu .simge path, .ms-dagilim-y .simge path { fill: var(--secim); }
 .puan-cip .simge, .satir-puan .simge { stroke: var(--uyari); }
 .puan-sayi { color: var(--soluk); font-weight: 500; }
@@ -1554,10 +1565,72 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       }
     }
     if (!mekanlar) mekanlar = (await oku('mekanlar')).filter(m => !bolgesel.includes(m.kategori));
-    return { kategoriler, mekanlar, sinirlar, sayilar, secenekler };
+    const etiketler = AYAR.veritabani ? await etiketleriGetir().catch(h => { console.warn('Etiketler alınamadı', h); return []; }) : [];
+    return { kategoriler, mekanlar, sinirlar, sayilar, secenekler, etiketler };
   }
 
   let kategoriler, mekanlar, sinirlar;
+
+  /* ---------- etiketler ---------- */
+  // Etiket tanımları veritabanındaki "etiket" tablosundan gelir (yönetim sayfasından genişletilir).
+  // tur: 'resmi' (güvenilir kaynaktan, ör. Michelin Rehberi; yalnız yöneticiler ekler) | 'topluluk' (kullanıcılar hazır listeden
+  // ekler; bir yerde en az "esik" kişi ekleyince herkese görünür). Görünen etiket kodları mekan.ozellikler.etiket dizisindedir.
+  // Her kategoriye, o kategoride geçerli etiketlerle bir "Etiketler" filtresi eklenir (bkz. etiketFiltreleriniKur).
+  const ETIKET_ALANI = 'etiket';
+  const ETIKETLER = new Map();   // kod -> { kod, ad, grup, tur, es_anlam, aciklama, kategoriler, esik, sira }
+  async function etiketleriGetir() {
+    const { url, anahtar } = AYAR.veritabani;
+    const y = await fetch(`${url}/rest/v1/etiket?select=kod,ad,grup,tur,es_anlam,aciklama,kategoriler,esik,sira&aktif=eq.true&order=sira,ad`, {
+      headers: { apikey: anahtar, Accept: 'application/json' },
+    });
+    if (!y.ok) throw new Error(`etiket: ${y.status}`);
+    return y.json();
+  }
+  const etiketGecerli = (e, kat) => !e.kategoriler || e.kategoriler.includes(kat);
+  function etiketFiltreleriniKur(liste) {
+    ETIKETLER.clear();
+    for (const e of liste || []) ETIKETLER.set(e.kod, e);
+    for (const [k, v] of Object.entries(kategoriler)) {
+      if (k === TUMU || !v || !Array.isArray(v.filtreler)) continue;
+      v.filtreler = v.filtreler.filter(f => f.alan !== ETIKET_ALANI);
+      const uygun = [...ETIKETLER.values()].filter(e => etiketGecerli(e, k));
+      if (!uygun.length) continue;
+      v.filtreler.push({ alan: ETIKET_ALANI, etiket: 'Etiketler', tip: 'coklu', eslesme: 'herhangi', seyrek: true,
+        secenekler: uygun.map(e => ({ deger: e.kod, etiket: e.ad })) });
+    }
+  }
+  const etiketAdi = kod => (ETIKETLER.get(kod) || {}).ad || kod;
+  // Aramanın eşleştiği etiketler (sunucudaki harita_getir ile aynı kural): her kelime (en az birinde ≥3 harf) etiket adında
+  // ya da bir eş anlamlısında bir kelimenin başında geçmeli. Eşleşen etiketi taşıyanlar listede en üstte, etiket sırasıyla.
+  const aramaEtiketOnbellek = { q: null, kodlar: new Map() };
+  function aramaEtiketleri(q) {
+    if (aramaEtiketOnbellek.q === q) return aramaEtiketOnbellek.kodlar;
+    const kodlar = new Map();
+    const kel = (q || '').split(' ').filter(Boolean);
+    if (kel.length && kel.some(w => w.length >= 3)) {
+      for (const e of ETIKETLER.values()) {
+        const adlar = [duz(e.ad), ...(e.es_anlam || [])].map(a => ` ${a}`);
+        if (kel.every(w => adlar.some(a => a.includes(` ${w}`)))) kodlar.set(e.kod, e.sira);
+      }
+    }
+    aramaEtiketOnbellek.q = q; aramaEtiketOnbellek.kodlar = kodlar;
+    return kodlar;
+  }
+  function etiketOnceligi(m, kodlar) {
+    const v = m.ozellikler && m.ozellikler[ETIKET_ALANI];
+    if (!kodlar.size || !Array.isArray(v)) return Infinity;
+    let en = Infinity;
+    for (const k of v) if (kodlar.has(k)) en = Math.min(en, kodlar.get(k));
+    return en;
+  }
+  // Kartta ve sayfada etiket rozetleri (kategoriden bağımsız: kaydın taşıdığı her görünür etiket).
+  function etiketCipleri(m, sinif = 'etiket-cip') {
+    const v = m && m.ozellikler && Array.isArray(m.ozellikler[ETIKET_ALANI]) ? m.ozellikler[ETIKET_ALANI] : [];
+    return v.filter(k => ETIKETLER.has(k)).map(k => {
+      const e = ETIKETLER.get(k);
+      return el('li', { class: `${sinif} ${e.grup ? `g-${e.grup}` : ''} e-${k} ${e.tur}`, title: e.aciklama || e.ad }, e.ad);
+    });
+  }
 
   /* ---------- büyük kategoriler: bölge bölge yükleme ---------- */
   // sayim: "kategori|il|ilçe" -> açık kayıt sayısı (yalnızca büyük kategoriler için kullanılır).
@@ -2404,6 +2477,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       const s = secimler[f.alan];
       if (!aktifMi(f, s)) continue;
       const v = mekan.ozellikler[f.alan];
+      if (v == null && f.alan === ETIKET_ALANI) { uymaz = true; continue; }   // etiketi olmayan, etiket filtresine uymaz
       if (v == null) { eksik.push(f); continue; }
       if (f.tip === 'secim') uymaz = uymaz || v !== s;
       else if (f.tip === 'evet_hayir') uymaz = uymaz || v !== true;
@@ -2541,7 +2615,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   /* ---------- sonuç listesi ---------- */
   function ozetOgeleri(m) {
-    const ogeler = [];
+    const ogeler = etiketCipleri(m);
     const p = puanOzeti(m);
     if (p && p.sayi) ogeler.push(el('li', { class: 'olgu puan-cip', title: `${p.sayi} puan, ortalama ${virgul(p.ort)}` },
       simge('yildiz'), el('span', { class: 'gorunmez', text: 'Puan: ' }), virgul(p.ort), el('span', { class: 'puan-sayi', text: ` (${p.sayi})` })));
@@ -2549,7 +2623,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const bilinmeyen = filtreler(m.kategori).filter(f => !f.seyrek && m.ozellikler[f.alan] == null);
     for (const f of filtreler(m.kategori)) {
       const v = m.ozellikler[f.alan];
-      if (v == null) continue;
+      if (v == null || f.alan === ETIKET_ALANI) continue;
       else if (f.tip === 'secim') ogeler.push(el('li', { class: 'tip', text: secenekEtiketi(f, v) }));
       else if (f.tip === 'evet_hayir' && f.seyrek && !v) continue;   // seyrek özellikte kartta yalnızca "var" gösterilir
       else if (f.tip === 'evet_hayir') ogeler.push(el('li', { class: `olgu ${v ? 'var' : 'yok'}` }, simge(v ? 'var' : 'yok'), `${f.etiket} ${v ? 'var' : 'yok'}`));
@@ -3063,7 +3137,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function taraGoster(goster) { if (taraDugmesi) taraDugmesi.hidden = !goster; }
   // Haritanın üstündeki "Haritada ara" kutusu: yazdıkça yalnız adı eşleşen yerler haritada ve listede kalır.
   function haritaAramaKur() {
-    const giris = el('input', { id: 'haritaAra', type: 'search', placeholder: 'Haritada ara: ad ya da tür (berber, müze…)', 'aria-label': 'Haritada ara: yer adı ya da tür',
+    const giris = el('input', { id: 'haritaAra', type: 'search', placeholder: 'Haritada ara: ad, tür ya da etiket (berber, michelin…)', 'aria-label': 'Haritada ara: yer adı, tür ya da etiket',
       autocomplete: 'off', enterkeyhint: 'search' });
     const sil = el('button', { type: 'button', 'aria-label': 'Aramayı temizle', hidden: true }, simge('yok'));
     const form = el('form', { class: 'harita-ara', role: 'search' }, simge('ara'), giris, sil);
@@ -3197,7 +3271,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (durum.secili && !uyan.some(m => m.id === durum.secili) && !belirsiz.some(b => b.m.id === durum.secili)) durum.secili = null;
     // Sıralama seçimi: puan, yakınlık ya da ad. Puanlaması kapalı kategoride puan, konum yokken yakınlık ada düşer.
     const puanVar = kume ? tum.some(m => puanlamaAcik(m.kategori)) : puanlamaAcik(durum.kategori);
-    const sira = siralayici(etkinSiralama(durum.siralama, puanVar));
+    const sira0 = siralayici(etkinSiralama(durum.siralama, puanVar));
+    const ek = aramaEtiketleri(durum.adAra);
+    const sira = ek.size ? (a, b) => (etiketOnceligi(a, ek) - etiketOnceligi(b, ek)) || sira0(a, b) : sira0;
     uyan.sort(sira);
     belirsiz.sort((a, b) => sira(a.m, b.m));
     const ss = $('#siralaSec');
@@ -3650,6 +3726,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   function hesapCizildi() {
     if (!mekanlar) return;
+    if (durum.sayfa) etiketDurumunuGetir(durum.sayfa, true);   // "ben ekledim" işaretleri oturuma göre
     gorunumuYaz();
     guncelle();
     if (durum.sekme === 'sayfam') sayfamCiz();
@@ -5056,6 +5133,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
         `${m.ilce}, ${m.il}`),
       puanOzetSatiri(m),
+      (c => c.length ? el('ul', { class: 'ms-etiketler', 'aria-label': 'Etiketler' }, c) : null)(etiketCipleri(m)),
       el('p', { class: 'gorunmez', id: 'msDurum', role: 'status', 'aria-live': 'polite' }));
 
     // Hızlı eylemler
@@ -5101,7 +5179,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       if (t) deger.append(t);
       return el('li', { class: 'ms-satir' }, el('span', { class: 'ms-satir-ad', text: b.etiket }), deger);
     }).filter(Boolean);
-    const satirlar = bilgiSatirlari.concat(filtreler(m.kategori).filter(f => !(f.seyrek && m.ozellikler[f.alan] == null)).map(f => {
+    const satirlar = bilgiSatirlari.concat(filtreler(m.kategori).filter(f => f.alan !== ETIKET_ALANI && !(f.seyrek && m.ozellikler[f.alan] == null)).map(f => {
       const v = m.ozellikler[f.alan];
       if (f.tip === 'coklu' && v != null && v.length) {
         const aranan = durum.secimler[f.alan] || new Set();
@@ -5189,9 +5267,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#mekanSayfa').replaceChildren(ust, el('div', { class: 'ms-govde' },
       bas, hizli.length ? el('div', { class: 'ms-hizli' }, hizli) : null,
       (b => b.length ? el('div', { class: 'kat-baglanti' }, b) : null)(kategoriBaglantilari(m.kategori, m.il)),
-      fotoBolumu(m), puanBolumu(m),
+      fotoBolumu(m), puanBolumu(m), etiketBolumu(m),
       beyanBolumu, ozellikler, iletisimBolumu, yakinBolumu, kaynak));
     fotolariGetir(m.id);
+    etiketDurumunuGetir(m.id);
     sayacGetir(sayac.puan);
   }
 
@@ -5256,6 +5335,126 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#msPuanDurum').textContent = ileti;
     $('#msPuanOzet').replaceWith(puanOzetSatiri(m));
     if (odak) { const b = $(`#msPuan [data-puan="${odak}"]`); if (b) b.focus(); }
+  }
+
+  /* ---------- işletme sayfası: etiketler ---------- */
+  // Resmi etiketler kaynağıyla (ör. Michelin Rehberi sayfası) gösterilir. Topluluk etiketlerini giriş yapmış kullanıcılar
+  // hazır listeden ekler; bir etiket bir yerde "esik" kişiye ulaşınca herkese görünür (kartta, filtrede, aramada).
+  const etiketOnbellek = new Map();   // mekan kimliği → { durum: 'yukleniyor' | 'tamam' | 'hata', veri: { resmi, topluluk } }
+  async function etiketDurumunuGetir(id, zorla) {
+    const var_ = etiketOnbellek.get(id);
+    if (!AYAR.veritabani || (var_ && var_.durum === 'yukleniyor') || (var_ && var_.durum === 'tamam' && !zorla)) return;
+    etiketOnbellek.set(id, { durum: 'yukleniyor', veri: var_ && var_.veri });
+    try {
+      const veri = await uyeRpc('mekan_etiketleri', { p_mekan: id });
+      etiketOnbellek.set(id, { durum: 'tamam', veri: veri || { resmi: [], topluluk: [] } });
+    } catch (h) {
+      console.warn('Etiketler alınamadı', h);
+      etiketOnbellek.set(id, { durum: 'hata', veri: var_ && var_.veri });
+    }
+    etiketBolumunuYenile(id);
+  }
+  // Sunucudaki duruma göre kaydın görünen etiketleri (mekan.ozellikler.etiket) yerelde de güncellenir.
+  function gorunenEtiketleriYaz(m, veri) {
+    const kodlar = [...(veri.resmi || []).map(r => r.etiket), ...(veri.topluluk || []).filter(t => t.sayi >= t.esik).map(t => t.etiket)];
+    const sirali = [...new Set(kodlar)].filter(k => ETIKETLER.has(k)).sort((a, b) => ETIKETLER.get(a).sira - ETIKETLER.get(b).sira);
+    if (sirali.length) m.ozellikler[ETIKET_ALANI] = sirali; else delete m.ozellikler[ETIKET_ALANI];
+  }
+  function etiketBolumu(m) {
+    if (!ETIKETLER.size) return null;
+    const kayit = etiketOnbellek.get(m.id);
+    const veri = kayit && kayit.veri;
+    const resmi = veri ? veri.resmi.filter(r => ETIKETLER.has(r.etiket)) : [];
+    const oylar = new Map((veri ? veri.topluluk : []).map(t => [t.etiket, t]));
+    const topluluk = [...ETIKETLER.values()].filter(e => e.tur === 'topluluk' && etiketGecerli(e, m.kategori));
+    const govde = [];
+    if (resmi.length) {
+      govde.push(el('ul', { class: 'ms-resmi-etiketler' }, resmi.map(r => {
+        const e = ETIKETLER.get(r.etiket);
+        const kaynak = /^https:\/\//.test(r.kaynak_url || '')
+          ? el('a', { href: r.kaynak_url, target: '_blank', rel: 'noopener noreferrer', text: r.kaynak }) : r.kaynak;
+        return el('li', null,
+          el('span', { class: `etiket-cip ${e.grup ? `g-${e.grup}` : ''} e-${e.kod} resmi`, text: e.ad }),
+          e.aciklama ? el('span', { class: 'aciklama', text: e.aciklama }) : null,
+          el('span', { class: 'ms-not' }, 'Kaynak: ', kaynak, ` · ${tarihYaz(r.dogrulama_tarihi)}`));
+      })));
+    }
+    if (topluluk.length) {
+      const satirlar = topluluk.map(e => {
+        const o = oylar.get(e.kod) || { sayi: 0, benim: false, esik: e.esik };
+        const gorunur = o.sayi >= o.esik;
+        const b = el('button', { class: `etiket-oy${o.benim ? ' secili' : ''}`, type: 'button', 'aria-pressed': String(!!o.benim), 'data-etiket': e.kod },
+          o.benim ? '✓ ' : '+ ', e.ad);
+        b.addEventListener('click', () => {
+          const yap = () => etiketOyla(m, e.kod, !o.benim);
+          if (!hesapHazir()) girisIste(`"${e.ad}" etiketini eklemek için giriş yap.`, yap); else yap();
+        });
+        const not = o.sayi ? `${o.sayi} kişi${gorunur ? '' : ` · ${o.esik} kişide herkese görünür`}` : `${e.esik} kişi ekleyince herkese görünür`;
+        return el('li', null, b, el('span', { class: 'ms-not', text: not }));
+      });
+      govde.push(el('ul', { class: 'ms-topluluk-etiketler', 'aria-label': 'Kullanıcı etiketleri' }, satirlar));
+    }
+    const oner = el('button', { class: 'bag', type: 'button', text: 'Listede olmayan bir etiket öner' });
+    oner.addEventListener('click', () => { if (!hesapHazir()) girisIste('Etiket önermek için giriş yap.', () => etiketOnerDiyalogu(m)); else etiketOnerDiyalogu(m); });
+    govde.push(oner);
+    if (kayit && kayit.durum === 'hata' && !veri) govde.unshift(el('p', { class: 'ms-bos', text: 'Etiketler şu an alınamadı.' }));
+    return el('section', { class: 'ms-bolum', id: 'msEtiket', 'aria-label': 'Etiketler' },
+      el('div', { class: 'ms-bolum-bas' }, el('h3', { text: 'Etiketler' })),
+      ...govde,
+      el('p', { class: 'ms-not', id: 'msEtiketDurum', role: 'status', 'aria-live': 'polite' }));
+  }
+  function etiketBolumunuYenile(id) {
+    if (!durum.sayfa || durum.sayfa !== id) return;
+    const m = mekanBul(id);
+    const eski = $('#msEtiket');
+    if (!m || !eski) return;
+    const kayit = etiketOnbellek.get(id);
+    if (kayit && kayit.veri) gorunenEtiketleriYaz(m, kayit.veri);
+    const odak = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.etiket : null;
+    const ileti = ($('#msEtiketDurum') || {}).textContent || '';
+    const yeni = etiketBolumu(m);
+    if (yeni) eski.replaceWith(yeni);
+    if ($('#msEtiketDurum')) $('#msEtiketDurum').textContent = ileti;
+    const ust = $('.ms-etiketler'), c = etiketCipleri(m);
+    if (ust) { if (c.length) ust.replaceChildren(...c); else ust.remove(); }
+    else if (c.length) { const p = $('#msPuanOzet') || $('.ms-yer'); if (p) p.after(el('ul', { class: 'ms-etiketler', 'aria-label': 'Etiketler' }, c)); }
+    if (odak) { const b = $(`#msEtiket [data-etiket="${odak}"]`); if (b) b.focus(); }
+  }
+  async function etiketOyla(m, kod, ekle) {
+    const yaz = t => { const d = $('#msEtiketDurum'); if (d) d.textContent = t; };
+    try {
+      const t = hesap.db.from('etiket_oy');
+      const { error } = ekle
+        ? await t.insert({ mekan_id: m.id, etiket: kod })
+        : await t.delete().eq('mekan_id', m.id).eq('etiket', kod).eq('kullanici', hesap.oturum.user.id);
+      if (error && !(ekle && error.code === '23505')) throw error;   // zaten eklenmişse sorun değil
+      yaz(ekle ? `"${etiketAdi(kod)}" etiketi eklendi.` : `"${etiketAdi(kod)}" etiketi kaldırıldı.`);
+      await etiketDurumunuGetir(m.id, true);
+      guncelle();
+    } catch (h) {
+      console.warn('Etiket kaydedilemedi', h);
+      yaz(hataMetni(h, 'Etiket kaydedilemedi. Bağlantını kontrol edip yeniden dene.'));
+    }
+  }
+  function etiketOnerDiyalogu(m) {
+    const giris = el('input', { type: 'text', class: 'ara', id: 'etiketOneriAd', maxlength: '40', autocomplete: 'off', placeholder: 'ör. Romantik, Manzaralı', 'aria-label': 'Etiket adı' });
+    const durumP = el('p', { class: 'ms-not', role: 'status', 'aria-live': 'polite' });
+    const gonder = el('button', { class: 'dugme', type: 'submit', text: 'Öner' });
+    const form = el('form', { class: 'yeni-liste' }, giris, gonder);
+    const govde = el('div', null, el('p', { class: 'ipucu', text: `${m.ad} için önerdiğin etiket, yönetici onayından sonra herkesin seçebileceği listeye eklenir.` }), form, durumP);
+    form.addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const ad = giris.value.trim();
+      if (ad.length < 2) { durumP.textContent = 'En az 2 harf yaz.'; return; }
+      gonder.disabled = true;
+      const { error } = await hesap.db.from('etiket_oneri').insert({ ad, mekan_id: m.id });
+      gonder.disabled = false;
+      if (error) { durumP.textContent = hataMetni(error, 'Öneri gönderilemedi.'); return; }
+      $('#diyalog').close();
+      bildir('Önerin alındı, teşekkürler.');
+    });
+    diyalogAc('Etiket öner', govde);
+    giris.focus();
   }
 
   /* ---------- işletme sayfası: fotoğraflar ---------- */
@@ -5372,8 +5571,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     gorunumKur();
     try {
       let sayilar, secenekler;
-      ({ kategoriler, mekanlar, sinirlar, sayilar, secenekler } = await veriyiGetir());
+      let etiketler;
+      ({ kategoriler, mekanlar, sinirlar, sayilar, secenekler, etiketler } = await veriyiGetir());
       kategoriler = { [TUMU]: TUMU_TANIM, ...kategoriler };   // "Tümü" listenin başında ve açılışta seçili
+      etiketFiltreleriniKur(etiketler);
       for (const m of mekanlar) bolge.dizin.set(m.id, m);
       sayimlariKur(sayilar, secenekler);
       // Favorilerde, listelerde, paylaşılan listede ve bağlantıda geçen ama büyük kategoride olduğu için yüklenmemiş kayıtlar.

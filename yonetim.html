@@ -886,6 +886,15 @@ textarea.giris-alani { min-height: 64px; resize: vertical; line-height: 1.4; }
 dialog.diyalog { width: min(440px, calc(100% - 32px)); padding: 20px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey-2); color: var(--murekkep); box-shadow: var(--golge); }
 dialog.diyalog::backdrop { background: var(--perde); }
 .diyalog h2 { margin: 0 0 6px; font: 700 21px/1.2 var(--yazi-dar); }
+dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(100vh - 48px); overflow-y: auto; }
+.diyalog h3 { margin: 18px 0 8px; font: 700 16px/1.2 var(--yazi-dar); }
+.etiket-liste, .etiket-tanimlar, .etiket-oneriler { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+.etiket-liste li, .etiket-tanimlar li, .etiket-oneriler li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px solid var(--cizgi); border-radius: 8px; }
+.etiket-liste .ad, .etiket-tanimlar .ad { font-weight: 700; }
+.etiket-liste .kucuk, .etiket-tanimlar .kucuk, .etiket-oneriler .kucuk { color: var(--soluk, #666); font-size: 13px; }
+.etiket-ekle, .etiket-yeni { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.etiket-ekle .dugme, .etiket-yeni .dugme { justify-self: start; }
+@media (max-width: 560px) { .etiket-ekle, .etiket-yeni { grid-template-columns: 1fr; } }
 .diyalog p { margin: 0 0 18px; color: var(--soluk); }
 .diyalog .eylemler { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 
@@ -980,6 +989,7 @@ dialog.diyalog::backdrop { background: var(--perde); }
             <select class="giris-alani" id="katSuz" aria-label="Kategoriye göre süz"><option value="">Tümü</option></select>
           </div>
           <button class="dugme dugme-dolu tam" id="yeniMekan" type="button">+ Yeni mekan</button>
+          <button class="bag" id="etiketYonet" type="button">Etiket listesi ve öneriler</button>
         </div>
         <ul class="mekan-liste" id="mekanListe"></ul>
       </aside>
@@ -1101,6 +1111,19 @@ dialog.diyalog::backdrop { background: var(--perde); }
                 </div>
               </section>
 
+              <section class="bolum" aria-labelledby="b-etiket" id="etiketBolumu">
+                <h2 id="b-etiket">Etiketler</h2>
+                <p class="ipucu">Resmi etiketler (ör. Michelin) güvenilir bir kaynağa dayanır; kaynak adı ve bağlantısı yazılır. Seçildiği anda kaydedilir, Kaydet düğmesinden bağımsızdır. Kullanıcı etiketleri (ör. Şık) burada yalnız sayı olarak görünür.</p>
+                <ul class="etiket-liste" id="etiketListe"></ul>
+                <div class="etiket-ekle">
+                  <select class="giris-alani" id="etiketSec" aria-label="Eklenecek resmi etiket"></select>
+                  <input class="giris-alani" id="etiketKaynak" type="text" maxlength="120" placeholder="Kaynak (ör. Michelin Rehberi Türkiye 2026)" aria-label="Kaynak">
+                  <input class="giris-alani" id="etiketKaynakUrl" type="url" maxlength="500" placeholder="https://… (kaynak sayfası)" aria-label="Kaynak bağlantısı">
+                  <button class="dugme" id="etiketEkle" type="button">Etiketi ekle</button>
+                </div>
+                <p class="ipucu" id="etiketBilgi" role="status"></p>
+              </section>
+
               <section class="bolum ic" aria-labelledby="b-ic">
                 <div class="bolum-bas"><h2 id="b-ic">İç bilgi</h2><span class="gizli-rozet">Sitede görünmez</span></div>
                 <p class="ipucu" id="icDurum" hidden></p>
@@ -1131,6 +1154,26 @@ dialog.diyalog::backdrop { background: var(--perde); }
       </main>
     </div>
   </div>
+
+  <dialog class="diyalog genis" id="etiketDiyalog" aria-labelledby="etiketDiyalogBaslik">
+    <h2 id="etiketDiyalogBaslik">Etiket listesi</h2>
+    <p class="ipucu">Yeni etiket eklenince sitede ilgili kategorilerin "Etiketler" filtresinde ve aramada çıkar. Topluluk etiketlerini kullanıcılar ekler; eşik kadar kişi ekleyince herkese görünür.</p>
+    <ul class="etiket-tanimlar" id="etiketTanimlar"></ul>
+    <h3>Yeni etiket</h3>
+    <form class="etiket-yeni" id="etiketYeniForm">
+      <input class="giris-alani" id="etiketYeniAd" type="text" maxlength="40" placeholder="Ad (ör. Romantik)" aria-label="Etiket adı" required>
+      <select class="giris-alani" id="etiketYeniTur" aria-label="Etiket türü"><option value="topluluk">Topluluk (kullanıcılar ekler)</option><option value="resmi">Resmi (kaynaklı, yönetici ekler)</option></select>
+      <input class="giris-alani" id="etiketYeniGrup" type="text" maxlength="30" placeholder="Grup (ör. atmosfer)" aria-label="Grup">
+      <input class="giris-alani" id="etiketYeniEs" type="text" maxlength="200" placeholder="Aramada eş anlamlılar, virgülle" aria-label="Eş anlamlılar">
+      <input class="giris-alani" id="etiketYeniKat" type="text" maxlength="300" placeholder="Kategoriler, virgülle (boş: hepsi) ör. restoran,kafe" aria-label="Kategoriler">
+      <input class="giris-alani" id="etiketYeniEsik" type="number" min="1" max="50" value="3" aria-label="Görünme eşiği (kişi)">
+      <button class="dugme dugme-dolu" type="submit">Ekle</button>
+    </form>
+    <h3>Kullanıcı önerileri</h3>
+    <ul class="etiket-oneriler" id="etiketOneriler"></ul>
+    <p class="ipucu" id="etiketDiyalogBilgi" role="status"></p>
+    <div class="eylemler"><button class="dugme" id="etiketDiyalogKapat" type="button">Kapat</button></div>
+  </dialog>
 
   <dialog class="diyalog" id="ayrilDiyalog" aria-labelledby="ayrilBaslik">
     <h2 id="ayrilBaslik">Kaydedilmemiş değişiklik var</h2>
@@ -1603,6 +1646,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     $('#fotoHakki').value = m.foto_hakki ?? 5;
     $('#fotoHakki').disabled = !('foto_hakki' in m);   // veritabanında sütun yoksa düzenlenemez
     fotolariYukle(yeni ? null : m.id);
+    mekanEtiketleriYukle(yeni ? null : m.id);
 
     icDoldur(null);
     $('#gecmis').open = false;
@@ -2015,7 +2059,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     listeyiCiz();
     oneriListeleri();
     digerleriniCiz();
-    if (yeniydi) fotolariYukle(satir.id); else fotolariCiz();
+    if (yeniydi) { fotolariYukle(satir.id); mekanEtiketleriYukle(satir.id); } else fotolariCiz();
   }
 
   // Güncelleme hiçbir satırı değiştirmediyse nedenini bulur: başkası mı kaydetti, yetki mi yok?
@@ -2068,6 +2112,124 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     const kayitli = d.ham && Number.isInteger(d.ham.foto_hakki) ? d.ham.foto_hakki : 5;
     return d.ham && 'foto_hakki' in d.ham ? kayitli : (Number.isInteger(v) ? v : 5);
   };
+
+  /* ---------- etiketler ---------- */
+  // Resmi etiketler (mekan_etiket) seçildiği anda yazılır; kullanıcı oyları (etiket_oy) burada yalnız sayı olarak okunur.
+  const etk = { tanimlar: [], mekanId: null, liste: [], oylar: [] };
+  const etiketAdi = kod => (etk.tanimlar.find(e => e.kod === kod) || {}).ad || kod;
+  const kodYap = ad => ad.toLocaleLowerCase('tr').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
+  const virgulluDizi = t => t.split(',').map(x => x.trim()).filter(Boolean);
+  async function etiketTanimlariniYukle() {
+    const { data, error } = await db.from('etiket').select('*').order('sira').order('ad');
+    if (error) throw error;
+    etk.tanimlar = data;
+    const sec = $('#etiketSec');
+    sec.replaceChildren(el('option', { value: '', text: 'Resmi etiket seç' }),
+      ...data.filter(e => e.tur === 'resmi' && e.aktif).map(e => el('option', { value: e.kod, text: e.ad })));
+  }
+  async function mekanEtiketleriYukle(id) {
+    etk.mekanId = id; etk.liste = []; etk.oylar = [];
+    mekanEtiketleriniCiz();
+    if (!id) return;
+    try {
+      if (!etk.tanimlar.length) await etiketTanimlariniYukle();
+      const [r, o] = await Promise.all([
+        db.from('mekan_etiket').select('*').eq('mekan_id', id),
+        db.rpc('mekan_etiketleri', { p_mekan: id }),
+      ]);
+      if (etk.mekanId !== id) return;
+      if (r.error) throw r.error;
+      etk.liste = r.data;
+      etk.oylar = (o.data && o.data.topluluk) || [];
+      $('#etiketBilgi').textContent = '';
+    } catch (h) { $('#etiketBilgi').textContent = hataMetni(h); }
+    mekanEtiketleriniCiz();
+  }
+  function mekanEtiketleriniCiz() {
+    const yeni = !etk.mekanId;
+    $('#etiketSec').disabled = $('#etiketEkle').disabled = yeni;
+    if (yeni) $('#etiketBilgi').textContent = 'Etiket eklemek için önce mekanı kaydet.';
+    const satirlar = etk.liste.map(r => {
+      const sil = el('button', { class: 'bag sil', type: 'button', text: 'Kaldır', 'aria-label': `${etiketAdi(r.etiket)} etiketini kaldır` });
+      sil.addEventListener('click', async () => {
+        const { error } = await db.from('mekan_etiket').delete().eq('mekan_id', r.mekan_id).eq('etiket', r.etiket);
+        $('#etiketBilgi').textContent = error ? hataMetni(error) : `${etiketAdi(r.etiket)} kaldırıldı.`;
+        if (!error) mekanEtiketleriYukle(etk.mekanId);
+      });
+      return el('li', null, el('span', { class: 'ad', text: etiketAdi(r.etiket) }),
+        el('span', { class: 'kucuk' }, `Kaynak: ${r.kaynak}`, r.kaynak_url ? ' · ' : '',
+          r.kaynak_url ? el('a', { href: r.kaynak_url, target: '_blank', rel: 'noopener noreferrer', text: 'bağlantı' }) : null,
+          ` · ${String(r.dogrulama_tarihi || '').split('-').reverse().join('.')}`), sil);
+    });
+    const oylar = etk.oylar.map(t => el('li', null, el('span', { class: 'ad', text: etiketAdi(t.etiket) }),
+      el('span', { class: 'kucuk', text: `${t.sayi} kullanıcı · eşik ${t.esik} · ${t.sayi >= t.esik ? 'herkese görünüyor' : 'henüz görünmüyor'}` })));
+    $('#etiketListe').replaceChildren(...satirlar, ...oylar,
+      ...(!yeni && !satirlar.length && !oylar.length ? [el('li', { class: 'kucuk', text: 'Bu mekanda etiket yok.' })] : []));
+  }
+  async function resmiEtiketEkle() {
+    const kod = $('#etiketSec').value, kaynak = $('#etiketKaynak').value.trim(), url = $('#etiketKaynakUrl').value.trim();
+    const yaz = t => { $('#etiketBilgi').textContent = t; };
+    if (!etk.mekanId) return;
+    if (!kod) { yaz('Bir etiket seç.'); $('#etiketSec').focus(); return; }
+    if (!kaynak) { yaz('Kaynak adı gerekli: resmi etiketler bir kaynağa dayanır.'); $('#etiketKaynak').focus(); return; }
+    if (url && !/^https:\/\//.test(url)) { yaz('Kaynak bağlantısı https:// ile başlamalı.'); $('#etiketKaynakUrl').focus(); return; }
+    const { error } = await db.from('mekan_etiket').upsert({ mekan_id: etk.mekanId, etiket: kod, kaynak, kaynak_url: url || null, dogrulama_tarihi: new Date().toISOString().slice(0, 10) });
+    yaz(error ? hataMetni(error) : `${etiketAdi(kod)} eklendi.`);
+    if (!error) { $('#etiketSec').value = ''; mekanEtiketleriYukle(etk.mekanId); }
+  }
+  async function etiketDiyaloguCiz() {
+    const bilgi = $('#etiketDiyalogBilgi');
+    try {
+      await etiketTanimlariniYukle();
+      $('#etiketTanimlar').replaceChildren(...etk.tanimlar.map(e => {
+        const aktif = el('button', { class: 'bag', type: 'button', text: e.aktif ? 'Kapat' : 'Aç' });
+        aktif.addEventListener('click', async () => {
+          const { error } = await db.from('etiket').update({ aktif: !e.aktif }).eq('kod', e.kod);
+          bilgi.textContent = error ? hataMetni(error) : `${e.ad} ${e.aktif ? 'kapatıldı' : 'açıldı'}.`;
+          etiketDiyaloguCiz();
+        });
+        return el('li', null, el('span', { class: 'ad', text: e.ad }),
+          el('span', { class: 'kucuk', text: [e.tur === 'resmi' ? 'resmi' : `topluluk · eşik ${e.esik}`, e.grup, e.kategoriler ? e.kategoriler.join(', ') : 'her kategori', e.aktif ? null : 'kapalı'].filter(Boolean).join(' · ') }),
+          aktif);
+      }));
+      const { data, error } = await db.from('etiket_oneri').select('id,ad,mekan_id,olusturma').eq('durum', 'bekliyor').order('olusturma', { ascending: false }).limit(100);
+      if (error) throw error;
+      $('#etiketOneriler').replaceChildren(...(data.length ? data.map(o => {
+        const kabul = el('button', { class: 'bag', type: 'button', text: 'Forma al' });
+        kabul.addEventListener('click', async () => {
+          $('#etiketYeniAd').value = o.ad; $('#etiketYeniTur').value = 'topluluk'; $('#etiketYeniAd').focus();
+          await db.from('etiket_oneri').update({ durum: 'eklendi' }).eq('id', o.id);
+        });
+        const red = el('button', { class: 'bag sil', type: 'button', text: 'Reddet' });
+        red.addEventListener('click', async () => {
+          const { error: h } = await db.from('etiket_oneri').update({ durum: 'reddedildi' }).eq('id', o.id);
+          bilgi.textContent = h ? hataMetni(h) : `"${o.ad}" önerisi reddedildi.`;
+          etiketDiyaloguCiz();
+        });
+        return el('li', null, el('span', { class: 'ad', text: o.ad }), el('span', { class: 'kucuk', text: `${o.mekan_id || ''} · ${String(o.olusturma).slice(0, 10)}` }), kabul, red);
+      }) : [el('li', { class: 'kucuk', text: 'Bekleyen öneri yok.' })]));
+    } catch (h) { bilgi.textContent = hataMetni(h); }
+  }
+  function etiketYonetimiKur() {
+    $('#etiketEkle').addEventListener('click', resmiEtiketEkle);
+    const d = $('#etiketDiyalog');
+    $('#etiketYonet').addEventListener('click', () => { $('#etiketDiyalogBilgi').textContent = ''; d.showModal(); etiketDiyaloguCiz(); });
+    $('#etiketDiyalogKapat').addEventListener('click', () => d.close());
+    $('#etiketYeniForm').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const ad = $('#etiketYeniAd').value.trim(), kod = kodYap(ad), bilgi = $('#etiketDiyalogBilgi');
+      if (ad.length < 2 || !kod) { bilgi.textContent = 'Geçerli bir ad yaz.'; return; }
+      const kats = virgulluDizi($('#etiketYeniKat').value);
+      const { error } = await db.from('etiket').insert({
+        kod, ad, tur: $('#etiketYeniTur').value, grup: $('#etiketYeniGrup').value.trim() || null,
+        es_anlam: virgulluDizi($('#etiketYeniEs').value).map(x => x.toLocaleLowerCase('tr').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]+/g, ' ').trim()).filter(Boolean),
+        kategoriler: kats.length ? kats : null, esik: Math.max(1, Number($('#etiketYeniEsik').value) || 3),
+      });
+      bilgi.textContent = error ? (error.code === '23505' ? `"${kod}" kodlu etiket zaten var.` : hataMetni(error)) : `"${ad}" eklendi. Sitede sayfa yenilenince görünür.`;
+      if (!error) { ev.target.reset(); etiketDiyaloguCiz(); }
+    });
+  }
 
   async function fotolariYukle(id) {
     foto.mekanId = id; foto.liste = []; foto.hata = null;
@@ -2532,6 +2694,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     $('#katSuz').addEventListener('change', listeyiCiz);
     $('#yenile').addEventListener('click', listeyiYenile);
     $('#yeniMekan').addEventListener('click', yeniMekanIste);
+    etiketYonetimiKur();
     $('#cikis').addEventListener('click', async () => {
       if (!(await ayrilabilirMi())) return;
       formuKapat();

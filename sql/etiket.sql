@@ -6,7 +6,7 @@
 -- var olan özellik altyapısını kullanır. Kaynak tablolar mekan_etiket ve etiket_oy'dur; ozellikler.etiket türetilmiş alandır.
 
 create or replace function public.duz_metin(t text) returns text
-language sql immutable parallel safe as $$
+language sql immutable parallel safe set search_path = public, pg_catalog as $$
   select btrim(regexp_replace(lower(translate(coalesce(t, ''), 'ÇĞİIÖŞÜÂÎÛçğıöşüâîû', 'cgiiosuaiucgiosuaiu')), '[^a-z0-9]+', ' ', 'g'))
 $$;
 
