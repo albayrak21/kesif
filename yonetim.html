@@ -1021,8 +1021,9 @@ dialog.diyalog::backdrop { background: var(--perde); }
                     <div class="secenekler" role="radiogroup" aria-labelledby="durum-etiket" aria-describedby="ipucu-durum">
                       <label class="hap"><input type="radio" name="durum" value="acik" id="durum-acik"><span class="hap-yuz">Açık</span></label>
                       <label class="hap"><input type="radio" name="durum" value="kapali" id="durum-kapali"><span class="hap-yuz">Kapalı</span></label>
+                      <label class="hap"><input type="radio" name="durum" value="inceleme" id="durum-inceleme"><span class="hap-yuz">İncelemede</span></label>
                     </div>
-                    <p class="ipucu" id="ipucu-durum">Kapalı mekanlar sitede görünmez. Silmek yerine bunu kullan; geçmiş korunur.</p>
+                    <p class="ipucu" id="ipucu-durum">Kapalı ve incelemedeki mekanlar sitede görünmez. Silmek yerine bunu kullan; geçmiş korunur. "İncelemede": sınıflandırmada adı kategorisiyle çelişen kayıtlar; kontrol edince Açık ya da Kapalı yap.</p>
                   </div>
                   <div class="alan genis">
                     <div class="alan-bas"><label for="adres">Adres</label><label class="teyit-sec"><input type="checkbox" data-teyit="adres" id="teyit-adres">Teyit bekliyor</label></div>
@@ -1246,7 +1247,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     mekan_konum_birlikte: 'Enlem ve boylam birlikte girilmeli.',
     mekan_lat: 'Enlem -90 ile 90 arasında olmalı.',
     mekan_lng: 'Boylam -180 ile 180 arasında olmalı.',
-    mekan_durum: 'Durum yalnızca Açık ya da Kapalı olabilir.',
+    mekan_durum: 'Durum yalnızca Açık, Kapalı ya da İncelemede olabilir.',
     mekan_ozellikler_nesne: 'Özellikler bozuk biçimde gönderildi.',
     mekan_ic_kaynaklar_dizi: 'Kaynaklar bozuk biçimde gönderildi.',
   };
@@ -1489,6 +1490,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     const kat = kategoriler[m.kategori];
     const p = [{ yazi: kat ? kat.ad : `Tanımsız kategori: ${m.kategori}`, uyari: !kat }];
     if (m.durum === 'kapali') p.push({ yazi: 'Kapalı', uyari: true });
+    if (m.durum === 'inceleme') p.push({ yazi: 'İncelemede', uyari: true });
     if (m.lat == null) p.push({ yazi: 'Konum yok', uyari: true });
     const bilinmeyen = kat ? kat.filtreler.filter(f => (m.ozellikler || {})[f.alan] == null).length : 0;
     if (bilinmeyen) p.push({ yazi: `${bilinmeyen} bilinmiyor`, uyari: true });
@@ -1585,7 +1587,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     kategori.value = m.kategori;
     kategori.disabled = !yeni;
     $('#ipucu-kategori').textContent = yeni ? 'Özellik alanları kategoriye göre değişir.' : 'Kayıtlı mekanın kategorisi değiştirilemez.';
-    $(`#durum-${m.durum === 'kapali' ? 'kapali' : 'acik'}`).checked = true;
+    $(`#durum-${['kapali', 'inceleme'].includes(m.durum) ? m.durum : 'acik'}`).checked = true;
     $('#adres').value = m.adres || '';
     $('#il').value = m.il || '';
     $('#ilce').value = m.ilce || '';
@@ -1623,6 +1625,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     r.className = 'durum-rozet';
     if (d.yeni) { r.textContent = 'Kaydedilmedi'; r.classList.add('yeni'); r.hidden = false; }
     else if (d.ham.durum === 'kapali') { r.textContent = 'Kapalı · sitede görünmüyor'; r.classList.add('kapali'); r.hidden = false; }
+    else if (d.ham.durum === 'inceleme') { r.textContent = 'İncelemede · sitede görünmüyor'; r.classList.add('kapali'); r.hidden = false; }
     else r.hidden = true;
   }
 

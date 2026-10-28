@@ -2416,11 +2416,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return ogeler;
   }
 
-  // Kartta gösterilen tür: sınıflanmamış kayıtta (Diğer yerler) asıl türü (ör. "Banka"), diğerlerinde kategori adı.
+  // Kartta gösterilen tür: geniş kategorilerde ("tur_etiketi": true, ör. Hizmetler, Diğer yerler) asıl türü (ör. "Banka"), diğerlerinde kategori adı.
   function turEtiketi(m) {
     if (kisiselMi(m)) return m.benim ? 'Kendi yerin' : m.sahip ? `@${m.sahip} yeri` : 'Kişisel yer';
     const kat = kategoriler[m.kategori];
-    const t = m.kategori === 'diger' && m.ozellikler && Array.isArray(m.ozellikler.tur) ? m.ozellikler.tur[0] : null;
+    const t = kat && kat.tur_etiketi && m.ozellikler && Array.isArray(m.ozellikler.tur) ? m.ozellikler.tur[0] : null;
     const f = t && kat.filtreler.find(x => x.alan === 'tur');
     const s = f && f.secenekler.find(o => o.deger === t);
     return s ? s.etiket : kat.ad;
@@ -5156,7 +5156,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     for (const il of [...new Set(kayitIlleri)].sort((a, b) => a.localeCompare(b, TR))) if (!iller.includes(il)) iller.push(il);
     const ilSec = $('#ilSec'), ilceSec = $('#ilceSec'), kategoriSec = $('#kategoriSec');
     ilSec.replaceChildren(...iller.map(il => el('option', { value: il, text: il })));
-    kategoriSec.replaceChildren(...Object.entries(kategoriler).map(([k, v]) => el('option', { value: k, text: v.ad })));
+    // Kategoriler kategoriler.json'daki "grup" alanına göre gruplanır (grupsuzlar, ör. "Tümü", başta tek başına).
+    const katGruplari = [];
+    for (const [k, v] of Object.entries(kategoriler)) {
+      const o = el('option', { value: k, text: v.ad });
+      const g = v.grup || '';
+      const son = katGruplari[katGruplari.length - 1];
+      if (son && son.ad === g) son.ogeler.push(o); else katGruplari.push({ ad: g, ogeler: [o] });
+    }
+    kategoriSec.replaceChildren(...katGruplari.flatMap(g => g.ad ? [el('optgroup', { label: g.ad }, g.ogeler)] : g.ogeler));
     durum.il = ilSec.value; durum.ilce = TUM;
     durum.kategori = kategoriSec.value;
     ilceleriCiz();
