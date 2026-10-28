@@ -1,9 +1,14 @@
--- Öne çıkan puanı, 2. sürüm (28.10.2026): kaynak güveni eklendi.
+-- Öne çıkan puanı, 3. sürüm (28.10.2026): kaynak güveni ve ad denetimi.
+-- Adı hastane, okul, üniversite, belediye, otel, kafe gibi bir kurum ya da işletmeyi gösteren kayıt öne çıkmaz
+-- (OSM'de hastane bahçesi "doğa alanı", hastane mescidi "cami" olarak geliyor).
 -- Wikidata'dan gelen kayıtlar (kimlik "wd-") bilinen yerlerdir: +15. OSM kaydı +3. Yalnız Overture / Foursquare kaynaklı -10
 -- (ör. müze diye işaretlenmiş mağaza ve showroom'lar). Müze puanı düşürüldü, doğa ve seyir noktaları yükseltildi.
-create or replace function public.mekan_ilgi2(id text, osm_ref text, kategori text, oz jsonb, onem smallint, guven real, web text)
+create or replace function public.mekan_ilgi3(id text, osm_ref text, kategori text, ad text, oz jsonb, onem smallint, guven real, web text)
 returns smallint language sql immutable parallel safe set search_path = '' as $$
-  select (case when b.t = 0 or coalesce(oz->>'adsiz', '') = 'true' then 0 else greatest(1, b.t
+  select (case when b.t = 0 or coalesce(oz->>'adsiz', '') = 'true'
+      or (kategori <> 'tarihi' and lower(translate(coalesce(ad, ''), 'ÇĞİIÖŞÜÂÎÛçğıöşüâîû', 'cgiiosuaiucgiosuaiu'))
+          ~ '(hastane|saglik|klinik|tip merkezi|universite|fakulte|kampus|okul|lise|kolej|anaokul|kres|belediye|mudurlugu|otel|hotel|pansiyon|cafe|kafe|restoran|restaurant|market|magaza|showroom|ofis|plaza|apartman|sitesi|residence|surf|dernek|vakfi|kariyer)')
+    then 0 else greatest(1, b.t
     + case when id like 'wd-%' then 15 when osm_ref is not null then 3 when id like '%-ov-%' or id like 'fsq-%' then -10 else 0 end
     + case when coalesce(web, '') <> '' then 3 else 0 end
     + case when oz ? 'koruma' or oz ? 'yapim_yili' then 5 else 0 end
@@ -39,7 +44,7 @@ returns smallint language sql immutable parallel safe set search_path = '' as $$
       when 'spor_tesisi' then case when oz->'tur' ? 'stadyum' then 45 else 0 end
       else 0 end as t) b
 $$;
-grant execute on function public.mekan_ilgi2(text, text, text, jsonb, smallint, real, text) to anon, authenticated;
+grant execute on function public.mekan_ilgi3(text, text, text, text, jsonb, smallint, real, text) to anon, authenticated;
 
 create or replace function public.mekan_nokta_esle() returns trigger
 language plpgsql security definer set search_path = public as $$
@@ -52,7 +57,7 @@ begin
     insert into public.mekan_nokta (id, kategori, lat, lng, skor, ilgi, tur)
     values (new.id, new.kategori, new.lat, new.lng,
       public.mekan_skor(new.onem, new.guven, new.telefon, new.web, new.adres, new.dogrulanacak),
-      public.mekan_ilgi2(new.id, new.osm_ref, new.kategori, new.ozellikler, new.onem, new.guven, new.web),
+      public.mekan_ilgi3(new.id, new.osm_ref, new.kategori, new.ad, new.ozellikler, new.onem, new.guven, new.web),
       case when jsonb_typeof(new.ozellikler->'tur') = 'array' then array(select jsonb_array_elements_text(new.ozellikler->'tur')) end)
     on conflict (id) do update set kategori = excluded.kategori, lat = excluded.lat, lng = excluded.lng,
       skor = excluded.skor, ilgi = excluded.ilgi, tur = excluded.tur
@@ -70,7 +75,7 @@ language plpgsql set search_path = public as $$
 declare n int;
 begin
   update mekan_nokta p set ilgi = x.yeni
-  from (select m.id, mekan_ilgi2(m.id, m.osm_ref, m.kategori, m.ozellikler, m.onem, m.guven, m.web) yeni
+  from (select m.id, mekan_ilgi3(m.id, m.osm_ref, m.kategori, m.ad, m.ozellikler, m.onem, m.guven, m.web) yeni
         from mekan_nokta q join mekan m on m.id = q.id
         where q.kategori in ('tarihi','kultur','park_doga','ibadet','avm','spor_tesisi')
            or (q.kategori = 'diger' and q.tur && array['tarihi_kalinti','tarihi_yer','anit','anit_hatira'])) x
