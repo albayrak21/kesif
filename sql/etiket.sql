@@ -164,14 +164,16 @@ grant execute on function public.mekan_etiketleri(text) to anon, authenticated;
 
 -- Başlangıç etiketleri
 insert into public.etiket (kod, ad, grup, tur, es_anlam, aciklama, kategoriler, sira) values
-  ('michelin_3_yildiz', '3 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: olağanüstü mutfak, özel bir yolculuğa değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 10),
-  ('michelin_2_yildiz', '2 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: mükemmel mutfak, yolunuzu değiştirmeye değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 11),
-  ('michelin_1_yildiz', '1 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: yüksek kaliteli mutfak, durmaya değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 12),
-  ('michelin_yesil_yildiz', 'Michelin Yeşil Yıldız', 'michelin', 'resmi', '{michelin,michelin rehberi,yesil yildiz,surdurulebilir}', 'Michelin Rehberi: sürdürülebilir gastronomide öncü.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 13),
-  ('michelin_bib_gourmand', 'Michelin Bib Gourmand', 'michelin', 'resmi', '{michelin,michelin rehberi,bib gourmand}', 'Michelin Rehberi: fiyatına göre iyi yemek.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 14),
-  ('michelin_rehber', 'Michelin Rehberi', 'michelin', 'resmi', '{michelin,michelin rehberi}', 'Michelin Rehberi seçkisinde (yıldızsız).', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 15),
-  ('sik', 'Şık', 'atmosfer', 'topluluk', '{}', 'Kullanıcılar bu yeri şık buluyor.', null, 50)
+  ('michelin_3_yildiz', '3 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: olağanüstü mutfak, özel bir yolculuğa değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 10),
+  ('michelin_2_yildiz', '2 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: mükemmel mutfak, yolunuzu değiştirmeye değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 11),
+  ('michelin_1_yildiz', '1 Michelin Yıldızı', 'michelin', 'resmi', '{michelin,michelin rehberi,michelin yildizli,yildizli}', 'Michelin Rehberi: yüksek kaliteli mutfak, durmaya değer.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 12),
+  ('michelin_yesil_yildiz', 'Michelin Yeşil Yıldız', 'michelin', 'resmi', '{michelin,michelin rehberi,yesil yildiz,surdurulebilir}', 'Michelin Rehberi: sürdürülebilir gastronomide öncü.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 13),
+  ('michelin_bib_gourmand', 'Michelin Bib Gourmand', 'michelin', 'resmi', '{michelin,michelin rehberi,bib gourmand}', 'Michelin Rehberi: fiyatına göre iyi yemek.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 14),
+  ('michelin_rehber', 'Michelin Rehberi', 'michelin', 'resmi', '{michelin,michelin rehberi}', 'Michelin Rehberi seçkisinde (yıldızsız).', '{restoran,meyhane,kahvalti,kafe,bar,konaklama,diger}', 15),
+  ('sik', 'Şık', 'atmosfer', 'topluluk', '{}', 'Kullanıcılar bu yeri şık buluyor.', '{restoran,meyhane,kahvalti,kafe,bar,konaklama}', 50)
 on conflict (kod) do nothing;
+-- Türkiye'de henüz 3 yıldızlı yok: filtrede boş seçenek görünmesin diye kapalı (yönetimden açılır).
+update public.etiket set aktif = false where kod = 'michelin_3_yildiz';
 
 -- Arama için: verilen etiketleri (görünür olarak) taşıyan mekânların kimlikleri. Topluluk oyları anon'a kapalı olduğu için definer.
 create or replace function public.etiket_mekanlari(p_etiketler text[]) returns text[]

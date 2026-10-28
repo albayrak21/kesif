@@ -51,6 +51,7 @@ declare
   ad_sinir int := 5000;
   etk text[];
   et_k text := '';
+  f_etk text[];
 begin
   if p_kutu is null or cardinality(p_kutu) <> 4 then return jsonb_build_object('hata', 'kutu'); end if;
   select array_agg(x) into kel from (select x from unnest(string_to_array(tam, ' ')) x where x <> '' limit 5) q;
@@ -75,6 +76,10 @@ begin
           case when f->>'eslesme' = 'herhangi' then '?|' else '?&' end, f->'s')
         end;
       if esle is null then continue; end if;
+      -- Etiket filtresi: seçilen etiketleri taşıyan kayıtlar önce küçük etiket tablosundan bulunur (aşağıda kapsam daraltılır).
+      if alan = 'etiket' and jsonb_typeof(f->'s') = 'array' then
+        select array_agg(x) into f_etk from jsonb_array_elements_text(f->'s') x;
+      end if;
       -- Etiketlerde "bilgisi yok" diye bir durum yok: etiketi olmayan kayıt etiket filtresinde elenir.
       parca := case when alan = 'etiket' then format(' and (%s)', esle)
                     else format(' and (coalesce(jsonb_typeof(m.ozellikler->%L), ''null'') = ''null'' or %s)', alan, esle) end;
@@ -82,6 +87,11 @@ begin
       -- "herhangi" çoklu ve tekli seçimde alanın kendi sayıları kendi seçimi olmadan hesaplanır.
       kosullar := kosullar || jsonb_build_object(alan, jsonb_build_object('k', parca, 'kendi', (f->>'tip' = 'coklu' and f->>'eslesme' = 'herhangi') or f->>'tip' = 'secim'));
     end loop;
+  end if;
+
+  if f_etk is not null then
+    kat_k := kat_k || format(' and p.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
+    m_kat_k := m_kat_k || format(' and m.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
   end if;
 
   if gez then
