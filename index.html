@@ -2662,7 +2662,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (!HARITA_VAR) { haritaNotu('Harita yüklenemedi. Liste ve filtreler çalışıyor.'); return; }
     harita = L.map('harita', {
       // Karo görselleri yalnızca tam yakınlık basamaklarında net durur; şematik zemin her basamakta nettir.
-      zoomControl: false, minZoom: 6, maxZoom: 18, zoomSnap: AYAR.altliklar.length ? 1 : 0.25, zoomDelta: AYAR.altliklar.length ? 1 : 0.5,
+      zoomControl: false, minZoom: 6, maxZoom: 20, zoomSnap: AYAR.altliklar.length ? 1 : 0.25, zoomDelta: AYAR.altliklar.length ? 1 : 0.5,
       maxBoundsViscosity: 0.9,
     });
     harita.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
