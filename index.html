@@ -1077,6 +1077,12 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .raf-daha { align-self: flex-start; }
 .arama-ozet { margin: 0; color: var(--soluk); font: 500 14px/1.3 var(--yazi-dar); }
 
+/* ---------- haritada "Listeye dön" (Keşfet/Sayfam listesinden gelince) ---------- */
+.donus-dugme { position: absolute; z-index: 4; left: 12px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px; max-width: calc(100% - 76px); white-space: nowrap; min-height: 44px; padding: 8px 18px 8px 14px; border: 0; border-radius: 22px; background: var(--murekkep); color: var(--zemin); box-shadow: var(--golge); font: 700 15px/1.1 var(--yazi-dar); cursor: pointer; }
+.donus-dugme .simge { flex: none; width: 16px; height: 16px; stroke-width: 2.4; }
+.donus-dugme .donus-ad { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; opacity: .8; }
+.donus-dugme .donus-ad::before { content: '· '; }
+
 /* ---------- haritada "Bu alanı tara" ---------- */
 .tara-dugme { position: absolute; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 8px 16px; border: 1px solid var(--cizgi-koyu); border-radius: 19px; background: var(--yuzey-2); color: var(--vurgu); box-shadow: var(--golge); font: 700 15px/1 var(--yazi-dar); white-space: nowrap; cursor: pointer; }
 .tara-dugme:hover { border-color: var(--vurgu); }
@@ -1339,6 +1345,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 
   <section class="harita-kap" aria-label="Harita">
     <div id="harita"></div>
+    <button class="donus-dugme" id="haritaDonus" type="button" hidden></button>
     <p class="harita-not" id="haritaNot" hidden></p>
     <p class="harita-not konum-not" id="konumNot" role="status" aria-live="polite" hidden></p>
     <div class="koor-kutu" id="koorKutu" hidden><span>Koordinat</span><output id="koorDeger"></output><button class="bag" id="koorKopya" type="button">Kopyala</button></div>
@@ -2259,8 +2266,39 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (ciz) guncelle();
   }
   // Listeyi harita sekmesinde göster (kendi listen ya da başkasınınki).
-  function haritadaGoster(g) {
-    sayfayiKapat(() => { gorunumeGec(g, false); if (durum.sekme !== 'harita') sekmeyeGec('harita'); else guncelle(); }, true);
+  // Keşfet'teki ya da Sayfam'daki bir listeden gelindiyse (donus) haritada "Listeye dön" düğmesi çıkar; o düğme,
+  // telefonun/tarayıcının geri tuşu ve liste kutusundaki "Kapat" aynı listeye, aynı kaydırma yerine döndürür.
+  let haritaDonus = null;   // { sekme: 'kesfet' | 'sayfam', ad, gorunum, kaydirma }
+  function haritadaGoster(g, donus) {
+    sayfayiKapat(() => {
+      haritaDonus = null;
+      if (donus && durum.sekme === donus.sekme) {
+        haritaDonus = { ...donus, gorunum: g, kaydirma: $(donus.sekme === 'kesfet' ? '#kesfet' : '#sayfam').scrollTop };
+        history.pushState({ ...(history.state || {}), kesifHarita: true }, '', location.href);
+      }
+      gorunumeGec(g, false);
+      if (durum.sekme !== 'harita') sekmeyeGec('harita', { altKalsin: !!haritaDonus }); else guncelle();
+    }, true);
+  }
+  function listeyeDon() {
+    if (!haritaDonus) return;
+    if (history.state && history.state.kesifHarita) { history.back(); return; }   // popstate döndürür
+    donusYap();
+  }
+  function donusYap() {
+    const d = haritaDonus;
+    if (!d) return;
+    haritaDonus = null;
+    if (durum.gorunum === d.gorunum) { if (d.gorunum === 'paylasilan') paylasimiKapat(); durum.gorunum = ''; durum.secili = null; }
+    sekmeyeGec(d.sekme, { altKalsin: true });
+    const kap = $(d.sekme === 'kesfet' ? '#kesfet' : '#sayfam');
+    requestAnimationFrame(() => { kap.scrollTop = d.kaydirma || 0; });
+  }
+  function donusYaz() {
+    const b = $('#haritaDonus');
+    const goster = !!haritaDonus && durum.sekme === 'harita';
+    b.hidden = !goster;
+    if (goster) b.replaceChildren(simge('geri'), el('span', { text: 'Listeye dön' }), el('span', { class: 'donus-ad', text: haritaDonus.ad }));
   }
   function gorunumuYaz() {
     if (durum.gorunum.startsWith('l:') && !seciliListe()) durum.gorunum = '';
@@ -2385,7 +2423,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const goster = durum.gorunum === 'paylasilan' ? null : el('button', { class: 'dugme', type: 'button', text: 'Listeyi göster' });
     if (goster) goster.addEventListener('click', () => gorunumeGec('paylasilan', true));
     const kapat = el('button', { class: 'dugme', type: 'button', text: 'Kapat' });
-    kapat.addEventListener('click', () => { paylasimiKapat(); guncelle(); });
+    kapat.addEventListener('click', () => { if (haritaDonus && haritaDonus.gorunum === 'paylasilan') { listeyeDon(); return; } paylasimiKapat(); guncelle(); });
     kap.replaceChildren(
       el('p', null, p.sahip ? (p.sahip === SECKI_AD ? 'Keşif seçkisi: ' : `@${p.sahip} listesi: `) : 'Seninle paylaşılan liste: ', el('strong', { text: p.ad }), ` · ${p.idler.length} kayıt`,
         p.bilinmeyen ? ` (${p.bilinmeyen} kayıt artık yok)` : ''),
@@ -2710,6 +2748,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     not.hidden = !notlar.filter(Boolean).length;
 
     paylasilaniYaz();
+    donusYaz();
 
     const cipler = $('#cipler');
     cipler.replaceChildren(...aktif.map(a => {
@@ -4140,7 +4179,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       el('div', { class: 'lkart-ust' }, el('h3', { class: 'lkart-ad', text: k.ad }), el('span', { class: 'adet', text: `${yuklu.length} yer` })),
       el('p', { class: 'ipucu' }, 'Sahibi: ', sahip, k.sahip_ad ? ` (${k.sahip_ad})` : '', ' · güncel hâli'),
       el('div', { class: 'liste-eylem' },
-        eylem('Haritada göster', () => haritadaGoster(`k:${k.id}`)),
+        eylem('Haritada göster', () => haritadaGoster(`k:${k.id}`, { sekme: 'sayfam', ad: k.ad })),
         eylem('Kopyasını al', async () => { const l = await listeyiKopyala(k.id, k.ad); if (l) acikKartlar.add(l.id); }),
         eylem('Bağlantıyı paylaş', () => baglantiPaylas(listeBaglantisi(k.id), `${k.ad} · ${sahipEtiketi(k.kullanici_adi)} · Keşif`)),
         eylem('Kaydı kaldır', () => kaydiKaldir(k.id))),
@@ -4164,7 +4203,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const daha = yerler.length > sinir ? el('button', { class: 'dugme raf-daha', type: 'button', text: `${Math.min(yerler.length - sinir, 20)} tane daha göster` }) : null;
     if (daha) daha.addEventListener('click', () => { kartSiniri.set('yerlerim', sinir + 20); sayfamCiz(); });
     const haritada = yerler.length ? el('button', { class: 'bag', type: 'button', text: 'Hepsini haritada göster' }) : null;
-    if (haritada) haritada.addEventListener('click', () => haritadaGoster('yerlerim'));
+    if (haritada) haritada.addEventListener('click', () => haritadaGoster('yerlerim', { sekme: 'sayfam', ad: 'Yerlerim' }));
     return el('section', { class: 'raf', 'aria-label': 'Yerlerim' },
       el('div', { class: 'raf-ust' }, el('h2', { class: 'raf-baslik', text: 'Yerlerim' }), ekle),
       el('p', { class: 'raf-not', text: 'Haritada kendin işaretlediğin yerler (tarla, ev, buluşma noktası…). Genel haritada ve aramada görünmezler; yalnız eklediğin liste kimlere açıksa onlar görür.' }),
@@ -4189,7 +4228,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const adYeri = el('h3', { class: 'lkart-ad', text: l.ad });
     const paylasKutu = el('div', { class: 'eylemler', hidden: true });
     const eylemler = el('div', { class: 'liste-eylem' },
-      eylem('Haritada göster', () => haritadaGoster(l.favori ? 'favori' : `l:${l.id}`)),
+      eylem('Haritada göster', () => haritadaGoster(l.favori ? 'favori' : `l:${l.id}`, { sekme: 'sayfam', ad: l.ad })),
       eylem('Paylaş', () => {
         if (gercek.gorunurluk !== 'gizli') { baglantiPaylas(listeBaglantisi(l.id), `${l.ad} · Keşif`); return; }
         paylasKutu.hidden = false;
@@ -4315,10 +4354,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       }, 'dugme') : null,
       yuklu.length ? eylem('Haritada göster', () => {
         const kendi = benim && (l.tur === 'favori' ? 'favori' : listeler.some(x => x.id === l.id) ? `l:${l.id}` : null);
-        if (kendi) { haritadaGoster(kendi); return; }
-        if (kayitliMi(l.id)) { haritadaGoster(`k:${l.id}`); return; }
+        const donus = { sekme: 'kesfet', ad: kopyaAdi };
+        if (kendi) { haritadaGoster(kendi, donus); return; }
+        if (kayitliMi(l.id)) { haritadaGoster(`k:${l.id}`, donus); return; }
         paylasilan = { ad: kopyaAdi, idler: yuklu.map(m => m.id), bilinmeyen: 0, sahip, benim, id: l.id };
-        haritadaGoster('paylasilan');
+        haritadaGoster('paylasilan', donus);
       }) : null,
       eylem('Bağlantıyı paylaş', () => baglantiPaylas(listeBaglantisi(l.id), `${ad} · ${sahipEtiketi(sahip)} · Keşif`)));
     const kisiselSayi = yuklu.filter(kisiselMi).length;
@@ -4667,6 +4707,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   /* ---------- sekmeler: Harita | Keşfet | Sayfam ---------- */
   // altKalsin: işletme sayfası Keşfet'teki bir kişi/liste sayfasından açılıyor (geri dönünce o sayfa yeniden görünsün).
   function sekmeyeGec(s, { altKalsin = false } = {}) {
+    if (s !== 'harita') haritaDonus = null;
     if (s !== 'harita' && yerSecim.mod) secimiBitir(true);
     if (s !== 'kesfet' && kesfetAlt && !altKalsin) altGorunumuKapat();
     durum.sekme = s;
@@ -4686,7 +4727,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       sayfamCiz();
       kayitlilariTazele();   // kaydettiğim listelerin sahipleri değiştirmiş olabilir
       $('#sayfam').scrollTop = 0;
-    } else if (harita) {
+    }
+    donusYaz();
+    if (s !== 'kesfet' && s !== 'sayfam' && harita) {
       harita.invalidateSize({ pan: false });
       // Harita gizliyken açılan kayda (Keşfet'ten) şimdi gidilir.
       const m = bekleyenOrta && mekanBul(bekleyenOrta);
@@ -5655,6 +5698,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     fotoKutusu.addEventListener('close', () => { fotoKutusu.replaceChildren(); if (fotoOdak && fotoOdak.isConnected) fotoOdak.focus(); });
     document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.ms-foto'); if (b) fotoOdak = b; }, true);
     // Adres değişimi: #mekan=<kimlik> işletme sayfasını açar (geri/ileri tuşları dahil), #liste= paylaşılan listeyi.
+    // "Haritada göster" ile eklenen geçmiş adımından geri gelinince listeye dönülür.
+    window.addEventListener('popstate', () => {
+      if (haritaDonus && durum.sekme === 'harita' && !(history.state && history.state.kesifHarita)) donusYap();
+    });
     window.addEventListener('hashchange', () => {
       const id = mekanHashi();
       if (id && sayfa.tamamen) {   // sekmeyle kapatırken bağlantıyla açılmış ilk sayfaya düşüldü: o da kapanır
@@ -5714,6 +5761,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       if (b.dataset.sekme === 'kesfet' && durum.sekme === 'kesfet' && kesfetAlt) { altGorunumuKapat(); kesfetCiz(); return; }
       sekmeyeGec(b.dataset.sekme);
     }, true));
+    $('#haritaDonus').addEventListener('click', listeyeDon);
     $('#araAc').addEventListener('click', () => sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('kesfet'); $('#aramaGir').focus(); $('#aramaGir').select(); }, true));
     let aramaBekliyor = null;
     $('#aramaGir').addEventListener('input', () => { clearTimeout(aramaBekliyor); aramaBekliyor = setTimeout(kesfetCiz, 120); });
