@@ -1235,7 +1235,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .fk-onceki { left: 8px; top: 50%; transform: translateY(-50%); }
 .fk-sonraki { right: 8px; top: 50%; transform: translateY(-50%); }
 .fk-sonraki .simge { transform: scaleX(-1); }
-.fk-yazi { position: absolute; left: 0; right: 0; bottom: 12px; margin: 0; text-align: center; font: 500 14px/1.2 var(--yazi-dar); color: rgb(255 255 255 / .85); }
+.fk-yazi { position: absolute; left: 0; right: 0; bottom: 12px; margin: 0; padding: 0 16px; text-align: center; font: 500 14px/1.2 var(--yazi-dar); color: rgb(255 255 255 / .85); }
+.fk-yazi a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.ms-foto-kunye { margin: 8px 0 0; font-size: 12px; color: var(--soluk); }
 
 .tara-alan { fill: var(--vurgu-dolgu); fill-opacity: .05; stroke: var(--vurgu-dolgu); stroke-opacity: .8; stroke-width: 2; stroke-dasharray: 6 5; }
 
@@ -5514,7 +5516,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     fotoOnbellek.set(id, { durum: 'yukleniyor', liste: [] });
     try {
       const { url, anahtar } = AYAR.veritabani;
-      const y = await fetch(`${url}/rest/v1/mekan_foto?select=id,yol,kucuk_yol,genislik,yukseklik,kaynak&mekan_id=eq.${encodeURIComponent(id)}&order=sira.asc,eklenme.asc`,
+      const y = await fetch(`${url}/rest/v1/mekan_foto?select=id,yol,kucuk_yol,genislik,yukseklik,kaynak,yazar,lisans,lisans_url,kaynak_url&mekan_id=eq.${encodeURIComponent(id)}&order=sira.asc,eklenme.asc`,
         { headers: { apikey: anahtar, Accept: 'application/json' } });
       if (!y.ok) throw new Error(`mekan_foto: ${y.status}`);
       const liste = (await y.json()).filter(f => f && typeof f.yol === 'string' && typeof f.kucuk_yol === 'string');
@@ -5543,8 +5545,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       return el('li', null, b);
     }));
     const etiket = f.liste.length ? el('span', { class: 'ms-etiket', text: `${f.liste.length} fotoğraf` }) : null;
+    const kunye = f.liste.some(x => x.lisans) ? el('p', { class: 'ms-foto-kunye', text: 'Açık lisanslı fotoğraflar Wikimedia Commons\'tan; fotoğrafçı ve lisans büyük görünümde.' }) : null;
     return el('section', { class: 'ms-bolum', id: 'msFoto', 'aria-label': 'Fotoğraflar' },
-      el('div', { class: 'ms-bolum-bas' }, el('h3', { text: 'Fotoğraflar' }), etiket), govde);
+      el('div', { class: 'ms-bolum-bas' }, el('h3', { text: 'Fotoğraflar' }), etiket), govde, kunye);
   }
   // Büyük görünüm: önceki/sonraki (ok tuşları da), Esc ya da dışına tıklayınca kapanır.
   function fotoKutusunuAc(m, i) {
@@ -5560,7 +5563,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       resim.src = fotoAdresi(x.yol);
       if (x.genislik && x.yukseklik) { resim.width = x.genislik; resim.height = x.yukseklik; }
       resim.alt = `${m.ad}: ${sira + 1}. fotoğraf`;
-      yazi.textContent = `${sira + 1} / ${f.liste.length} · ${x.kaynak === 'isletme' ? 'İşletme yükledi' : 'Keşif yükledi'}`;
+      // Açık lisanslı (Wikimedia Commons) fotoğraflarda lisans gereği fotoğrafçı, lisans ve kaynak gösterilir.
+      const bag = (u, metin) => /^https:\/\//.test(u || '') ? el('a', { href: u, target: '_blank', rel: 'noopener noreferrer', text: metin }) : metin;
+      yazi.replaceChildren(`${sira + 1} / ${f.liste.length} · `, ...(x.lisans
+        ? [`Fotoğraf: ${(x.yazar || 'bilinmiyor').slice(0, 60)} · `, bag(x.lisans_url, x.lisans), ' · ', bag(x.kaynak_url, 'Wikimedia Commons')]
+        : [x.kaynak === 'isletme' ? 'İşletme yükledi' : 'Keşif yükledi']));
     };
     const dugme = (sinif, etiket, simgeAdi, is) => { const b = el('button', { class: `fk-dugme ${sinif}`, type: 'button', 'aria-label': etiket, title: etiket }, simge(simgeAdi)); b.addEventListener('click', is); return b; };
     const kapat = dugme('fk-kapat', 'Kapat', 'yok', () => kutu.close());
