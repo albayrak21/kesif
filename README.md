@@ -13,6 +13,20 @@ Yönetim: https://albayrak21.github.io/kesif/yonetim.html (yalnızca yönetici h
 - `mekanlar.json`: mekan kayıtlarının yedek kopyası.
 - `sinirlar.json`: İstanbul ve Mersin'in ilçe sınırları, Maltepe'nin mahalle sınırları.
 
+## Uygulama olarak kurma ve paylaşım kartı
+
+- `manifest.webmanifest`, `ikon/` ve `sw.js` siteyi telefona "ana ekrana ekle" ile uygulama gibi kurulabilir yapar. `sw.js` yalnızca sitenin kendi dosyalarına dokunur: önce ağdan alır, ağ yoksa son kopyayı verir (güncelleme gecikmez). Veritabanı, harita karoları ve dış kitaplıklar önbelleğe alınmaz. `yonetim.html` hiç önbelleğe alınmaz.
+- Sayfam'da "Keşif'i ana ekrana ekle" kutusu: tarayıcı destekliyorsa düğme, iPhone'da adım adım açıklama.
+- `og.png` (1200×630) ve `index.html`'deki `og:` / `twitter:` etiketleri, bağlantı WhatsApp gibi uygulamalarda paylaşılınca görünen kartı verir. `#` sonrası sunucuya gitmediği için mekan ve liste bağlantılarında da aynı genel kart görünür.
+
+## Ölçüm
+
+- Çerez yok, kalıcı kimlik yok, IP tutulmaz. Olaylar veritabanındaki `olay` tablosuna `olay_yaz` fonksiyonuyla yazılır; tabloyu yalnızca yöneticiler okur, 180 günden eski satırlar her gece silinir (`olay-temizle`).
+- Olaylar: açılış (cihaz türü, uygulama olarak mı açıldı, yeni / geri dönen, gelinen site, bağlantı türü), arama (aranan metin, sonuç sayısı), kategori ve kullanılan filtre alanları, açılan mekan sayfası, sekme, paylaşım, kurulum, veri yükleme hatası. Kişisel yerler ölçülmez.
+- Oturum sekme başına rastgele bir kimliktir, sekme kapanınca biter. "Geri dönen" bilgisi tarayıcıdaki son ziyaret tarihinden hesaplanır; tarihin kendisi gönderilmez.
+- Yalnızca yayındaki sitede çalışır. Tarayıcıda "izleme yapma" (GPC / DNT) açıksa gönderilmez. Kendi tarayıcında kapatmak için adresin sonuna `#olcum-kapali`, geri açmak için `#olcum-acik` yaz.
+- Özet: yönetici hesabıyla `select olay_ozet(7);` (son 7 gün: oturumlar, cihazlar, sonuçsuz ve sık aramalar, kategoriler, filtreler, paylaşımlar).
+
 ## Veri ve lisanslar
 
 - Mekan kayıtları Supabase (Postgres) veritabanında tutulur. Herkes okuyabilir; yalnızca yönetici listesindeki hesaplar yazabilir. Her değişiklik kim yaptı bilgisiyle geçmişe kaydedilir.

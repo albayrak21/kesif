@@ -4,11 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="description" content="Maltepe'deki hastaneleri kurum tipi, acil servis, SGK anlaşması ve branşa göre süz, haritada gör.">
+<meta name="description" content="Türkiye'deki yerleri ara, filtrele, haritada gör. Listeler oluştur, arkadaşlarınla paylaş.">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="ikon/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Keşif">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- Paylaşım önizleme kartı (WhatsApp, Telegram, X, Facebook...). Bağlantıdaki # sonrası okunmaz: her bağlantıda bu kart görünür. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Keşif">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:title" content="Keşif · Türkiye'nin yer haritası">
+<meta property="og:description" content="Türkiye'deki yerleri ara, filtrele, haritada gör. Listeler oluştur, arkadaşlarınla paylaş.">
+<meta property="og:url" content="https://albayrak21.github.io/kesif/">
+<meta property="og:image" content="https://albayrak21.github.io/kesif/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Keşif logosu ve haritada iğneler">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Keşif · Türkiye'nin yer haritası">
+<meta name="twitter:description" content="Türkiye'deki yerleri ara, filtrele, haritada gör.">
+<meta name="twitter:image" content="https://albayrak21.github.io/kesif/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23111111'/%3E%3Cpath d='M12 9v14M21 9l-8.5 7.5L21 23' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <script>try{var g=localStorage.getItem('kesif-gorunum');if(g==='gunduz'||g==='gece'){document.documentElement.dataset.theme=g==='gece'?'dark':'light';}}catch(e){}</script>
 <style>:root{color-scheme:light dark;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Keşif Maltepe</title>
+<title>Keşif</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
 /* Yerleşim: üç şerit. Filtre paneli | sonuç listesi | harita.
@@ -1388,10 +1410,94 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":"vektor","atif":"<a href=\"https://openfreemap.org\" target=\"_blank\" rel=\"noopener\">OpenFreeMap<\/a> &copy; <a href=\"https://www.openmaptiles.org/\" target=\"_blank\" rel=\"noopener\">OpenMapTiles<\/a> &copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"osm","url":"https://tile.openstreetmap.org/{z}/{x}/{y}.png","enYakin":19,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları"},{"ad":"carto","url":"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png","altAlanlar":"abcd","enYakin":20,"atif":"&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap<\/a> katkıcıları &copy; <a href=\"https://carto.com/attributions\" target=\"_blank\" rel=\"noopener\">CARTO<\/a>"}],"veritabani":{"url":"https://jnnawgcfrckmjgahimxd.supabase.co","anahtar":"sb_publishable_ob8hBUnU_NHSrXaMGaf7Rw_gutBWiBS"}}, { koordinatAraci: location.hash === '#koordinat' });
 </script>
 <script>
+/* ---------- ölçüm ve uygulama kurulumu ----------
+   Ölçüm: çerez yok, kalıcı kimlik yok, IP tutulmaz. Olaylar kendi veritabanımızdaki `olay` tablosuna gider
+   (yalnızca yöneticiler okur, 180 günde silinir). Oturum = sekme başına rastgele kimlik (sekme kapanınca biter).
+   Yalnızca yayındaki sitede çalışır. Kapatmak için adresin sonuna #olcum-kapali (geri açmak: #olcum-acik).
+   Tarayıcıda "izleme yapma" (GPC / DNT) açıksa hiç gönderilmez. */
+(() => {
+  const v = (window.KESIF_AYAR || {}).veritabani;
+  let kapali = !v || !/(^|\.)github\.io$/.test(location.hostname);
+  try {
+    if (location.hash === '#olcum-kapali' || location.hash === '#olcum-acik') {
+      if (location.hash === '#olcum-kapali') localStorage.setItem('kesif.olcum', 'kapali'); else localStorage.removeItem('kesif.olcum');
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    if (localStorage.getItem('kesif.olcum') === 'kapali') kapali = true;
+  } catch (e) { /* saklama kapalı */ }
+  if (navigator.globalPrivacyControl === true || navigator.doNotTrack === '1') kapali = true;
+
+  let oturum = null;
+  try { oturum = sessionStorage.getItem('kesif.oturum'); } catch (e) {}
+  if (!oturum || !/^[a-z0-9]{12,32}$/.test(oturum)) {
+    const r = new Uint8Array(16); crypto.getRandomValues(r);
+    oturum = Array.from(r, b => (b % 36).toString(36)).join('');
+    try { sessionStorage.setItem('kesif.oturum', oturum); } catch (e) {}
+  }
+  const kuyruk = [];
+  let zamanlayici = null;
+  function gonder() {
+    clearTimeout(zamanlayici); zamanlayici = null;
+    while (!kapali && kuyruk.length) {
+      const parti = kuyruk.splice(0, 25);
+      try {
+        fetch(`${v.url}/rest/v1/rpc/olay_yaz`, {
+          method: 'POST', keepalive: true, credentials: 'omit',
+          headers: { 'Content-Type': 'application/json', apikey: v.anahtar },
+          body: JSON.stringify({ p_oturum: oturum, p_olaylar: parti }),
+        }).catch(() => {});
+      } catch (e) { /* ölçüm hiçbir zaman sayfayı bozmaz */ }
+    }
+  }
+  function kaydet(t, veri) {
+    if (kapali) return;
+    kuyruk.push({ t, v: veri || {} });
+    if (kuyruk.length >= 20) gonder();
+    else if (!zamanlayici) zamanlayici = setTimeout(gonder, 8000);
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') gonder(); });
+  addEventListener('pagehide', gonder);
+  window.kesifOlcum = { kaydet };
+
+  // açılış: cihaz türü, uygulama olarak mı açıldı, yeni mi geri dönen mi, nereden gelindi, hangi bağlantıyla
+  const pwa = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let ziyaretci = 'yeni', ara = null;
+  try {
+    const son = Number(localStorage.getItem('kesif.sonZiyaret'));
+    if (son) { ziyaretci = 'geri'; const g = (Date.now() - son) / 864e5; ara = g < 1 ? 'ayni_gun' : g < 7 ? 'hafta_ici' : g < 31 ? 'ay_ici' : 'daha_eski'; }
+    localStorage.setItem('kesif.sonZiyaret', String(Date.now()));
+  } catch (e) { ziyaretci = 'bilinmiyor'; }
+  const gen = innerWidth, dokunmatik = matchMedia('(pointer: coarse)').matches;
+  const cihaz = gen < 700 ? 'telefon' : dokunmatik && gen < 1200 ? 'tablet' : 'masaustu';
+  let kaynak = 'dogrudan';
+  try { if (document.referrer) { const h = new URL(document.referrer).hostname; if (h !== location.hostname) kaynak = h.slice(0, 60); } } catch (e) {}
+  const h = location.hash;
+  const giris = h.startsWith('#mekan=') ? 'mekan' : h.startsWith('#l=') ? 'liste' : h.startsWith('#liste=') ? 'eski_liste' : h.startsWith('#@') ? 'kisi' : h.length > 1 ? 'diger' : 'yok';
+  kaydet('acilis', { cihaz, pwa, ziyaretci, ara, kaynak, giris });
+
+  // uygulama kurulumu (ana ekrana ekle)
+  const kurulum = window.kesifKurulum = { istem: null, kurulu: pwa };
+  addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();   // tarayıcının kendi şeridi yerine Sayfam'daki düğme
+    kurulum.istem = e;
+    document.dispatchEvent(new Event('kesif-kurulum'));
+  });
+  addEventListener('appinstalled', () => {
+    kurulum.istem = null; kurulum.kurulu = true;
+    kaydet('kurulum', { cihaz });
+    document.dispatchEvent(new Event('kesif-kurulum'));
+  });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+})();
+</script>
+<script>
 (() => {
   'use strict';
 
   /* ---------- ayar ve yardımcılar ---------- */
+  const olc = (t, v) => { try { if (window.kesifOlcum) window.kesifOlcum.kaydet(t, v); } catch (e) { /* ölçüm sayfayı bozmaz */ } };
   // altliklar: sokak haritası karo sağlayıcıları, sırayla denenir (boşsa yalnızca şematik zemin).
   // veriYolu: veri dosyalarının klasörü. koordinatAraci: iğne yeri bulma aracı.
   const AYAR = Object.assign({ altliklar: [], veriYolu: 'veri/', koordinatAraci: false }, window.KESIF_AYAR || {});
@@ -3294,8 +3400,23 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   /* ---------- ana döngü ---------- */
   let sonHaritaAnahtari = '';
   let bolgeBilgi = { durum: 'tamam' };   // büyük kategoride seçili bölgenin yükleme durumu (bkz. bolgeHazirla)
+  // Kategori ve filtre seçimi, değişiklik durulduktan 3 sn sonra kaydedilir (yalnızca hangi filtre alanlarının kullanıldığı).
+  let filtreOlcum = { son: '', zaman: null };
+  function filtreyiOlc() {
+    clearTimeout(filtreOlcum.zaman);
+    filtreOlcum.zaman = setTimeout(() => {
+      if (!durum.kategori) return;
+      const alanlar = Object.entries(durum.secimler || {})
+        .filter(([, d]) => d != null && d !== '' && !(d instanceof Set && !d.size)).map(([k]) => k).sort();
+      const imza = `${durum.kategori}|${alanlar.join(',')}`;
+      if (imza === filtreOlcum.son) return;
+      filtreOlcum.son = imza;
+      olc('filtre', { kategori: durum.kategori, filtreler: alanlar.slice(0, 20), il: durum.il || null });
+    }, 3000);
+  }
   function guncelle() {
     gorunumuYaz();
+    filtreyiOlc();
     const kume = gorunumKumesi();
     bolgeBilgi = kume ? { durum: 'tamam' } : haritaModu() ? hkHazirla() : durum.adAra ? haritaAramaHazirla() : bolgeHazirla();
     // Liste görünümü: listedeki bütün kayıtlar, kategori ve şehir ayırmadan; filtreler uygulanmaz.
@@ -3921,6 +4042,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
   /* --- bağlantı paylaşma --- */
   async function baglantiPaylas(bag, baslik) {
+    const ph = String(bag).split('#')[1] || '';
+    olc('paylas', { tur: ph.startsWith('mekan=') ? 'mekan' : ph.startsWith('l=') ? 'liste' : ph.startsWith('@') ? 'profil' : ph.startsWith('liste=') ? 'eski_liste' : 'diger' });
     if (navigator.share && dar.matches) {
       try { await navigator.share({ title: baslik, url: bag }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
     }
@@ -4079,6 +4202,29 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const acikKartlar = new Set();   // içeriği açık liste kartları (yeniden çizimde korunur)
   const kartSiniri = new Map();
   let profilDuzenleniyor = false;
+  // "Ana ekrana ekle": uygulama olarak açıldıysa görünmez. Tarayıcı kurulumu destekliyorsa düğme,
+  // iPhone/iPad'de (Safari düğme vermez) adım adım açıklama, diğerlerinde tarayıcı menüsü ipucu.
+  function kurulumKutusu() {
+    const k = window.kesifKurulum;
+    if (!k || k.kurulu) return null;
+    const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const baslik = el('p', null, el('strong', { text: 'Keşif\'i ana ekrana ekle' }));
+    const aciklama = 'Uygulama gibi tam ekran açılır, tek dokunuşla ulaşırsın. Hesabın ve listelerin aynı kalır.';
+    if (k.istem) {
+      const b = el('button', { class: 'dugme dugme-dolu', type: 'button', text: 'Ana ekrana ekle' });
+      b.addEventListener('click', async () => {
+        const istem = k.istem; if (!istem) return;
+        k.istem = null;
+        try { istem.prompt(); await istem.userChoice; } catch (e) { /* kullanıcı vazgeçti */ }
+        sayfamCiz();
+      });
+      return el('div', { class: 'kutu' }, baslik, el('p', { class: 'ipucu', text: aciklama }), el('div', { class: 'profil-eylem' }, b));
+    }
+    const yol = ios ? 'Safari\'de alttaki Paylaş düğmesine (kutudan çıkan ok) bas, listeden “Ana Ekrana Ekle”yi seç.'
+      : 'Tarayıcı menüsünde (⋮) “Uygulamayı yükle” ya da “Ana ekrana ekle”yi seç.';
+    return el('div', { class: 'kutu' }, baslik, el('p', { class: 'ipucu', text: `${aciklama} ${yol}` }));
+  }
+  document.addEventListener('kesif-kurulum', () => { if (durum.sekme === 'sayfam') sayfamCiz(); });
   function sayfamCiz() {
     const kap = $('#sayfamIc');
     if (!kap) return;
@@ -4095,7 +4241,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       kap.replaceChildren(baslik, el('div', { class: 'kutu' },
         el('p', { text: 'Favorilerini ve listelerini hesabında sakla; istediğin listeyi bağlantıyla paylaş ya da profilinde herkese aç.' }),
         el('p', { class: 'ipucu', text: 'Başkalarının sayfalarını görmek için hesap gerekmez: Keşfet\'te kullanıcı adıyla ara.' }),
-        el('div', { class: 'profil-eylem' }, giris, kayit)));
+        el('div', { class: 'profil-eylem' }, giris, kayit)), ...[kurulumKutusu()].filter(Boolean));
       return;
     }
     if (hesap.durum === 'adsiz') {
@@ -4132,7 +4278,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const kartlar = [];
     if (hesap.favori) kartlar.push(listeKarti({ ...hesap.favori, ad: 'Favorilerim', mekanlar: [...favoriler], favori: true }));
     for (const l of listeler) kartlar.push(listeKarti(l));
-    kap.replaceChildren(...[baslik, ust, aktar].filter(Boolean),
+    kap.replaceChildren(...[baslik, ust, aktar, kurulumKutusu()].filter(Boolean),
       el('section', { class: 'raf', 'aria-label': 'Listelerim' },
         el('h2', { class: 'raf-baslik', text: 'Listelerim' }),
         el('p', { class: 'raf-not', text: 'Yeni listeler gizli başlar. Bir yeri listeye eklemek için kartındaki ya da sayfasındaki liste düğmesine bas.' }),
@@ -4709,6 +4855,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   /* ---------- sekmeler: Harita | Keşfet | Sayfam ---------- */
   // altKalsin: işletme sayfası Keşfet'teki bir kişi/liste sayfasından açılıyor (geri dönünce o sayfa yeniden görünsün).
   function sekmeyeGec(s, { altKalsin = false } = {}) {
+    if (s !== durum.sekme) olc('sekme', { s });
     if (s !== 'harita') haritaDonus = null;
     if (s !== 'harita' && yerSecim.mod) secimiBitir(true);
     if (s !== 'kesfet' && kesfetAlt && !altKalsin) altGorunumuKapat();
@@ -5037,6 +5184,18 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         el('p', { class: 'raf-bos', text: uzakArama.durum === 'yukleniyor' ? 'Aranıyor…'
         : `“${ham}” adıyla, adresiyle ya da ilçesiyle eşleşen yer yok (${yer.etiket}${kk ? `, ${kategoriler[kk].ad}` : ''}).${uzakNotu}${genisletNotu}${oneriler.length ? ' Yukarıdaki filtre önerilerine bakabilirsin.' : ''}` })]));
     $('#aramaSonuc').replaceChildren(...ogeler);
+    aramayiOlc(q, bulunan.length, yer.k, kk);
+  }
+  // Arama, yazma bittikten 2 sn sonra bir kez kaydedilir (her tuşta değil); büyük kategorilerdeki arama bitmeden kaydedilmez.
+  let aramaOlcum = { son: '', zaman: null };
+  function aramayiOlc(q, sonuc, yer, kategori) {
+    clearTimeout(aramaOlcum.zaman);
+    if (q.length < 2 || q.startsWith('@') || uzakArama.durum === 'yukleniyor' || uzakArama.durum === 'hata') return;   // sunucu araması yarım kaldıysa sayı yanıltır
+    aramaOlcum.zaman = setTimeout(() => {
+      if (aramaOlcum.son === q) return;
+      aramaOlcum.son = q;
+      olc('arama', { q: q.slice(0, 60), sonuc, yer, kategori: kategori || null });
+    }, 2000);
   }
 
   /* ---------- işletme sayfası ---------- */
@@ -5083,6 +5242,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // kaynak: 'liste' | 'harita' | 'kesfet' | 'yakin' | 'baglanti' | 'gecmis'. gecmis: tarayıcı geçmişine yeni adım eklensin mi.
   function mekanSayfasiniAc(m, { kaynak = 'liste', gecmis = true } = {}) {
     if (!m) return;
+    if (!kisiselMi(m) && durum.sayfa !== m.id) olc('mekan', { id: m.id, kategori: m.kategori, kaynak });   // kişisel yerler ölçülmez
     if (!durum.sayfa) {
       sayfa.donus = durum.sekme;
       sayfa.odakGeri = document.activeElement;
@@ -5153,6 +5313,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const paylas = el('button', { class: 'favori', type: 'button', title: 'Bağlantıyı kopyala', 'aria-label': `${m.ad}: sayfa bağlantısını kopyala` }, simge('paylas'));
     paylas.addEventListener('click', async () => {
       let metin = 'Bağlantıyı adres çubuğundan kopyalayabilirsin.';
+      olc('paylas', { tur: 'mekan' });
       try { await navigator.clipboard.writeText(mekanBaglantisi(m.id)); metin = 'Sayfa bağlantısı kopyalandı.'; } catch (e) { /* adres çubuğunda zaten var */ }
       $('#msDurum').textContent = metin;
       setTimeout(() => { const d = $('#msDurum'); if (d) d.textContent = ''; }, 2500);
@@ -5635,6 +5796,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       try { const h = location.hash; if (h.startsWith('#liste=')) { const v = JSON.parse(b64.oku(h.slice(7))); if (v && Array.isArray(v.m)) paylasimIdleri = v.m.slice(0, 500); } } catch (e) { /* bozuk bağlantı */ }
       await kimlikleriYukle([...paylasimIdleri, ...(hashId ? [hashId] : [])]);
     } catch (hata) {
+      olc('hata', { tur: 'veri' });
       $('#sonucSayi').textContent = 'Veri yüklenemedi';
       const not = $('#sonucNot');
       not.textContent = 'Sayfayı yenileyip yeniden dene.';
