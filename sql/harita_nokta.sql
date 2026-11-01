@@ -65,6 +65,7 @@ create policy "nokta herkese acik okunur" on public.mekan_nokta for select to an
 grant select on public.mekan_nokta to anon, authenticated;
 
 -- Tetikleyici: açık ve konumlu kayıtlar nokta tablosunda; kapanan / silinen çıkar.
+-- NOT (01.11.2026): güncel sürümü sql/populer.sql'de.
 create or replace function public.mekan_nokta_esle() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin

@@ -9,8 +9,10 @@
 --   p_kats dolu           -> yalnız bu kategoriler (aramayla birlikte: arama sonuçları bu kategorilerle sınırlanır)
 -- p_filtre: [{alan, tip: secim|evet_hayir|coklu, eslesme: herhangi|hepsi, s}] (yalnız etkin olanlar). Bilgisi olmayan kayıt elenmez.
 -- p_izgara: [sütun, satır, hücre başına]. Dönüş: {toplam, kayitlar} ya da {toplam, sayilar}.
--- p_yakin: sokak düzeyi (sitede z ≥ 16). Arama ve kategori yokken öne çıkanlarla yetinmez, alandaki her yer gelir;
---          öne çıkanlar yine önde (puan 1000 + ilgi), diğerleri skorla. Yalnız küçük alanda (< 0,005 derece²) geçerli.
+-- p_yakin: yakın görünüm (sitede z ≥ 15). Arama ve kategori yokken öne çıkanlarla yetinmez, alandaki her yer gelir;
+--          öne çıkanlar yine önde (puan 1000 + ilgi), diğerleri popülerlikle (mekan_populer: skor + kaynak sayısı + kategori
+--          ağırlığı; sql/populer.sql). Kaç tanesinin iğne olacağını sitenin ızgarası belirler (yakınlaştıkça artar).
+--          Yalnız küçük alanda (< 0,01 derece²) geçerli.
 drop function if exists public.harita_getir(float8[], text, text, text[], text[], jsonb, jsonb, int[], int, int, jsonb);
 create or replace function public.harita_getir(
   p_kutu float8[],
@@ -98,9 +100,9 @@ begin
     m_kat_k := m_kat_k || format(' and m.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
   end if;
 
-  if gez and coalesce(p_yakin, false) and (n - s) * (e - w) < 0.005 then
+  if gez and coalesce(p_yakin, false) and (n - s) * (e - w) < 0.01 then
     -- Kategori listesi (kategori, lat, lng) indeksinden atlamalı okunur; böylece aynı indeks kategori başına kullanılır.
-    taban := format('select p.id, p.lat, p.lng, case when p.ilgi > 0 then 1000 + p.ilgi else p.skor end as puan%s from mekan_nokta p where p.kategori = any(array(with recursive k as (select min(kategori) k from mekan_nokta union all select (select min(x.kategori) from mekan_nokta x where x.kategori > k.k) from k where k.k is not null) select k from k where k is not null)) and %s', tur_s, kutu_k);
+    taban := format('select p.id, p.lat, p.lng, case when p.ilgi > 0 then 1000 + p.ilgi else greatest(public.mekan_populer(p.skor, p.kaynak, p.kategori), 0) end as puan%s from mekan_nokta p where p.kategori = any(array(with recursive k as (select min(kategori) k from mekan_nokta union all select (select min(x.kategori) from mekan_nokta x where x.kategori > k.k) from k where k.k is not null) select k from k where k is not null)) and %s', tur_s, kutu_k);
   elsif gez then
     taban := format('select p.id, p.lat, p.lng, p.ilgi as puan%s from mekan_nokta p where p.ilgi > 0 and %s', tur_s, kutu_k);
   elsif kel is null then
