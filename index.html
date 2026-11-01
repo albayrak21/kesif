@@ -1910,7 +1910,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Sunucu fonksiyonu harita_getir üç şey döndürür: ekrandaki iğneler (ekran ızgarasında hücre başına en iyiler; uzakta az,
   // yakında hepsi), liste (sayfa sayfa, hepsi) ve filtre sayıları.
   //   Arama yok ve kategori "Tümü"  -> yalnız öne çıkan yerler (tarihi yapı, müze, doğa, meydan…; mekan_nokta.ilgi);
-  //                                    sokak düzeyinde (z ≥ 16, p_yakin) her yer, öne çıkanlar önde
+  //                                    yakında (z ≥ 15, p_yakin) işletmeler de, popülerliğe göre; z18'de hepsi
   //   Arama ya da kategori var      -> eşleşen her şey, skora göre (mekan_nokta.skor)
   const hk = {
     igne: { anahtar: null, durum: 'bos', ids: [], toplam: null },
@@ -1921,8 +1921,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const LISTE_SAYFA = 100;
   const haritaModu = () => !durum.gorunum && !!harita && !!AYAR.veritabani;
   const hkGezinme = () => !durum.adAra && durum.kategori === TUMU;
-  // Sokak düzeyinde (z ≥ 16) arama yokken de alandaki her yer gelir; öne çıkanlar yine önde (sunucuda p_yakin).
-  const YAKIN_Z = 16;
+  // Yakın görünümde (z ≥ 15) arama yokken de alandaki işletmeler gelir: öne çıkanlar önde, sonra popülerlik
+  // (skor + kaynak sayısı + kategori ağırlığı; sunucuda p_yakin). Kaçının iğne olacağını ızgara belirler:
+  // z15 110 px / 1 · z16 80 / 2 · z17 60 / 5 · z18+ 40 / 50 (hepsi, en çok 1000).
+  const YAKIN_Z = 15;
   const hkYakin = () => hkGezinme() && !!harita && harita.getZoom() >= YAKIN_Z;
   // Arama kategori ya da tür adına uyuyorsa ("berber", "müze", "kafe") o türdeki her yer de gelir (adında geçmese de).
   function aramaEslesmeleri(q) {
@@ -1949,7 +1951,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function hkIzgara() {
     const sz = harita.getContainer().offsetWidth ? harita.getSize() : (hkIzgara.son || harita.getSize()), z = harita.getZoom();
     if (harita.getContainer().offsetWidth) hkIzgara.son = sz;
-    const [h, k] = hkGezinme() && !hkYakin() ? [150, 1] : z >= 16 ? [60, 50] : z >= 15 ? [70, 3] : z >= 13 ? [90, 2] : [110, 1];
+    const [h, k] = hkGezinme() ? (!hkYakin() ? [150, 1] : z >= 18 ? [40, 50] : z >= 17 ? [60, 5] : z >= 16 ? [80, 2] : [110, 1]) : z >= 16 ? [60, 50] : z >= 15 ? [70, 3] : z >= 13 ? [90, 2] : [110, 1];
     return [Math.max(1, Math.round(sz.x / h)), Math.max(1, Math.round(sz.y / h)), k];
   }
   function hkFiltre() {
@@ -2838,8 +2840,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       : bb.durum === 'secim' ? `${sayiBicim.format(bb.toplam || 0)} kayıt` : `${uyan.length} sonuç`;
     const notlar = [];
     if (hm) {
-      if (hkYakin()) notlar.push('Bu yakınlıkta alandaki her yer gösteriliyor; öne çıkanlar önde. Daraltmak için bir şey ara ya da kategori seç.');
-      else if (hkGezinme()) notlar.push('Haritadaki alanda öne çıkan yerler. Sokak düzeyine yaklaşınca ya da bir şey arayınca, kategori seçince alandaki her şey listelenir.');
+      if (hkYakin()) notlar.push(harita.getZoom() >= 18 ? 'Bu yakınlıkta alandaki her yer gösteriliyor. Daraltmak için bir şey ara ya da kategori seç.'
+        : 'Haritada öne çıkan ve popüler yerler; yakınlaştıkça daha fazlası görünür. Listede alandaki her yer var.');
+      else if (hkGezinme()) notlar.push('Haritadaki alanda öne çıkan yerler. Yaklaşınca ya da bir şey arayınca, kategori seçince alandaki her şey listelenir.');
       else if (hk.igne.durum === 'tamam' && typeof hk.igne.toplam === 'number' && hk.igne.ids.length < hk.igne.toplam) notlar.push('Haritada en öne çıkanlar gösteriliyor, yaklaştıkça hepsi görünür. Listede hepsi var.');
       if (hk.igne.durum === 'hata' || hk.liste.durum === 'hata') notlar.push('bazı sonuçlar şu an alınamadı');
     } else if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);

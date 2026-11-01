@@ -19,8 +19,10 @@ returns smallint language sql immutable parallel safe set search_path = '' as $$
 $$;
 
 -- Haritada insanların aradığı türler önde, ofis / hizmet geride.
+-- search_path ayarı bilerek yok: SET'li SQL fonksiyonu sorguya gömülemez (inline), satır başına çağrılır (24 bin satırda ~3 sn).
+-- İçerik yalnız sabit ifadeler ve şema adıyla yazılmış çağrılar.
 create or replace function public.kategori_agirlik(kategori text)
-returns smallint language sql immutable parallel safe set search_path = '' as $$
+returns smallint language sql immutable parallel safe as $$
   select (case kategori
     when 'restoran' then 15 when 'kafe' then 15 when 'bar' then 15 when 'meyhane' then 15 when 'kahvalti' then 15
     when 'kultur' then 15 when 'tarihi' then 15 when 'avm' then 15
@@ -36,7 +38,7 @@ returns smallint language sql immutable parallel safe set search_path = '' as $$
 $$;
 
 create or replace function public.mekan_populer(skor smallint, kaynak smallint, kategori text)
-returns int language sql immutable parallel safe set search_path = '' as $$
+returns int language sql immutable parallel safe as $$
   select coalesce(skor, 0) + 15 * (greatest(coalesce(kaynak, 1), 1) - 1) + public.kategori_agirlik(kategori)
 $$;
 
