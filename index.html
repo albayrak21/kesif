@@ -1909,7 +1909,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   // Liste görünümü (favoriler, listeler) dışında sonuçlar her zaman haritada görünen alandan gelir; il sınırı yoktur.
   // Sunucu fonksiyonu harita_getir üç şey döndürür: ekrandaki iğneler (ekran ızgarasında hücre başına en iyiler; uzakta az,
   // yakında hepsi), liste (sayfa sayfa, hepsi) ve filtre sayıları.
-  //   Arama yok ve kategori "Tümü"  -> yalnız öne çıkan yerler (tarihi yapı, müze, doğa, meydan…; mekan_nokta.ilgi)
+  //   Arama yok ve kategori "Tümü"  -> yalnız öne çıkan yerler (tarihi yapı, müze, doğa, meydan…; mekan_nokta.ilgi);
+  //                                    sokak düzeyinde (z ≥ 16, p_yakin) her yer, öne çıkanlar önde
   //   Arama ya da kategori var      -> eşleşen her şey, skora göre (mekan_nokta.skor)
   const hk = {
     igne: { anahtar: null, durum: 'bos', ids: [], toplam: null },
@@ -1920,6 +1921,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   const LISTE_SAYFA = 100;
   const haritaModu = () => !durum.gorunum && !!harita && !!AYAR.veritabani;
   const hkGezinme = () => !durum.adAra && durum.kategori === TUMU;
+  // Sokak düzeyinde (z ≥ 16) arama yokken de alandaki her yer gelir; öne çıkanlar yine önde (sunucuda p_yakin).
+  const YAKIN_Z = 16;
+  const hkYakin = () => hkGezinme() && !!harita && harita.getZoom() >= YAKIN_Z;
   // Arama kategori ya da tür adına uyuyorsa ("berber", "müze", "kafe") o türdeki her yer de gelir (adında geçmese de).
   function aramaEslesmeleri(q) {
     const kats = [], turler = [];
@@ -1945,7 +1949,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function hkIzgara() {
     const sz = harita.getContainer().offsetWidth ? harita.getSize() : (hkIzgara.son || harita.getSize()), z = harita.getZoom();
     if (harita.getContainer().offsetWidth) hkIzgara.son = sz;
-    const [h, k] = hkGezinme() ? [150, 1] : z >= 16 ? [60, 50] : z >= 15 ? [70, 3] : z >= 13 ? [90, 2] : [110, 1];
+    const [h, k] = hkGezinme() && !hkYakin() ? [150, 1] : z >= 16 ? [60, 50] : z >= 15 ? [70, 3] : z >= 13 ? [90, 2] : [110, 1];
     return [Math.max(1, Math.round(sz.x / h)), Math.max(1, Math.round(sz.y / h)), k];
   }
   function hkFiltre() {
@@ -1967,6 +1971,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       p_q_kats: es.kats.filter(k => !kats || kats.includes(k)).length ? es.kats.filter(k => !kats || kats.includes(k)) : null,
       p_q_turler: es.turler.filter(([k]) => !kats || kats.includes(k)).length ? es.turler.filter(([k]) => !kats || kats.includes(k)) : null,
       p_filtre: hkFiltre(),
+      ...(hkYakin() ? { p_yakin: true } : {}),
     };
   }
   const hkSatirlar = d => satirdanMekan(Array.isArray(d && d.kayitlar) ? d.kayitlar : []).map(m => { mekanlariEkle([m]); return bolge.dizin.get(m.id) || m; });
@@ -2833,7 +2838,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       : bb.durum === 'secim' ? `${sayiBicim.format(bb.toplam || 0)} kayıt` : `${uyan.length} sonuç`;
     const notlar = [];
     if (hm) {
-      if (hkGezinme()) notlar.push('Haritadaki alanda öne çıkan yerler. Bir şey ara ya da kategori seç; o zaman alandaki her şey listelenir.');
+      if (hkYakin()) notlar.push('Bu yakınlıkta alandaki her yer gösteriliyor; öne çıkanlar önde. Daraltmak için bir şey ara ya da kategori seç.');
+      else if (hkGezinme()) notlar.push('Haritadaki alanda öne çıkan yerler. Sokak düzeyine yaklaşınca ya da bir şey arayınca, kategori seçince alandaki her şey listelenir.');
       else if (hk.igne.durum === 'tamam' && typeof hk.igne.toplam === 'number' && hk.igne.ids.length < hk.igne.toplam) notlar.push('Haritada en öne çıkanlar gösteriliyor, yaklaştıkça hepsi görünür. Listede hepsi var.');
       if (hk.igne.durum === 'hata' || hk.liste.durum === 'hata') notlar.push('bazı sonuçlar şu an alınamadı');
     } else if (aktif.length && !durum.gorunum) notlar.push(`${tum.length} kayıt içinden`);
@@ -2883,7 +2889,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       }
     } else if (hm && !tum.length && bb.durum === 'tamam') {
       liste.replaceChildren(el('li', { class: 'bos-durum' },
-        el('p', { text: hkGezinme() ? 'Haritadaki bu alanda öne çıkan bir yer yok.' : 'Haritadaki bu alanda sonuç yok.' }),
+        el('p', { text: hkGezinme() && !hkYakin() ? 'Haritadaki bu alanda öne çıkan bir yer yok.' : 'Haritadaki bu alanda sonuç yok.' }),
         el('p', { text: 'Haritayı kaydırabilir ya da uzaklaşabilirsin.' })));
     } else if (!tum.length && durum.gorunum) {
       const hepsi = el('button', { class: 'dugme', type: 'button', text: 'Tüm kayıtları göster' });
