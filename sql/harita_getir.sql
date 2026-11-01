@@ -9,6 +9,9 @@
 --   p_kats dolu           -> yalnız bu kategoriler (aramayla birlikte: arama sonuçları bu kategorilerle sınırlanır)
 -- p_filtre: [{alan, tip: secim|evet_hayir|coklu, eslesme: herhangi|hepsi, s}] (yalnız etkin olanlar). Bilgisi olmayan kayıt elenmez.
 -- p_izgara: [sütun, satır, hücre başına]. Dönüş: {toplam, kayitlar} ya da {toplam, sayilar}.
+-- p_yakin: sokak düzeyi (sitede z ≥ 16). Arama ve kategori yokken öne çıkanlarla yetinmez, alandaki her yer gelir;
+--          öne çıkanlar yine önde (puan 1000 + ilgi), diğerleri skorla. Yalnız küçük alanda (< 0,005 derece²) geçerli.
+drop function if exists public.harita_getir(float8[], text, text, text[], text[], jsonb, jsonb, int[], int, int, jsonb);
 create or replace function public.harita_getir(
   p_kutu float8[],
   p_ne text default 'igne',
@@ -20,7 +23,8 @@ create or replace function public.harita_getir(
   p_izgara int[] default array[7,5,1],
   p_limit int default 100,
   p_offset int default 0,
-  p_alanlar jsonb default null
+  p_alanlar jsonb default null,
+  p_yakin boolean default false
 ) returns jsonb
 language plpgsql stable
 set search_path = public, extensions
@@ -94,7 +98,10 @@ begin
     m_kat_k := m_kat_k || format(' and m.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
   end if;
 
-  if gez then
+  if gez and coalesce(p_yakin, false) and (n - s) * (e - w) < 0.005 then
+    -- Kategori listesi (kategori, lat, lng) indeksinden atlamalı okunur; böylece aynı indeks kategori başına kullanılır.
+    taban := format('select p.id, p.lat, p.lng, case when p.ilgi > 0 then 1000 + p.ilgi else p.skor end as puan%s from mekan_nokta p where p.kategori = any(array(with recursive k as (select min(kategori) k from mekan_nokta union all select (select min(x.kategori) from mekan_nokta x where x.kategori > k.k) from k where k.k is not null) select k from k where k is not null)) and %s', tur_s, kutu_k);
+  elsif gez then
     taban := format('select p.id, p.lat, p.lng, p.ilgi as puan%s from mekan_nokta p where p.ilgi > 0 and %s', tur_s, kutu_k);
   elsif kel is null then
     taban := format('select p.id, p.lat, p.lng, p.skor as puan%s from mekan_nokta p where %s%s', tur_s, kutu_k, kat_k);
@@ -239,4 +246,5 @@ begin
   return jsonb_build_object('hata', 'ne');
 end $$;
 
-grant execute on function public.harita_getir(float8[], text, text, text[], text[], jsonb, jsonb, int[], int, int, jsonb) to anon, authenticated;
+grant execute on function public.harita_getir(float8[], text, text, text[], text[], jsonb, jsonb, int[], int, int, jsonb, boolean) to anon, authenticated;
+notify pgrst, 'reload schema';
