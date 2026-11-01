@@ -96,3 +96,6 @@ begin
   return son;
 end $$;
 revoke all on function public.nokta_kaynak_doldur(text, int) from public, anon, authenticated;
+
+-- Supabase yeni fonksiyonlarda anon'a çalıştırma izni vermiyor: harita_getir anon olarak bunları çağırır.
+grant execute on function public.mekan_populer(smallint, smallint, text), public.kategori_agirlik(text), public.mekan_kaynak_sayi(jsonb) to anon, authenticated;
