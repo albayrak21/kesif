@@ -1000,6 +1000,12 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .gorunum-dugme { margin-left: auto; padding: 8px 11px; }
 .gorunum-dugme .simge { width: 18px; height: 18px; stroke-width: 1.8; }
 .ara-dugme { margin-left: 0; }
+/* Sağ üstte hesap: girişte "Giriş yap", girince kullanıcı adının baş harfiyle profil simgesi (Sayfam'ı açar). */
+.hesap-dugme { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.hesap-dugme .simge { width: 16px; height: 16px; stroke-width: 1.8; }
+.hesap-dugme.profil { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 50%; background: var(--vurgu-dolgu); border-color: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 700 16px/1 var(--yazi-dar); text-transform: lowercase; }
+.hesap-dugme.profil:hover { opacity: .88; }
+.hesap-dugme.profil[aria-current="page"] { box-shadow: 0 0 0 2px var(--yuzey), 0 0 0 4px var(--vurgu); }
 .ara-dugme .simge { width: 16px; height: 16px; stroke-width: 2; }
 .uyg.kesfette { grid-template-areas: "ust ust ust" "panel kesfet kesfet"; }
 .uyg.kesfette .sonuclar, .uyg.kesfette .harita-kap { display: none; }
@@ -1297,6 +1303,9 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
   .sekmeler-ust { display: none; }
   .ara-dugme { padding: 8px 11px; }
   .ara-dugme .ara-metin { display: none; }
+  .hesap-dugme:not(.profil) { padding: 8px 11px; }
+  .hesap-dugme:not(.profil) .hesap-metin { display: none; }
+  .hesap-dugme.profil { width: 34px; height: 34px; font-size: 15px; }
   .sekmeler-alt { grid-area: sekme; display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--cizgi); background: var(--yuzey); }
   .sekmeler-alt .sekme { flex-direction: column; gap: 3px; min-height: 56px; border-radius: 0; font-size: 13.5px; }
   .sekmeler-alt .sekme .simge { width: 22px; height: 22px; stroke-width: 1.6; }
@@ -1324,6 +1333,7 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <p class="baglam" id="baglam"></p>
     <button class="dugme gorunum-dugme" id="gorunumDugme" type="button"></button>
     <button class="dugme ara-dugme" id="araAc" type="button" aria-label="Ara"><span class="ara-metin">Ara</span></button>
+    <button class="dugme hesap-dugme" id="hesapDugme" type="button" hidden></button>
     <button class="dugme dugme-filtre" id="filtreAc" type="button" aria-controls="panel" aria-expanded="false">Filtrele <span class="rozet" id="filtreSayisi" hidden>0</span></button>
   </header>
 
@@ -3950,7 +3960,27 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     hesap.kayitZamani = Date.now();
     kayitlilariYukle().then(() => listelerDegisti()).catch(h => console.warn('Kaydedilen listeler alınamadı', h));
   }
+  // Sağ üstteki hesap düğmesi: misafirde "Giriş yap", girişliyken baş harfli profil simgesi (Sayfam'a götürür).
+  function hesapDugmesiYaz() {
+    const b = document.getElementById('hesapDugme');
+    if (!b) return;
+    const d = hesap.durum;
+    b.hidden = !hesap.db || d === 'hata';
+    b.disabled = d === 'yukleniyor';
+    b.classList.toggle('profil', d === 'hazir' && !!hesap.profil);
+    if (d === 'hazir' && hesap.profil) {
+      const ad = hesap.profil.kullanici_adi;
+      b.replaceChildren(document.createTextNode(ad.charAt(0)));
+      b.setAttribute('aria-label', `@${ad} · Sayfam`); b.title = `@${ad}`;
+      if (durum.sekme === 'sayfam') b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    } else {
+      const metin = d === 'adsiz' ? 'Kullanıcı adı seç' : d === 'yukleniyor' ? 'Hesap yükleniyor' : 'Giriş yap';
+      b.replaceChildren(simge('kisi'), el('span', { class: 'hesap-metin', text: d === 'adsiz' ? 'Ad seç' : 'Giriş yap' }));
+      b.setAttribute('aria-label', metin); b.title = metin; b.removeAttribute('aria-current');
+    }
+  }
   function hesapCizildi() {
+    hesapDugmesiYaz();
     if (!mekanlar) return;
     if (durum.sayfa) etiketDurumunuGetir(durum.sayfa, true);   // "ben ekledim" işaretleri oturuma göre
     gorunumuYaz();
@@ -4930,6 +4960,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     for (const b of kok.querySelectorAll('[data-sekme]')) {
       if (b.dataset.sekme === s) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     }
+    hesapDugmesiYaz();
     $('#panelUygula').textContent = s === 'kesfet' ? 'Keşfet\'e dön' : 'Sonuçları göster';
     if (s === 'kesfet') {
       sayacGetir(sayac.favori); sayacGetir(sayac.eklenme); sayacGetir(sayac.puan);
@@ -5991,6 +6022,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     // Sekmeler, arama ve Keşfet
     for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge({ kesfet: 'pusula', sayfam: 'kisi' }[b.dataset.sekme] || 'harita'));
     $('#araAc').prepend(simge('ara'));
+    $('#hesapDugme').addEventListener('click', () => {
+      if (hesap.durum === 'hazir') sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('sayfam'); hesapDugmesiYaz(); }, true);
+      else girisIste(null, null);
+    });
+    hesapDugmesiYaz();
     $('#aramaForm').prepend(simge('ara'));
     // Sayfa açıkken sekmeye ya da aramaya basılınca önce sayfa kapanır (geçmişten bir adım geri), sonra istenen yere geçilir.
     for (const b of kok.querySelectorAll('[data-sekme]')) b.addEventListener('click', () => sayfayiKapat(() => {
