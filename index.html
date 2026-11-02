@@ -1037,6 +1037,33 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .hesap-dugme .simge { width: 16px; height: 16px; stroke-width: 1.8; }
 .hesap-dugme.profil { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 50%; background: var(--vurgu-dolgu); border-color: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 700 16px/1 var(--yazi-dar); text-transform: lowercase; }
 .hesap-dugme.profil:hover { opacity: .88; }
+.hesap-dugme.profil { overflow: hidden; }
+.hesap-dugme.profil img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hesap-kap { position: relative; display: flex; flex-shrink: 0; }
+.hesap-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 1200; min-width: 220px; max-width: min(300px, calc(100vw - 16px)); padding: 6px; border: 1px solid var(--cizgi-koyu); border-radius: 12px; background: var(--yuzey); color: var(--murekkep); box-shadow: var(--golge); }
+.hesap-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }   /* üstüne gelirken boşlukta kapanmasın */
+.hesap-menu-bas { display: flex; align-items: center; gap: 10px; padding: 8px 8px 10px; }
+.hesap-menu-bas .levha { flex: none; width: 36px; height: 36px; font-size: 17px; }
+.hesap-menu-kim { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.hesap-menu-kim strong, .hesap-menu-kim span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hesap-menu-kim strong { font: 600 14.5px/1.2 var(--yazi-dar); }
+.hesap-menu-kim span { color: var(--soluk); font-size: 13px; }
+.hesap-menu-cizgi { height: 1px; margin: 4px 2px; background: var(--cizgi); }
+.hesap-menu-oge { display: block; width: 100%; padding: 9px 10px; border: 0; border-radius: 8px; background: none; color: var(--murekkep); font: 500 14.5px/1.2 var(--yazi); text-align: left; cursor: pointer; }
+.hesap-menu-oge:hover, .hesap-menu-oge:focus-visible { background: var(--yuzey-2); outline: none; }
+.hesap-menu-oge.tehlike, .dugme.tehlike { color: var(--uyari); }
+.dugme.dugme-dolu.tehlike { background: var(--uyari); border-color: var(--uyari); color: var(--zemin); }
+.levha.avatar { border-radius: 50%; overflow: hidden; }
+.levha.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profil-bas .levha.avatar { border-radius: 50%; }
+.levha.avatar.buyuk { flex: none; width: 72px; height: 72px; font-size: 30px; }
+.levha.avatar.mini { display: inline-grid; width: 20px; height: 20px; margin-right: 5px; font-size: 11px; vertical-align: -5px; }
+.kisi-bag { display: inline-flex; align-items: center; }
+.foto-alan .foto-satir { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.alan-etiket { color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
+.ayar-bolum { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--cizgi); }
+.ayar-bolum:first-of-type { padding-top: 0; border-top: 0; }
+.ayar-baslik { margin: 0; font: 600 15px/1.3 var(--yazi-dar); }
 .hesap-dugme.profil[aria-current="page"] { box-shadow: 0 0 0 2px var(--yuzey), 0 0 0 4px var(--vurgu); }
 .ara-dugme .simge { width: 16px; height: 16px; stroke-width: 2; }
 .uyg.kesfette { grid-template-areas: "ust ust ust" "panel kesfet kesfet"; }
@@ -1365,7 +1392,10 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
     <p class="baglam" id="baglam"></p>
     <button class="dugme gorunum-dugme" id="gorunumDugme" type="button"></button>
     <button class="dugme ara-dugme" id="araAc" type="button" aria-label="Ara"><span class="ara-metin">Ara</span></button>
-    <button class="dugme hesap-dugme" id="hesapDugme" type="button" hidden></button>
+    <div class="hesap-kap" id="hesapKap">
+      <button class="dugme hesap-dugme" id="hesapDugme" type="button" hidden></button>
+      <div class="hesap-menu" id="hesapMenu" role="menu" aria-label="Hesap" hidden></div>
+    </div>
     <button class="dugme dugme-filtre" id="filtreAc" type="button" aria-controls="panel" aria-expanded="false">Filtrele <span class="rozet" id="filtreSayisi" hidden>0</span></button>
   </header>
 
@@ -2497,6 +2527,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const d = $('#diyalog');
     const kapat = el('button', { class: 'kapat', type: 'button', 'aria-label': 'Kapat' }, simge('yok'));
     kapat.addEventListener('click', () => d.close());
+    delete d.dataset.sabit;   // dışına tıklayınca kapanma kilidi (kayıt / kullanıcı adı adımında konur)
     d.replaceChildren(el('div', { class: 'diyalog-ic' },
       el('div', { class: 'diyalog-bas' }, el('h2', { class: 'diyalog-baslik', id: 'diyalogBaslik', text: baslik }), kapat), govde));
     if (!d.open) d.showModal();
@@ -3904,6 +3935,11 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     });
   }
   let yuklemeNo = 0;
+  async function kendiProfilim() {
+    const { data, error } = await hesap.db.from('profil').select('id,kullanici_adi,ad,foto').maybeSingle();
+    if (error) throw error;
+    return data;
+  }
   async function hesapYukle() {
     const no = ++yuklemeNo;
     const o = hesap.oturum;
@@ -3919,13 +3955,15 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     hesap.durum = 'yukleniyor';
     hesapCizildi();
     try {
-      let { data: profil, error } = await hesap.db.from('profil').select('id,kullanici_adi,ad').maybeSingle();
+      let { data: profil, error } = await hesap.db.from('profil').select('id,kullanici_adi,ad,foto').maybeSingle();
       if (error) throw error;
       // Hesap açılırken seçilen kullanıcı adı (e-posta doğrulamasından sonra ilk girişte profil oluşur)
       const istenen = o.user.user_metadata && o.user.user_metadata.kullanici_adi;
       if (!profil && typeof istenen === 'string' && kaGecerli(istenen)) {
-        const r = await hesap.db.from('profil').insert({ id: o.user.id, kullanici_adi: istenen }).select('id,kullanici_adi,ad').maybeSingle();
+        const r = await hesap.db.from('profil').insert({ id: o.user.id, kullanici_adi: istenen }).select('id,kullanici_adi,ad,foto').maybeSingle();
         if (!r.error) profil = r.data;
+        // Aynı anda iki yükleme olursa ikincisi "zaten var" (profil_pkey) alır: profil oluşmuştur, yeniden okunur.
+        else if (r.error.code === '23505') profil = await kendiProfilim();
       }
       if (no !== yuklemeNo) return;
       if (!profil) { hesap.durum = 'adsiz'; hesap.profil = null; hesapCizildi(); if (hesap.bekleyen) kullaniciAdiDiyalogu(); return; }
@@ -3992,7 +4030,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     hesap.kayitZamani = Date.now();
     kayitlilariYukle().then(() => listelerDegisti()).catch(h => console.warn('Kaydedilen listeler alınamadı', h));
   }
-  // Sağ üstteki hesap düğmesi: misafirde "Giriş yap", girişliyken baş harfli profil simgesi (Sayfam'a götürür).
+  // Sağ üstteki hesap düğmesi: misafirde "Giriş yap", girişliyken profil fotoğrafı ya da baş harf (menüyü açar).
   function hesapDugmesiYaz() {
     const b = document.getElementById('hesapDugme');
     if (!b) return;
@@ -4001,14 +4039,20 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     b.disabled = d === 'yukleniyor';
     b.classList.toggle('profil', d === 'hazir' && !!hesap.profil);
     if (d === 'hazir' && hesap.profil) {
-      const ad = hesap.profil.kullanici_adi;
-      b.replaceChildren(document.createTextNode(ad.charAt(0)));
-      b.setAttribute('aria-label', `@${ad} · Sayfam`); b.title = `@${ad}`;
+      const ad = hesap.profil.kullanici_adi, foto = hesap.profil.foto;
+      if (foto) {
+        const img = el('img', { src: profilFotoAdresi(foto), alt: '', decoding: 'async' });
+        img.addEventListener('error', () => b.replaceChildren(document.createTextNode(ad.charAt(0))), { once: true });
+        b.replaceChildren(img);
+      } else b.replaceChildren(document.createTextNode(ad.charAt(0)));
+      b.setAttribute('aria-label', `@${ad} · hesap menüsü`); b.title = `@${ad}`;
+      if (hesapMenu.acik) hesapMenusuCiz();
       if (durum.sekme === 'sayfam') b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     } else {
       const metin = d === 'adsiz' ? 'Kullanıcı adı seç' : d === 'yukleniyor' ? 'Hesap yükleniyor' : 'Giriş yap';
       b.replaceChildren(simge('kisi'), el('span', { class: 'hesap-metin', text: d === 'adsiz' ? 'Ad seç' : 'Giriş yap' }));
       b.setAttribute('aria-label', metin); b.title = metin; b.removeAttribute('aria-current');
+      hesapMenusuKapat(false);
     }
   }
   function hesapCizildi() {
@@ -4207,7 +4251,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       if (d !== giris.value) giris.value = d;
       clearTimeout(zamanlayici); zamanlayici = setTimeout(denetle, 350);
     });
-    return { kap: alan('Kullanıcı adı', giris, not), giris, denetle };
+    return { kap: alan('Kullanıcı adı', giris, not), giris, denetle, yaz: (s, metin) => { sonuc = s; yaz(s, metin); } };
   }
   function girisDiyalogu(mod, neden) {
     const hata = el('p', { class: 'form-hata', role: 'alert' });
@@ -4265,6 +4309,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       mod === 'sifre' ? el('p', { class: 'ipucu', text: 'Hesabının e-posta adresini yaz; şifreni yenilemen için bir bağlantı gönderelim.' }) : sec,
       form, el('p', null, unuttum),
       mod === 'kayit' ? el('p', { class: 'ipucu', text: 'Kullanıcı adın ve herkese açık yaptığın listeler başkalarına görünür. E-posta adresin kimseye gösterilmez.' }) : null);
+    if (mod === 'kayit') $('#diyalog').dataset.sabit = '1';
     setTimeout(() => eposta.focus(), 0);
   }
   function sifreYenileDiyalogu() {
@@ -4293,7 +4338,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const ad = el('input', { type: 'text', maxlength: 40, autocomplete: 'name', value: (p && p.ad) || '' });
     const hata = el('p', { class: 'form-hata', role: 'alert' });
     const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: p ? 'Kaydet' : 'Devam et' });
-    const form = el('form', { class: 'form-dikey', novalidate: true }, ka.kap,
+    const form = el('form', { class: 'form-dikey', novalidate: true }, p ? profilFotoAlani() : null, ka.kap,
       alan('Görünen ad (isteğe bağlı)', ad, el('p', { class: 'alan-not', text: 'Profil sayfanda kullanıcı adının yanında görünür.' })),
       p ? el('p', { class: 'alan-not', text: 'Kullanıcı adını değiştirirsen eski profil bağlantın çalışmaz; liste bağlantıların çalışmaya devam eder.' }) : null,
       hata, gonder);
@@ -4307,23 +4352,302 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         const gorunen = ad.value.replace(/\s+/g, ' ').trim().slice(0, 40) || null;
         const t = hesap.db.from('profil');
         const { data, error } = p
-          ? await t.update({ kullanici_adi: ka.giris.value, ad: gorunen }).eq('id', p.id).select('id,kullanici_adi,ad').single()
-          : await t.insert({ id: hesap.oturum.user.id, kullanici_adi: ka.giris.value, ad: gorunen }).select('id,kullanici_adi,ad').single();
-        if (error) { hata.textContent = error.code === '23505' ? 'Bu kullanıcı adı az önce alındı; başka bir ad seç.' : error.code === '23514' ? 'Kullanıcı adını ya da görünen adı kurallara göre düzelt.' : hataMetni(error); return; }
+          ? await t.update({ kullanici_adi: ka.giris.value, ad: gorunen }).eq('id', p.id).select('id,kullanici_adi,ad,foto').single()
+          : await t.insert({ id: hesap.oturum.user.id, kullanici_adi: ka.giris.value, ad: gorunen }).select('id,kullanici_adi,ad,foto').single();
+        if (error) {
+          const metin = `${error.message || ''} ${error.details || ''}`;
+          if (!p && error.code === '23505' && !/kullanici_adi/.test(metin)) {
+            // Bu hesabın profili zaten var (ör. kayıt penceresi yarıda kapandı): profil yüklenir, işe devam edilir.
+            if (sonra) sonra(); hesapYukle(); return;
+          }
+          if (error.code === '23505') { ka.yaz('alinmis', 'Bu kullanıcı adı alınmış.'); hata.textContent = 'Bu kullanıcı adı az önce alındı; başka bir ad seç.'; ka.giris.focus(); return; }
+          hata.textContent = error.code === '23514' ? 'Kullanıcı adını ya da görünen adı kurallara göre düzelt.' : hataMetni(error);
+          return;
+        }
         if (p) { hesap.profil = data; bildir('Profilin kaydedildi.'); if (sonra) sonra(); hesapCizildi(); }
         else { if (sonra) sonra(); hesapYukle(); }   // profil oluşunca favori listesi de oluşur: listeler yeniden okunur
       } finally { gonder.disabled = false; }
     });
     return form;
   }
-  function kullaniciAdiDiyalogu() {
+  async function kullaniciAdiDiyalogu() {
+    // Önce veritabanına bak: profil zaten varsa (ör. kayıt sırasında pencere kapandı) pencere açılmaz, hesap yüklenir.
+    try { if (hesap.oturum && await kendiProfilim()) { hesapYukle(); return; } } catch (h) { /* yine de pencere açılır */ }
     diyalogAc('Kullanıcı adını seç', el('p', { class: 'ipucu', text: 'Başkaları seni bu adla bulur ve herkese açık listelerini görür.' }),
       profilFormu(() => $('#diyalog').close()));
+    $('#diyalog').dataset.sabit = '1';
   }
   async function cikisYap() {
     const { error } = await hesap.db.auth.signOut({ scope: 'local' });
     if (error) { bildir(hataMetni(error)); return; }
     bildir('Çıkış yaptın.');
+  }
+
+  /* ---------- profil fotoğrafı (herkes görür), sağ üst hesap menüsü, ayarlar ---------- */
+  const DEPO_PROFIL = 'profil-foto';
+  const profilFotoAdresi = yol => yol ? `${AYAR.veritabani.url}/storage/v1/object/public/${DEPO_PROFIL}/${yol.split('/').map(encodeURIComponent).join('/')}` : null;
+  // Kişi simgesi: fotoğraf varsa fotoğraf, yoksa (ya da yüklenemezse) kullanıcı adının baş harfi.
+  function avatar(kullaniciAdi, foto, sinif) {
+    const k = el('span', { class: `levha kisi-sol avatar${sinif ? ` ${sinif}` : ''}`, 'aria-hidden': 'true' });
+    const harf = () => k.replaceChildren(document.createTextNode(String(kullaniciAdi || '?').charAt(0)));
+    if (foto) {
+      const img = el('img', { src: profilFotoAdresi(foto), alt: '', loading: 'lazy', decoding: 'async' });
+      img.addEventListener('error', harf, { once: true });
+      k.append(img);
+    } else harf();
+    return k;
+  }
+  // Ortadan kare kırpılır, en çok 512 px WebP'ye küçültülür. Tuvale yeniden çizildiği için EXIF (konum vb.) taşınmaz.
+  async function fotoKare(dosya, kenar, kalite) {
+    let bmp;
+    try { bmp = await createImageBitmap(dosya, { imageOrientation: 'from-image' }); }
+    catch (e) { throw new Error('acilamadi'); }
+    const s = Math.min(bmp.width, bmp.height), k = Math.max(1, Math.min(kenar, s));
+    const t = document.createElement('canvas'); t.width = k; t.height = k;
+    t.getContext('2d').drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, k, k);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise(r => t.toBlob(r, 'image/webp', kalite));
+    if (!blob || blob.type !== 'image/webp') throw new Error('webp');
+    return blob;
+  }
+  function fotoHataMetni(h) {
+    const m = h && h.message;
+    if (m === 'tur') return 'Bir fotoğraf dosyası seç (JPG, PNG, WebP…).';
+    if (m === 'boyut') return 'Dosya çok büyük (en çok 20 MB).';
+    if (m === 'acilamadi') return 'Bu fotoğraf açılamadı. JPG ya da PNG olarak dene.';
+    if (m === 'webp') return 'Bu tarayıcı fotoğrafı hazırlayamıyor; Chrome, Edge, Firefox ya da Safari\'nin güncel sürümüyle dene.';
+    return hataMetni(h, 'Fotoğraf yüklenemedi. Yeniden dene.');
+  }
+  async function profilFotoYukle(dosya) {
+    if (!dosya || !/^image\//.test(dosya.type)) throw new Error('tur');
+    if (dosya.size > 20 * 1024 * 1024) throw new Error('boyut');
+    const blob = await fotoKare(dosya, 512, 0.85);
+    const p = hesap.profil, eski = p.foto;
+    const yol = `${hesap.oturum.user.id}/${crypto.randomUUID()}.webp`;
+    const depo = hesap.db.storage.from(DEPO_PROFIL);
+    const r = await depo.upload(yol, blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false });
+    if (r.error) throw r.error;
+    const { data, error } = await hesap.db.from('profil').update({ foto: yol }).eq('id', p.id).select('id,kullanici_adi,ad,foto').single();
+    if (error) { depo.remove([yol]).catch(() => {}); throw error; }
+    if (eski) depo.remove([eski]).catch(() => {});
+    hesap.profil = data;
+    hesapCizildi();
+    bildir('Profil fotoğrafın güncellendi.');
+  }
+  async function profilFotoKaldir() {
+    const p = hesap.profil, eski = p.foto;
+    if (!eski) return;
+    const { data, error } = await hesap.db.from('profil').update({ foto: null }).eq('id', p.id).select('id,kullanici_adi,ad,foto').single();
+    if (error) throw error;
+    hesap.db.storage.from(DEPO_PROFIL).remove([eski]).catch(() => {});
+    hesap.profil = data;
+    hesapCizildi();
+    bildir('Profil fotoğrafın kaldırıldı.');
+  }
+  // "Profili düzenle" içindeki fotoğraf alanı
+  function profilFotoAlani() {
+    const p = hesap.profil;
+    const dosya = el('input', { type: 'file', accept: 'image/*', hidden: true, 'aria-label': 'Profil fotoğrafı seç' });
+    const yukle = el('button', { class: 'dugme', type: 'button', text: p.foto ? 'Fotoğrafı değiştir' : 'Fotoğraf yükle' });
+    const kaldir = p.foto ? el('button', { class: 'dugme', type: 'button', text: 'Kaldır' }) : null;
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const mesgul = (v, metin) => { yukle.disabled = v; if (kaldir) kaldir.disabled = v; if (metin) yukle.textContent = metin; };
+    yukle.addEventListener('click', () => dosya.click());
+    dosya.addEventListener('change', async () => {
+      const d = dosya.files && dosya.files[0];
+      dosya.value = '';
+      if (!d) return;
+      hata.textContent = '';
+      const once = yukle.textContent;
+      mesgul(true, 'Yükleniyor…');
+      try { await profilFotoYukle(d); }
+      catch (h) { console.warn(h); hata.textContent = fotoHataMetni(h); mesgul(false, once); }
+    });
+    if (kaldir) kaldir.addEventListener('click', async () => {
+      hata.textContent = '';
+      mesgul(true);
+      try { await profilFotoKaldir(); }
+      catch (h) { hata.textContent = hataMetni(h, 'Fotoğraf kaldırılamadı. Yeniden dene.'); mesgul(false); }
+    });
+    return el('div', { class: 'alan foto-alan' },
+      el('span', { class: 'alan-etiket', text: 'Profil fotoğrafı' }),
+      el('div', { class: 'foto-satir' }, avatar(p.kullanici_adi, p.foto, 'buyuk'), el('div', { class: 'profil-eylem' }, yukle, kaldir)),
+      el('p', { class: 'alan-not', text: 'Herkes görür. Ortadan kare kırpılıp küçültülür; fotoğraftaki konum bilgisi silinir.' }),
+      hata, dosya);
+  }
+
+  // Sağ üstteki hesap menüsü: bilgisayarda üstüne gelince, her yerde tıklayınca / dokununca açılır.
+  const hesapMenu = { acik: false, tik: false, zaman: null };
+  const ustuneGelme = matchMedia('(hover: hover) and (pointer: fine)');
+  function menuOgeleri() { return [...$('#hesapMenu').querySelectorAll('[role="menuitem"]')]; }
+  function hesapMenusuAc(tik, odakla) {
+    if (!hesapHazir()) return;
+    clearTimeout(hesapMenu.zaman);
+    if (tik) hesapMenu.tik = true;
+    if (!hesapMenu.acik) {
+      hesapMenusuCiz();
+      $('#hesapMenu').hidden = false;
+      $('#hesapDugme').setAttribute('aria-expanded', 'true');
+      hesapMenu.acik = true;
+    }
+    if (odakla) { const o = menuOgeleri(); if (o.length) o[0].focus(); }
+  }
+  function hesapMenusuKapat(odakDon) {
+    clearTimeout(hesapMenu.zaman);
+    if (!hesapMenu.acik) return;
+    hesapMenu.acik = false; hesapMenu.tik = false;
+    $('#hesapMenu').hidden = true;
+    $('#hesapDugme').setAttribute('aria-expanded', 'false');
+    if (odakDon) $('#hesapDugme').focus();
+  }
+  function sayfamaGit() {
+    sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('sayfam'); hesapDugmesiYaz(); if (profilDuzenleniyor) sayfamCiz(); }, true);
+  }
+  function hesapMenusuCiz() {
+    const m = $('#hesapMenu'), p = hesap.profil;
+    if (!m || !p) return;
+    const oge = (metin, is, sinif) => {
+      const b = el('button', { class: `hesap-menu-oge${sinif ? ` ${sinif}` : ''}`, type: 'button', role: 'menuitem', tabindex: '-1', text: metin });
+      b.addEventListener('click', () => { hesapMenusuKapat(false); is(); });
+      return b;
+    };
+    const cizgi = () => el('div', { class: 'hesap-menu-cizgi', role: 'separator' });
+    m.replaceChildren(
+      el('div', { class: 'hesap-menu-bas' }, avatar(p.kullanici_adi, p.foto),
+        el('div', { class: 'hesap-menu-kim' }, el('strong', { text: p.ad || `@${p.kullanici_adi}` }), p.ad ? el('span', { text: `@${p.kullanici_adi}` }) : null)),
+      cizgi(),
+      oge('Sayfam', () => { profilDuzenleniyor = false; sayfamaGit(); }),
+      oge('Profilimi gör', () => sayfayiKapat(() => altGorunumeGit(`#@${p.kullanici_adi}`), true)),
+      oge('Profili düzenle', () => { profilDuzenleniyor = true; sayfamaGit(); }),
+      oge('Ayarlar', ayarlarDiyalogu),
+      cizgi(),
+      oge('Çıkış yap', cikisYap, 'tehlike'));
+  }
+  function hesapMenusuKur() {
+    const kap = $('#hesapKap'), b = $('#hesapDugme'), m = $('#hesapMenu');
+    b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-controls', 'hesapMenu'); b.setAttribute('aria-expanded', 'false');
+    kap.addEventListener('mouseenter', () => { if (ustuneGelme.matches) hesapMenusuAc(false, false); });
+    kap.addEventListener('mouseleave', () => {
+      if (!ustuneGelme.matches || hesapMenu.tik) return;
+      clearTimeout(hesapMenu.zaman);
+      hesapMenu.zaman = setTimeout(() => hesapMenusuKapat(false), 250);
+    });
+    b.addEventListener('keydown', e => {
+      if ((e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') && hesapHazir()) { e.preventDefault(); hesapMenusuAc(true, true); }
+    });
+    m.addEventListener('keydown', e => {
+      const o = menuOgeleri(), i = o.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); hesapMenusuKapat(true); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); o[(i + 1) % o.length].focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); o[(i - 1 + o.length) % o.length].focus(); }
+      else if (e.key === 'Home') { e.preventDefault(); o[0].focus(); }
+      else if (e.key === 'End') { e.preventDefault(); o[o.length - 1].focus(); }
+      else if (e.key === 'Tab') hesapMenusuKapat(false);
+    });
+    document.addEventListener('pointerdown', e => { if (hesapMenu.acik && !kap.contains(e.target)) hesapMenusuKapat(false); });
+  }
+
+  // Ayarlar: görünüm, profil, e-posta, şifre, hesabı silme
+  function ayarlarDiyalogu() {
+    if (!hesapHazir()) return;
+    const p = hesap.profil, eposta = (hesap.oturum && hesap.oturum.user.email) || '';
+    const bolum = (baslik, ...govde) => el('section', { class: 'ayar-bolum' }, el('h3', { class: 'ayar-baslik', text: baslik }), ...govde);
+
+    // Görünüm
+    const secenekler = [['otomatik', 'Otomatik'], ['gunduz', 'Gündüz'], ['gece', 'Gece']];
+    const gorunumSec = el('div', { class: 'sekme-secici', role: 'radiogroup', 'aria-label': 'Görünüm' }, secenekler.map(([k, metin]) => {
+      const b = el('button', { class: 'sekme', type: 'button', role: 'radio', 'aria-checked': String(gorunum === k), text: metin, 'data-gorunum': k });
+      if (gorunum === k) b.setAttribute('aria-current', 'page');
+      b.addEventListener('click', () => {
+        gorunum = k;
+        try { localStorage.setItem('kesif-gorunum', k); } catch (e) {}
+        gorunumUygula();
+        for (const x of gorunumSec.children) { const s = x.dataset.gorunum === k; x.setAttribute('aria-checked', String(s)); if (s) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); }
+      });
+      return b;
+    }));
+
+    // Profil
+    const profilDuz = el('button', { class: 'dugme', type: 'button', text: 'Profili düzenle' });
+    profilDuz.addEventListener('click', () => { $('#diyalog').close(); profilDuzenleniyor = true; sayfamaGit(); });
+
+    // E-posta
+    const yeniEposta = el('input', { type: 'email', autocomplete: 'email', inputmode: 'email', autocapitalize: 'none', spellcheck: 'false' });
+    const epHata = el('p', { class: 'form-hata', role: 'alert' });
+    const epGonder = el('button', { class: 'dugme', type: 'submit', text: 'E-postayı değiştir' });
+    const epForm = el('form', { class: 'form-dikey', novalidate: true }, alan('Yeni e-posta', yeniEposta), epHata, epGonder);
+    epForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      epHata.textContent = '';
+      const ep = yeniEposta.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ep)) { epHata.textContent = 'Geçerli bir e-posta adresi yaz.'; yeniEposta.focus(); return; }
+      if (ep.toLowerCase() === eposta.toLowerCase()) { epHata.textContent = 'Bu zaten şu anki adresin.'; return; }
+      epGonder.disabled = true;
+      try {
+        const { error } = await hesap.db.auth.updateUser({ email: ep }, { emailRedirectTo: siteAdresi() });
+        if (error) { epHata.textContent = hataMetni(error); return; }
+        epForm.replaceWith(el('p', { class: 'kutu vurgulu' }, 'Onay bağlantısı ', el('strong', { text: ep }), ' adresine gönderildi. Bağlantıya basınca adresin değişir; o zamana kadar eski adresinle giriş yaparsın.'));
+      } finally { epGonder.disabled = false; }
+    });
+
+    // Şifre
+    const s1 = el('input', { type: 'password', autocomplete: 'new-password', minlength: 8 });
+    const s2 = el('input', { type: 'password', autocomplete: 'new-password', minlength: 8 });
+    const sHata = el('p', { class: 'form-hata', role: 'alert' });
+    const sGonder = el('button', { class: 'dugme', type: 'submit', text: 'Şifreyi değiştir' });
+    const sForm = el('form', { class: 'form-dikey', novalidate: true },
+      alan('Yeni şifre', s1, el('p', { class: 'alan-not', text: 'En az 8 karakter.' })), alan('Yeni şifre (tekrar)', s2), sHata, sGonder);
+    sForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      sHata.textContent = '';
+      if (s1.value.length < 8) { sHata.textContent = 'Şifre en az 8 karakter olmalı.'; s1.focus(); return; }
+      if (s1.value !== s2.value) { sHata.textContent = 'İki şifre aynı değil.'; s2.focus(); return; }
+      sGonder.disabled = true;
+      try {
+        const { error } = await hesap.db.auth.updateUser({ password: s1.value });
+        if (error) { sHata.textContent = hataMetni(error); return; }
+        s1.value = ''; s2.value = '';
+        bildir('Şifren değişti.');
+      } finally { sGonder.disabled = false; }
+    });
+
+    // Hesabı sil
+    const silAc = el('button', { class: 'dugme tehlike', type: 'button', text: 'Hesabımı sil' });
+    const silKap = el('div', { class: 'form-dikey' }, el('p', { class: 'alan-not', text: 'Profilin, listelerin, favorilerin, kaydettiğin listeler, işaretlediğin yerler ve profil fotoğrafın kalıcı olarak silinir. Geri alınamaz.' }), el('div', { class: 'profil-eylem' }, silAc));
+    silAc.addEventListener('click', () => {
+      const onay = el('input', { type: 'text', autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false' });
+      const hata = el('p', { class: 'form-hata', role: 'alert' });
+      const sil = el('button', { class: 'dugme dugme-dolu tehlike', type: 'submit', text: 'Kalıcı olarak sil' });
+      const vazgec = el('button', { class: 'dugme', type: 'button', text: 'Vazgeç' });
+      vazgec.addEventListener('click', () => ayarlarDiyalogu());
+      const form = el('form', { class: 'form-dikey', novalidate: true },
+        alan(`Onaylamak için kullanıcı adını yaz: ${p.kullanici_adi}`, onay), hata, el('div', { class: 'profil-eylem' }, sil, vazgec));
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        hata.textContent = '';
+        if (onay.value.trim().replace(/^@/, '').toLowerCase() !== p.kullanici_adi) { hata.textContent = 'Kullanıcı adın aynı yazılmadı.'; onay.focus(); return; }
+        sil.disabled = true; vazgec.disabled = true;
+        try { await hesabiSil(); }
+        catch (h) { console.warn(h); hata.textContent = hataMetni(h, 'Hesap silinemedi. Yeniden dene.'); sil.disabled = false; vazgec.disabled = false; }
+      });
+      silKap.replaceChildren(el('p', null, el('strong', { text: 'Emin misin? ' }), 'Bu işlem geri alınamaz.'), form);
+      setTimeout(() => onay.focus(), 0);
+    });
+
+    diyalogAc('Ayarlar',
+      bolum('Görünüm', gorunumSec),
+      bolum('Profil', el('p', { class: 'alan-not', text: 'Profil fotoğrafı, kullanıcı adı ve görünen ad.' }), el('div', { class: 'profil-eylem' }, profilDuz)),
+      bolum('E-posta', el('p', { class: 'alan-not' }, 'Şu anki adresin: ', el('strong', { text: eposta }), '. Yalnızca sana görünür.'), epForm),
+      bolum('Şifre', sForm),
+      bolum('Hesabı sil', silKap));
+  }
+  async function hesabiSil() {
+    const p = hesap.profil;
+    if (p && p.foto) { try { await hesap.db.storage.from(DEPO_PROFIL).remove([p.foto]); } catch (e) { /* dosya kalırsa sorun değil */ } }
+    await uyeRpc('hesabimi_sil');
+    try { await hesap.db.auth.signOut({ scope: 'local' }); } catch (e) { /* oturum zaten geçersiz */ }
+    if ($('#diyalog').open) $('#diyalog').close();
+    bildir('Hesabın silindi.');
   }
 
   /* ---------- Sayfam ---------- */
@@ -4382,7 +4706,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const p = hesap.profil;
     const eylem = (metin, is, sinif = 'dugme') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
     const ust = el('div', { class: 'kutu' },
-      el('div', { class: 'profil-bas' }, el('span', { class: 'levha kisi-sol', 'aria-hidden': 'true', text: p.kullanici_adi.charAt(0) }),
+      el('div', { class: 'profil-bas' }, avatar(p.kullanici_adi, p.foto),
         el('div', null, el('h2', { class: 'profil-ad', text: `@${p.kullanici_adi}` }),
           el('p', { class: 'profil-alt', text: [p.ad, hesap.oturum && hesap.oturum.user.email].filter(Boolean).join(' · ') }))),
       profilDuzenleniyor ? profilFormu(() => { profilDuzenleniyor = false; }) : null,
@@ -4668,7 +4992,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       const v = a.veri;
       const sayi = v.listeler.length;
       ogeler.push(el('div', { class: 'kutu' },
-        el('div', { class: 'profil-bas' }, el('span', { class: 'levha kisi-sol', 'aria-hidden': 'true', text: v.kullanici_adi.charAt(0) }),
+        el('div', { class: 'profil-bas' }, avatar(v.kullanici_adi, v.foto),
           el('div', null, el('h2', { class: 'profil-ad', text: `@${v.kullanici_adi}` }),
             el('p', { class: 'profil-alt', text: [v.ad, sayi ? `${sayi} herkese açık liste` : null].filter(Boolean).join(' · ') }))),
         (() => {
@@ -4684,7 +5008,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         : el('p', { class: 'raf-bos', text: v.benim ? 'Herkese açık listen yok. Sayfam\'dan bir listenin görünürlüğünü "Herkese açık" yapabilirsin.' : 'Herkese açık listesi yok.' }));
     } else {
       const v = a.veri;
-      const kisi = v.secki ? sahipEtiketi(SECKI_AD) : el('button', { class: 'bag', type: 'button', text: `@${v.kullanici_adi}` });
+      const kisi = v.secki ? sahipEtiketi(SECKI_AD) : el('button', { class: 'bag kisi-bag', type: 'button' }, avatar(v.kullanici_adi, v.sahip_foto, 'mini'), `@${v.kullanici_adi}`);
       if (!v.secki) kisi.addEventListener('click', () => altGorunumeGit(`#@${v.kullanici_adi}`));
       ogeler.push(el('p', { class: 'raf-not' }, 'Liste · ', kisi, v.benim ? ` · senin listen (${GORUNURLUK[v.gorunurluk].ad.toLocaleLowerCase(TR)})` : ''));
       if (v.aciklama) ogeler.push(el('p', { class: 'ipucu', text: v.aciklama }));
@@ -4719,7 +5043,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       return raf('Kişiler', null, el('p', { class: 'raf-bos', text: s.durum === 'yukleniyor' ? 'Aranıyor…' : s.durum === 'hata' ? 'Kişiler şu an aranamadı.' : `“${ham.trim()}” ile eşleşen kullanıcı yok.` }));
     }
     return raf('Kişiler', null, el('ul', { class: 'satirlar' }, s.sonuc.map(k => {
-      const ac = el('button', { class: 'satir-ac', type: 'button' }, levhaSol(k.kullanici_adi.charAt(0), 'harf kisi-sol'),
+      const ac = el('button', { class: 'satir-ac', type: 'button' }, avatar(k.kullanici_adi, k.foto, 'satir-sol harf'),
         el('span', { class: 'satir-govde' }, el('span', { class: 'satir-ad', text: `@${k.kullanici_adi}` }),
           el('span', { class: 'satir-alt', text: [k.ad, k.liste_sayisi ? `${k.liste_sayisi} herkese açık liste` : 'Herkese açık listesi yok'].filter(Boolean).join(' · ') })));
       ac.addEventListener('click', () => altGorunumeGit(`#@${k.kullanici_adi}`));
@@ -6440,7 +6764,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#gorunumSec').addEventListener('change', e => gorunumeGec(e.target.value, true));
     $('#listeYonet').addEventListener('click', () => { if (dar.matches) paneliAyarla(false, false); sayfayiKapat(() => sekmeyeGec('sayfam'), true); });
     const diyalog = $('#diyalog');
-    diyalog.addEventListener('click', e => { if (e.target === diyalog) diyalog.close(); });   // dışına tıklayınca kapanır
+    diyalog.addEventListener('click', e => { if (e.target === diyalog && !diyalog.dataset.sabit) diyalog.close(); });   // dışına tıklayınca kapanır (kayıt adımında kapanmaz)
     diyalog.addEventListener('close', guncelle);
     const fotoKutusu = $('#fotoKutusu');
     fotoKutusu.addEventListener('click', e => { if (e.target === fotoKutusu || e.target.classList.contains('fk-ic')) fotoKutusu.close(); });
@@ -6510,8 +6834,9 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     // Sekmeler, arama ve Keşfet
     for (const b of kok.querySelectorAll('.sekmeler-alt [data-sekme]')) b.prepend(simge({ kesfet: 'pusula', sayfam: 'kisi' }[b.dataset.sekme] || 'harita'));
     $('#araAc').prepend(simge('ara'));
+    hesapMenusuKur();
     $('#hesapDugme').addEventListener('click', () => {
-      if (hesap.durum === 'hazir') sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('sayfam'); hesapDugmesiYaz(); }, true);
+      if (hesap.durum === 'hazir') { if (hesapMenu.acik && hesapMenu.tik) hesapMenusuKapat(false); else hesapMenusuAc(true, false); }
       else girisIste(null, null);
     });
     hesapDugmesiYaz();
