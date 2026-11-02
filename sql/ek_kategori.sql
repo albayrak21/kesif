@@ -23,7 +23,7 @@ create policy "nokta ek herkese acik okunur" on public.mekan_nokta_ek for select
 grant select on public.mekan_nokta_ek to anon, authenticated;
 
 create or replace function public.mekan_ek_kategoriler(oz jsonb, ana text)
-returns text[] language sql immutable parallel safe as $$
+returns text[] language sql immutable parallel safe set search_path = '' as $$
   select coalesce(array_agg(distinct k), '{}') from jsonb_array_elements_text(
     case when jsonb_typeof(oz->'ek_kategori') = 'array' then oz->'ek_kategori' else '[]'::jsonb end) k
   where k <> ana and k ~ '^[a-z_]+$'
