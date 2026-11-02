@@ -4485,6 +4485,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     clearTimeout(hesapMenu.zaman);
     if (tik) hesapMenu.tik = true;
     if (!hesapMenu.acik) {
+      // Sahibi olduğu işletme ya da başvurusu varsa menüde "İşletmelerim" çıkar (bilgi henüz yoksa arkadan alınır).
+      if (typeof isletmeler !== 'undefined' && isletmeler.durum === 'bos') isletmelerimTazele().then(() => { if (hesapMenu.acik) hesapMenusuCiz(); }).catch(() => {});
       hesapMenusuCiz();
       $('#hesapMenu').hidden = false;
       $('#hesapDugme').setAttribute('aria-expanded', 'true');
@@ -4503,6 +4505,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   function sayfamaGit() {
     sayfayiKapat(() => { if (kesfetAlt) altGorunumuKapat(); sekmeyeGec('sayfam'); hesapDugmesiYaz(); if (profilDuzenleniyor) sayfamCiz(); }, true);
   }
+  const isletmemVar = () => typeof isletmeler !== 'undefined' && !!isletmeler.veri && ((isletmeler.veri.mekanlar || []).length + (isletmeler.veri.basvurular || []).length) > 0;
   function hesapMenusuCiz() {
     const m = $('#hesapMenu'), p = hesap.profil;
     if (!m || !p) return;
@@ -4519,6 +4522,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       oge('Sayfam', () => { profilDuzenleniyor = false; sayfamaGit(); }),
       oge('Profilimi gör', () => sayfayiKapat(() => altGorunumeGit(`#@${p.kullanici_adi}`), true)),
       oge('Profili düzenle', () => { profilDuzenleniyor = true; sayfamaGit(); }),
+      isletmemVar() ? oge('İşletmelerim', () => { profilDuzenleniyor = false; sayfamaGit(); setTimeout(() => { const e = $('#sayfamIsletme'); if (e && !e.hidden) e.scrollIntoView({ block: 'start' }); }, 50); }) : null,
       oge('Ayarlar', ayarlarDiyalogu),
       cizgi(),
       oge('Çıkış yap', cikisYap, 'tehlike'));
