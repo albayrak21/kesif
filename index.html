@@ -5937,6 +5937,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       }
       sayfa.tamamen = false;
       const alt = altHashi();
+      // Keşfet'teki bir seçki/liste "Haritada göster" ile haritada açıkken adres o listenin adresi (#l=…) olarak kalır.
+      // Haritadan açılan işletme sayfası kapanınca bu adrese dönülür: Keşfet'e değil, haritadaki listeye kalınır.
+      if (alt && haritaDonus && durum.sekme === 'harita' && history.state && history.state.kesifHarita) {
+        if (durum.sayfa) sayfaKapandi();
+        return;
+      }
       if (alt) {
         if (durum.sayfa) { const sonraVar = !!sayfa.sonra; sayfaKapandi(); if (sonraVar) return; }
         altGorunumAc(alt);
