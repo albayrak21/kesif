@@ -4714,11 +4714,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         el('div', null, el('h2', { class: 'profil-ad', text: `@${p.kullanici_adi}` }),
           el('p', { class: 'profil-alt', text: [p.ad, hesap.oturum && hesap.oturum.user.email].filter(Boolean).join(' · ') }))),
       profilDuzenleniyor ? profilFormu(() => { profilDuzenleniyor = false; }) : null,
+      // Profilimi gör, Ayarlar ve Çıkış sağ üstteki hesap menüsünde; burada yalnız profile özgü iki eylem.
       el('div', { class: 'profil-eylem' },
-        eylem('Profilimi gör', () => altGorunumeGit(`#@${p.kullanici_adi}`)),
-        eylem('Profil bağlantısı', () => baglantiPaylas(profilBaglantisi(p.kullanici_adi), `@${p.kullanici_adi} · Keşif`)),
         eylem(profilDuzenleniyor ? 'Vazgeç' : 'Profili düzenle', () => { profilDuzenleniyor = !profilDuzenleniyor; sayfamCiz(); }),
-        eylem('Çıkış yap', cikisYap)),
+        eylem('Profili paylaş', () => baglantiPaylas(profilBaglantisi(p.kullanici_adi), `@${p.kullanici_adi} · Keşif`))),
       el('p', { class: 'ipucu', text: 'E-posta adresin yalnızca sana görünür.' }));
 
     let aktar = null;
@@ -4891,7 +4890,18 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     if (e) return { anahtar: `liste:${e[1]}`, tur: 'liste', deger: e[1] };
     return null;
   }
+  // Kişi / liste sayfası Keşfet içinde açılır. Başka sekmeden (ör. Sayfam) açıldıysa geri gelince o sekmeye dönülür.
+  let altDonus = null;   // { sekme, kaydirma }
+  function altDonusYap() {
+    const d = altDonus; altDonus = null;
+    if (!d) return false;
+    sekmeyeGec(d.sekme);
+    const kap = d.sekme === 'sayfam' ? $('#sayfam') : null;
+    if (kap) kap.scrollTop = d.kaydirma || 0;
+    return true;
+  }
   function altGorunumeGit(hash) {
+    if (durum.sekme !== 'kesfet' && !kesfetAlt) altDonus = { sekme: durum.sekme, kaydirma: durum.sekme === 'sayfam' ? $('#sayfam').scrollTop : 0 };
     if (location.hash !== hash) history.pushState({ kesifAlt: true }, '', hash);
     const a = altHashi();
     if (a) altGorunumAc(a);
@@ -4929,12 +4939,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     $('#kesfet').scrollTop = 0;
   }
   function altGorunumuKapat() {
-    kesfetAlt = null;
+    kesfetAlt = null; altDonus = null;
     if (altHashi()) history.replaceState(null, '', location.pathname + location.search);
   }
   function altGeri() {
     if (history.state && history.state.kesifAlt) history.back();
-    else { altGorunumuKapat(); kesfetCiz(); }
+    else { const d = altDonus; altGorunumuKapat(); altDonus = d; if (!altDonusYap()) kesfetCiz(); }
   }
   // Başkasının listesi: satırlar (yıldızla), haritada göster, kopyala, bağlantı
   // Başkasının (ya da kendi herkese açık) listesi: Kaydet (liste onda kalır, güncel hâli bende) / Kopyasını al (benim olur).
@@ -6801,7 +6811,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         altGorunumAc(alt);
         return;
       }
-      if (kesfetAlt && !id) { kesfetAlt = null; if (durum.sekme === 'kesfet' && !durum.sayfa) kesfetCiz(); }
+      if (kesfetAlt && !id) { kesfetAlt = null; if (durum.sekme === 'kesfet' && !durum.sayfa && !altDonusYap()) kesfetCiz(); }
       if (id) {
         const ac = () => {
           if (mekanHashi() !== id) return;   // bu arada adres değiştiyse vazgeç
