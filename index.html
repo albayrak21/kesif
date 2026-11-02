@@ -2621,7 +2621,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     return { durum: 'yukleniyor' };
   }
   const bolgeMekanlari = () => (haritaModu() ? hkListe() : durum.adAra && !durum.gorunum ?adaGoreBolgeMekanlari() : bolgeHazirla().durum !== 'tamam' ? [] : tumuMu() ? tumuGorunenler().sort((a, b) => a.ad.localeCompare(b.ad, TR)) : mekanlar
-    .filter(m => m.kategori === durum.kategori && m.il === durum.il && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce)))
+    .filter(m => kategoride(m, durum.kategori) && m.il === durum.il && (durum.alan ? alanda(m) : (durum.ilce === TUM || m.ilce === durum.ilce)))
     .sort((a, b) => a.ad.localeCompare(b.ad, TR)));
   const bolgeAdi = () => (durum.alan && !haritaModu() ? 'Haritadaki alan' : durum.ilce === TUM ? durum.il : durum.ilce);
   const aktifMi = (f, s) => f.tip === 'coklu' ? !!(s && s.size) : s != null && s !== false;
@@ -2635,7 +2635,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     for (const f of filtreler()) {
       const s = secimler[f.alan];
       if (!aktifMi(f, s)) continue;
-      const v = mekan.ozellikler[f.alan];
+      const v = f.alan === 'tur' && ekOlarakMi(mekan) ? null : mekan.ozellikler[f.alan];   // tür kodları ana kategoriye ait
       if (v == null && f.alan === ETIKET_ALANI) { uymaz = true; continue; }   // etiketi olmayan, etiket filtresine uymaz
       if (v == null) { eksik.push(f); continue; }
       if (f.tip === 'secim') uymaz = uymaz || v !== s;
@@ -2813,6 +2813,12 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const s = f && f.secenekler.find(o => o.deger === t);
     return s ? s.etiket : kat.ad;
   }
+  // Ek kategoriler (ozellikler.ek_kategori): ana kategorisi başka olup bu kategorilerde de listelenen yer (ör. otel-restoran).
+  const ekKategoriler = m => (m && m.ozellikler && Array.isArray(m.ozellikler.ek_kategori) ? m.ozellikler.ek_kategori : [])
+    .filter(k => k !== m.kategori && kategoriler[k]);
+  const kategoride = (m, k) => m.kategori === k || ekKategoriler(m).includes(k);
+  // Kayıt seçili kategoriye ek kategori olarak mı giriyor (iğne harfi ve tür filtresi buna göre).
+  const ekOlarakMi = m => durum.kategori !== TUMU && m.kategori !== durum.kategori && ekKategoriler(m).includes(durum.kategori);
 
   // Kaynakta adres yoksa adres konumdan üretilir (en yakın mahalle ve sokak); dogrulanacak listesinde 'adres_yaklasik' işareti taşır.
   const adresYaklasik = m => (m.dogrulanacak || []).includes('adres_yaklasik');
@@ -3280,7 +3286,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const eklenen = [];
     for (const [id, m] of olmali) {
       if (igneler.has(id)) continue;
-      const harf = kategoriHarfi(m.kategori), ek = kisiselMi(m) ? 'kisisel' : '';
+      const harf = kategoriHarfi(ekOlarakMi(m) ? durum.kategori : m.kategori), ek = kisiselMi(m) ? 'kisisel' : '';
       const igne = L.marker([m.konum.lat, m.konum.lng], { keyboard: true, riseOnHover: true, icon: igneIkonu(harf, false, ek) });
       const k = { igne, m, harf, ek, secili: false };
       igne.bindTooltip(m.ad, { direction: 'top', offset: [0, -42] });
@@ -5391,7 +5397,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
 
     // Başlık
     const bas = el('header', { class: 'ms-bas' },
-      el('p', { class: 'ms-tur' }, el('span', { class: 'levha', 'aria-hidden': 'true', text: kategoriHarfi(m.kategori) }), turEtiketi(m)),
+      el('p', { class: 'ms-tur' }, el('span', { class: 'levha', 'aria-hidden': 'true', text: kategoriHarfi(m.kategori) }), [turEtiketi(m), ...ekKategoriler(m).map(k => kategoriler[k].ad)].join(' · ')),
       el('h2', { class: 'ms-ad', id: 'msAd', tabindex: '-1', text: m.ad }),
       el('p', { class: 'ms-yer' },
         uzak != null ? el('span', { class: 'uzaklik', title: 'Kuş uçuşu uzaklık' }, el('span', { class: 'gorunmez', text: 'Uzaklık: ' }), uzaklikYaz(uzak)) : null,
