@@ -1001,6 +1001,38 @@ body { height: 100%; margin: 0; background: var(--zemin); color: var(--murekkep)
 .gorunum-dugme .simge { width: 18px; height: 18px; stroke-width: 1.8; }
 .ara-dugme { margin-left: 0; }
 /* Sağ üstte hesap: girişte "Giriş yap", girince kullanıcı adının baş harfiyle profil simgesi (Sayfam'ı açar). */
+/* İşletme sahipleri: duyurular, sahip bölümü ve paneli */
+.ms-duyurular .duyuru-liste, .sahip-panel .duyuru-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.duyuru { padding: 10px 12px; border: 1px solid var(--cizgi); border-radius: 12px; background: var(--yuzey-2); }
+.duyuru.simdi { border-color: var(--vurgu); }
+.duyuru p { margin: 0; }
+.duyuru-ust { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; color: var(--soluk); font: 600 12.5px/1.3 var(--yazi-dar); }
+.duyuru-tur { text-transform: uppercase; letter-spacing: .04em; }
+.duyuru-simdi { padding: 1px 7px; border-radius: 999px; background: var(--vurgu-dolgu); color: var(--vurgu-ustu); }
+.duyuru-durum { margin-left: auto; }
+.duyuru-baslik { margin-top: 4px !important; font: 600 16px/1.3 var(--yazi-dar); }
+.duyuru-metin { margin-top: 3px !important; color: var(--murekkep); font-size: 14.5px; white-space: pre-line; }
+.duyuru-eylem { margin-top: 6px !important; }
+.ms-sahip { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.ms-sahip p { margin: 0; }
+.ms-isletme-not { margin: 6px 0 0; color: var(--soluk); font-size: 13px; }
+.sahip-panel { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.sahip-alt-baslik { margin: 6px 0 0; font: 600 15px/1.3 var(--yazi-dar); }
+.sahip-grup { margin: 0; padding: 0; border: 0; }
+.sahip-grup legend { margin-bottom: 4px; padding: 0; color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
+.sahip-cipler { display: flex; flex-wrap: wrap; gap: 6px; }
+.sahip-cip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--cizgi); border-radius: 999px; font-size: 14px; cursor: pointer; }
+.form-dikey .alan .sahip-cip input, .form-dikey .sahip-cip input { width: auto; min-height: 0; padding: 0; margin: 0; flex: none; }
+.sahip-ek summary { cursor: pointer; color: var(--soluk); font: 500 13px/1.2 var(--yazi-dar); }
+.sahip-ek[open] summary { margin-bottom: 8px; }
+.sahip-cip:has(input:checked) { border-color: var(--vurgu); background: var(--vurgu-soluk); }
+.sahip-iki { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-dikey .alan select { min-height: 42px; }
+.sahip-fotolar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.sahip-fotolar li { display: flex; flex-direction: column; gap: 4px; }
+.sahip-fotolar img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
+.sahip-talepler { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+@media (max-width: 479.98px) { .sahip-iki { grid-template-columns: 1fr; } }
 .hesap-dugme { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .hesap-dugme .simge { width: 16px; height: 16px; stroke-width: 1.8; }
 .hesap-dugme.profil { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 50%; background: var(--vurgu-dolgu); border-color: var(--vurgu-dolgu); color: var(--vurgu-ustu); font: 700 16px/1 var(--yazi-dar); text-transform: lowercase; }
@@ -3981,6 +4013,10 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
   }
   function hesapCizildi() {
     hesapDugmesiYaz();
+    if (sahiplik && isletmeler) {   // oturum değişti: sahiplik bilgisi kullanıcıya göre
+      sahiplik.clear(); isletmeler.durum = 'bos'; isletmeler.veri = null;
+      if (durum.sayfa && hesap.durum !== 'yukleniyor') sahiplikGetir(durum.sayfa);
+    }
     if (!mekanlar) return;
     if (durum.sayfa) etiketDurumunuGetir(durum.sayfa, true);   // "ben ekledim" işaretleri oturuma göre
     gorunumuYaz();
@@ -4370,7 +4406,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     const kartlar = [];
     if (hesap.favori) kartlar.push(listeKarti({ ...hesap.favori, ad: 'Favorilerim', mekanlar: [...favoriler], favori: true }));
     for (const l of listeler) kartlar.push(listeKarti(l));
-    kap.replaceChildren(...[baslik, ust, aktar, kurulumKutusu()].filter(Boolean),
+    if (isletmeler.durum !== 'yukleniyor' && Date.now() - isletmeler.zaman > 30000) isletmelerimTazele();
+    kap.replaceChildren(...[baslik, ust, isletmelerimKutusu(), aktar, kurulumKutusu()].filter(Boolean),
       el('section', { class: 'raf', 'aria-label': 'Listelerim' },
         el('h2', { class: 'raf-baslik', text: 'Listelerim' }),
         el('p', { class: 'raf-not', text: 'Yeni listeler gizli başlar. Bir yeri listeye eklemek için kartındaki ya da sayfasındaki liste düğmesine bas.' }),
@@ -5435,6 +5472,8 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
         `${m.ilce}, ${m.il}`),
       puanOzetSatiri(m),
       (c => c.length ? el('ul', { class: 'ms-etiketler', 'aria-label': 'Etiketler' }, c) : null)(etiketCipleri(m)),
+      /^\d{4}-\d{2}-\d{2}$/.test((m.ozellikler || {}).isletme_guncelleme || '')
+        ? el('p', { class: 'ms-isletme-not' }, el('span', { class: 'ms-etiket beyan', text: 'İşletme tarafından güncellendi' }), ` ${tarihYaz(m.ozellikler.isletme_guncelleme)}`) : null,
       el('p', { class: 'gorunmez', id: 'msDurum', role: 'status', 'aria-live': 'polite' }));
 
     // Hızlı eylemler
@@ -5464,8 +5503,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
     } else {
       beyanBolumu = bolum('İşletmenin anlattıkları', null,
         el('div', { class: 'ms-bos' },
-          el('p', { text: 'Bu sayfa henüz işletme tarafından doldurulmadı.' }),
-          el('p', { text: 'İşletme sahipleri yakında sayfalarını sahiplenip açıklama, çalışma saatleri ve fotoğraf ekleyebilecek. Bu bilgiler "İşletme beyanı" etiketiyle, aşağıdaki derlenmiş bilgilerden ayrı görünecek.' })));
+          el('p', { text: 'Bu sayfa henüz işletme tarafından doldurulmadı.' })));
     }
 
     // Özellikler: kategori tanımından. Önce bilinen bilgiler (tarife, kapasite…), sonra filtre alanları.
@@ -5566,13 +5604,463 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       kat.bilgi_notu ? el('p', { text: kat.bilgi_notu }) : null);
 
     $('#mekanSayfa').replaceChildren(ust, el('div', { class: 'ms-govde' },
-      bas, hizli.length ? el('div', { class: 'ms-hizli' }, hizli) : null,
+      bas, hizli.length ? el('div', { class: 'ms-hizli' }, hizli) : null, duyuruBolumu(m),
       (b => b.length ? el('div', { class: 'kat-baglanti' }, b) : null)(kategoriBaglantilari(m.kategori, m.il)),
       fotoBolumu(m), puanBolumu(m), etiketBolumu(m),
-      beyanBolumu, ozellikler, iletisimBolumu, yakinBolumu, kaynak));
+      beyanBolumu, ozellikler, iletisimBolumu, sahipBolumu(m), yakinBolumu, kaynak));
     fotolariGetir(m.id);
+    sahiplikGetir(m.id);
+    duyurulariGetir(m.id);
     etiketDurumunuGetir(m.id);
     sayacGetir(sayac.puan);
+  }
+
+  /* ---------- işletme sahipleri (sql/isletme_sahip.sql; plan: isletme-sahibi.md) ---------- */
+  // Sahiplik başvurusu → yönetici onayı → sahip bilgileri düzenler (kritik alanlar onaya gider), 5 fotoğraf, ayda 2 duyuru.
+  // Bütün yazmalar sunucu fonksiyonlarından geçer; sınırlar orada zorlanır, burada yalnız gösterilir.
+  var sahiplik = new Map();   // (var: hesapCizildi bu satırdan önce çağrılabilir) mekan kimliği → { durum: 'yukleniyor' | 'tamam' | 'hata', veri }
+  const duyuruOnbellek = new Map();   // mekan kimliği → { durum, liste }
+  const BELGE_DEPO = 'sahiplik-belge', BELGE_TURLERI = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+  const DUYURU_TURLERI = { mac: 'Maç yayını', canli_muzik: 'Canlı müzik', etkinlik: 'Etkinlik', genel: 'Duyuru' };
+  const SAHIP_HATALARI = {
+    giris_gerekli: 'Önce giriş yapmalısın.', mekan_yok: 'Bu yer artık açık görünmüyor.',
+    zaten_sahip: 'Bu işletmenin sahibi zaten sensin.', zaten_basvurdun: 'Bu işletme için bekleyen bir başvurun var.',
+    cok_basvuru: 'Çok sayıda bekleyen başvurun var; sonuçlanmalarını bekle.', cok_belge: 'En çok 5 belge ekleyebilirsin.',
+    belge_yolu: 'Belge yüklenemedi; yeniden dene.', yetki_yok: 'Bu işlem için yetkin yok.',
+    duyuru_ay_doldu: 'Bu ayki duyuru hakkın doldu; ayın 1\'inde yenilenir.', duyuru_gun_doldu: 'Bugünkü duyuru hakkın doldu, yarın yenilenir.',
+    duyuru_yayinda_doldu: 'Aynı anda yayında olabilecek duyuru sayısına ulaştın; birini gizle ya da sil.',
+    duyuru_cok_hizli: 'İki duyuru arasında en az 1 dakika olmalı.', saglik_yalniz_bilgi: 'Sağlık kurumları yalnız bilgilendirme duyurusu yapabilir.',
+    tarih: 'Tarihleri kontrol et: bitiş başlangıçtan sonra ve gelecekte olmalı; en çok 90 gün sonrası, en uzun 31 gün.',
+    foto_hakki_doldu: 'Fotoğraf hakkın doldu.', bicim: 'Bazı bilgiler geçersiz; kontrol edip yeniden dene.',
+  };
+  const sahipHata = (h, varsayilan) => {
+    const m = String((h && (h.message || h.error_description)) || '');
+    for (const [k, v] of Object.entries(SAHIP_HATALARI)) if (m.includes(k)) return k === 'bicim' && m.includes(':') ? `${v} (${m.split(':').slice(1).join(':').trim()})` : v;
+    return hataMetni(h, varsayilan);
+  };
+  const istTarih = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', weekday: 'long', day: 'numeric', month: 'long' });
+  const istSaat = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' });
+  const istGun = d => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  function duyuruZamani(d) {
+    const b = new Date(d.baslangic), s = new Date(d.bitis), simdi = new Date();
+    const gun = x => (istGun(x) === istGun(simdi) ? 'Bugün' : istGun(x) === istGun(new Date(simdi.getTime() + 864e5)) ? 'Yarın' : istTarih.format(x));
+    const ayni = istGun(b) === istGun(s);
+    return ayni ? `${gun(b)} ${istSaat.format(b)}–${istSaat.format(s)}` : `${gun(b)} ${istSaat.format(b)} – ${gun(s)} ${istSaat.format(s)}`;
+  }
+
+  const girisliYap = (neden, is) => (hesapHazir() ? is() : girisIste(neden, is));
+  async function sahiplikGetir(id, tazele) {
+    const v = sahiplik.get(id);
+    if (v && v.durum !== 'hata' && !tazele) return;
+    if (!AYAR.veritabani) return;
+    sahiplik.set(id, { durum: 'yukleniyor', veri: v && v.veri });
+    try {
+      const veri = await uyeRpc('mekan_sahiplik', { p_mekan: id });
+      sahiplik.set(id, { durum: 'tamam', veri });
+    } catch (h) { console.warn('Sahiplik alınamadı', h); sahiplik.set(id, { durum: 'hata', veri: null }); }
+    if (durum.sayfa === id) sahipBolumunuYenile(mekanBul(id));
+  }
+  function sahipBolumunuYenile(m) { const e = $('#msSahip'); if (e && m) e.replaceWith(sahipBolumu(m)); }
+  function sahipBolumu(m) {
+    const s = sahiplik.get(m.id), v = s && s.veri;
+    const kap = el('section', { class: 'ms-bolum ms-sahip', id: 'msSahip', 'aria-label': 'İşletme sahibi' });
+    if (!AYAR.veritabani || !s || s.durum === 'hata' || (s.durum === 'yukleniyor' && !v)) { kap.hidden = true; return kap; }
+    const dugme = (metin, is, sinif = 'dugme') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    const b = v.basvuru;
+    if (v.benim) {
+      kap.append(el('p', null, el('strong', { text: 'Bu işletmenin sahibisin.' }), ' Bilgileri, fotoğrafları ve duyuruları buradan yönetebilirsin.'),
+        dugme('İşletmeni yönet', () => sahipPaneli(m), 'dugme dugme-dolu'));
+    } else if (b && b.durum === 'bekliyor') {
+      kap.append(el('p', null, el('strong', { text: 'Sahiplik başvurun inceleniyor. ' }), `Başvuru tarihi: ${tarihYaz(b.olusturma)}. Sonuç burada ve Sayfam'da görünecek.`),
+        dugme('Başvuruyu geri çek', async () => {
+          try { await uyeRpc('sahiplik_geri_cek', { p_id: b.id }); bildir('Başvurun geri çekildi.'); sahiplikGetir(m.id, true); isletmelerimTazele(); }
+          catch (h) { bildir(sahipHata(h)); }
+        }, 'bag'));
+    } else {
+      if (b && b.durum === 'reddedildi') kap.append(el('p', { class: 'uyari-not', text: `Son sahiplik başvurun onaylanmadı${b.karar_notu ? `: ${b.karar_notu}` : '.'}` }));
+      if (v.sahipli) {
+        kap.append(el('p', { text: 'Bu sayfa işletmenin sahibi tarafından yönetiliyor.' }),
+          dugme('İşletme el değiştirdi mi? Sahiplik itirazı yap', () => girisliYap('Sahiplik başvurusu için giriş yap.', () => basvuruDiyalogu(m, true)), 'bag'));
+      } else {
+        kap.append(el('p', null, el('strong', { text: 'Bu işletme senin mi? ' }), 'Sahiplen; onaylandıktan sonra bilgileri güncelleyebilir, fotoğraf ve duyuru ekleyebilirsin. Ücretsiz.'),
+          dugme('Bu işletme benim', () => girisliYap('İşletmeni sahiplenmek için giriş yap.', () => basvuruDiyalogu(m, false))));
+      }
+    }
+    return kap;
+  }
+
+  function basvuruDiyalogu(m, itiraz) {
+    const s = sahiplik.get(m.id);
+    if (s && s.veri && s.veri.benim) { sahipPaneli(m); return; }
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const adSoyad = el('input', { type: 'text', maxlength: 120, autocomplete: 'name', required: true, value: (hesap.profil && hesap.profil.ad) || '' });
+    const rol = el('input', { type: 'text', maxlength: 80, placeholder: 'ör. işletme sahibi, müdür, kurum yetkilisi', required: true });
+    const tel = el('input', { type: 'tel', maxlength: 40, autocomplete: 'tel', inputmode: 'tel' });
+    const ep = el('input', { type: 'email', maxlength: 200, autocomplete: 'email', value: (hesap.oturum && hesap.oturum.user.email) || '' });
+    const acik = el('textarea', { maxlength: 2000, required: true, rows: 4,
+      placeholder: itiraz ? 'İşletmeyi ne zaman devraldığını ve bunu nasıl gösterebileceğini yaz.' : 'İşletmeyle bağını anlat: ör. "2019\'dan beri sahibiyim, vergi levhasını ekledim."' });
+    const belge = el('input', { type: 'file', multiple: true, accept: Object.keys(BELGE_TURLERI).join(',') });
+    const gonder = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: 'Başvuruyu gönder' });
+    const form = el('form', { class: 'form-dikey', novalidate: true },
+      el('p', { class: 'ipucu', text: itiraz
+        ? 'Bu işletmenin şu an bir sahibi var. Başvurun itiraz olarak incelenir; onaylanırsa sahiplik sana geçer ve önceki sahip bilgilendirilir.'
+        : 'Başvurunu Keşif ekibi inceler. Onaylanınca bu sayfanın sahibi olursun; her işletmenin tek sahibi olur.' }),
+      alan('Adın soyadın', adSoyad), alan('İşletmedeki görevin', rol),
+      alan('Telefon (isteğe bağlı)', tel, el('p', { class: 'alan-not', text: 'Gerekirse doğrulama için seni arayabiliriz.' })),
+      alan('E-posta (isteğe bağlı)', ep),
+      alan('Açıklama', acik),
+      alan('Belge (isteğe bağlı, en çok 3)', belge, el('p', { class: 'alan-not', text: 'Vergi levhası, ticaret sicil gazetesi, ruhsat ya da faaliyet belgesi; PDF, JPG, PNG; dosya başına en çok 5 MB. Belgeleri yalnızca Keşif yöneticileri görür ve yalnızca sahiplik doğrulaması için kullanılır.' })),
+      hata, gonder);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      if (adSoyad.value.trim().length < 3) { hata.textContent = 'Adını soyadını yaz.'; adSoyad.focus(); return; }
+      if (rol.value.trim().length < 2) { hata.textContent = 'İşletmedeki görevini yaz.'; rol.focus(); return; }
+      if (acik.value.trim().length < 10) { hata.textContent = 'Açıklamayı biraz daha ayrıntılı yaz (en az 10 karakter).'; acik.focus(); return; }
+      const dosyalar = [...belge.files];
+      if (dosyalar.length > 3) { hata.textContent = 'En çok 3 belge ekleyebilirsin.'; return; }
+      for (const d of dosyalar) {
+        if (!BELGE_TURLERI[d.type]) { hata.textContent = `${d.name}: yalnızca PDF, JPG, PNG ya da WEBP.`; return; }
+        if (d.size > 5 * 1024 * 1024) { hata.textContent = `${d.name}: 5 MB'tan büyük.`; return; }
+      }
+      gonder.disabled = true; gonder.textContent = 'Gönderiliyor…';
+      const yollar = [];
+      try {
+        const uid = hesap.oturum.user.id;
+        for (const d of dosyalar) {
+          const yol = `${uid}/${crypto.randomUUID()}.${BELGE_TURLERI[d.type]}`;
+          const { error } = await hesap.db.storage.from(BELGE_DEPO).upload(yol, d, { contentType: d.type, upsert: false });
+          if (error) throw error;
+          yollar.push(yol);
+        }
+        await uyeRpc('sahiplik_basvur', { p_mekan: m.id, p_ad_soyad: adSoyad.value, p_rol: rol.value, p_telefon: tel.value || null,
+          p_eposta: ep.value || null, p_aciklama: acik.value, p_belgeler: yollar });
+        $('#diyalog').close();
+        bildir('Başvurun alındı. İnceleme sonucunu bu sayfada ve Sayfam\'da göreceksin.');
+        sahiplikGetir(m.id, true); isletmelerimTazele();
+      } catch (h) {
+        if (yollar.length) hesap.db.storage.from(BELGE_DEPO).remove(yollar).catch(() => {});
+        hata.textContent = sahipHata(h, 'Başvuru gönderilemedi. Yeniden dene.');
+        gonder.disabled = false; gonder.textContent = 'Başvuruyu gönder';
+      }
+    });
+    diyalogAc(itiraz ? `Sahiplik itirazı · ${m.ad}` : `İşletmeni sahiplen · ${m.ad}`, form);
+    adSoyad.focus();
+  }
+
+  /* --- duyurular (herkese açık okuma) --- */
+  async function duyurulariGetir(id, tazele) {
+    const v = duyuruOnbellek.get(id);
+    if (v && v.durum !== 'hata' && !tazele) return;
+    if (!AYAR.veritabani) return;
+    duyuruOnbellek.set(id, { durum: 'yukleniyor', liste: v ? v.liste : [] });
+    try {
+      const { url, anahtar } = AYAR.veritabani;
+      const y = await fetch(`${url}/rest/v1/mekan_duyuru?select=id,tur,baslik,metin,baslangic,bitis&mekan_id=eq.${encodeURIComponent(id)}&order=baslangic.asc&limit=20`,
+        { headers: { apikey: anahtar, Accept: 'application/json' } });
+      if (!y.ok) throw new Error(`mekan_duyuru: ${y.status}`);
+      duyuruOnbellek.set(id, { durum: 'tamam', liste: await y.json() });
+    } catch (h) { console.warn('Duyurular alınamadı', h); duyuruOnbellek.set(id, { durum: 'hata', liste: [] }); }
+    if (durum.sayfa === id) { const e = $('#msDuyuru'); if (e) e.replaceWith(duyuruBolumu(mekanBul(id))); }
+  }
+  function duyuruBolumu(m) {
+    const v = duyuruOnbellek.get(m.id);
+    const liste = (v && v.liste || []).filter(d => new Date(d.bitis) > new Date());
+    const kap = el('section', { class: 'ms-bolum ms-duyurular', id: 'msDuyuru', 'aria-label': 'Duyurular' });
+    if (!liste.length) { kap.hidden = true; return kap; }
+    const simdi = new Date();
+    kap.append(el('div', { class: 'ms-bolum-bas' }, el('h3', { text: 'Duyurular' }), el('span', { class: 'ms-etiket beyan', text: 'İşletme duyurusu' })),
+      el('ul', { class: 'duyuru-liste' }, liste.map(d => el('li', { class: `duyuru${new Date(d.baslangic) <= simdi ? ' simdi' : ''}` },
+        el('p', { class: 'duyuru-ust' }, el('span', { class: 'duyuru-tur', text: DUYURU_TURLERI[d.tur] || 'Duyuru' }),
+          new Date(d.baslangic) <= simdi ? el('span', { class: 'duyuru-simdi', text: 'Şu an' }) : null,
+          el('span', { class: 'duyuru-zaman', text: duyuruZamani(d) })),
+        el('p', { class: 'duyuru-baslik', text: d.baslik }),
+        d.metin ? el('p', { class: 'duyuru-metin', text: d.metin }) : null))),
+      el('p', { class: 'ms-not', text: 'Duyuruları işletme yayınlar; Keşif doğrulamaz.' }));
+    return kap;
+  }
+
+  /* --- sahip paneli --- */
+  async function sahipPaneli(m, sekme = 'bilgi') {
+    const icerik = el('div', { class: 'sahip-panel' }, el('p', { class: 'raf-bos', text: 'Yükleniyor…' }));
+    const secici = el('div', { class: 'sekme-secici', role: 'group', 'aria-label': 'İşletme paneli bölümleri' },
+      ...[['bilgi', 'Bilgiler'], ['foto', 'Fotoğraflar'], ['duyuru', 'Duyurular']].map(([k, metin]) => {
+        const b = el('button', { class: 'sekme', type: 'button', text: metin, 'aria-pressed': String(k === sekme) });
+        if (k === sekme) b.setAttribute('aria-current', 'page');
+        b.addEventListener('click', () => sahipPaneli(m, k));
+        return b;
+      }));
+    diyalogAc(`${m.ad} · İşletme paneli`, secici, icerik);
+    let ozet;
+    try { ozet = await uyeRpc('sahip_ozet', { p_mekan: m.id }); }
+    catch (h) { icerik.replaceChildren(el('p', { class: 'form-hata', text: sahipHata(h, 'Panel açılamadı. Yeniden dene.') })); return; }
+    if (!$('#diyalog').open || !icerik.isConnected) return;
+    icerik.replaceChildren(...(sekme === 'foto' ? sahipFotoBolumu(m, ozet) : sekme === 'duyuru' ? sahipDuyuruBolumu(m, ozet) : sahipBilgiBolumu(m, ozet)));
+  }
+
+  function sahipBilgiBolumu(m, ozet) {
+    const oz = m.ozellikler || {};
+    const metin = (deger, o = {}) => el('input', { type: 'text', value: deger == null ? '' : String(deger), ...o });
+    const ad = metin(m.ad, { maxlength: 120 });
+    const anaKat = el('select', null, Object.entries(kategoriler).filter(([k, v]) => k !== TUMU && v).map(([k, v]) => el('option', { value: k, text: v.ad, selected: k === m.kategori })));
+    const kapandi = el('input', { type: 'checkbox' });
+    const gerekce = el('textarea', { rows: 2, maxlength: 1000, placeholder: 'Ad, kategori ya da kapanış değişikliğinin nedeni (ekip inceler).' });
+    const tel = metin(m.telefon, { type: 'tel', maxlength: 40 });
+    const web = metin(m.web, { type: 'url', maxlength: 300, placeholder: 'https://' });
+    const adres = metin(m.adres, { maxlength: 300 });
+    const eposta = metin(oz.eposta, { type: 'email', maxlength: 200 });
+    const insta = metin(oz.instagram, { type: 'url', maxlength: 300, placeholder: 'https://www.instagram.com/…' });
+    const fb = metin(oz.facebook, { type: 'url', maxlength: 300, placeholder: 'https://www.facebook.com/…' });
+    const saat = el('textarea', { rows: 2, maxlength: 500, placeholder: 'ör. Pzt–Cum 09:00–22:00, Cmt–Paz 10:00–23:00' });
+    saat.value = typeof oz.calisma_saatleri === 'string' ? oz.calisma_saatleri : '';
+    const KRITIK_SAGLIK = ['kurum_tipi', 'acil_servis', 'sgk_anlasmasi'];
+    // Kategori filtre alanları (etiket hariç; çok seçenekli marka gibi listeler hariç).
+    const alanlar = filtreler(m.kategori).filter(f => f.alan !== ETIKET_ALANI && !(f.tip === 'coklu' && (f.secenekler || []).length > 60)).map(f => {
+      const v = oz[f.alan];
+      const kritik = m.kategori === 'saglik' && KRITIK_SAGLIK.includes(f.alan);
+      let giris, oku;
+      if (f.tip === 'evet_hayir') {
+        giris = el('select', null, [['', 'Bilinmiyor'], ['evet', 'Var'], ['hayir', 'Yok']].map(([d, t]) =>
+          el('option', { value: d, text: t, selected: (v === true && d === 'evet') || (v === false && d === 'hayir') || (v == null && d === '') })));
+        oku = () => (giris.value === 'evet' ? true : giris.value === 'hayir' ? false : null);
+      } else if (f.tip === 'secim') {
+        giris = el('select', null, [el('option', { value: '', text: 'Bilinmiyor', selected: v == null }),
+          ...f.secenekler.map(o => el('option', { value: o.deger, text: o.etiket, selected: v === o.deger }))]);
+        oku = () => giris.value || null;
+      } else {
+        const secili = new Set(Array.isArray(v) ? v : []);
+        const kutular = f.secenekler.map(o => {
+          const k = el('input', { type: 'checkbox', value: o.deger }); k.checked = secili.has(o.deger);
+          return el('label', { class: 'sahip-cip' }, k, o.etiket);
+        });
+        giris = el('div', { class: 'sahip-cipler', role: 'group', 'aria-label': f.etiket }, kutular);
+        oku = () => { const s = kutular.map(l => l.querySelector('input')).filter(k => k.checked).map(k => k.value); return s.length ? s : null; };
+      }
+      const kap = f.tip === 'coklu'
+        ? el('fieldset', { class: 'alan sahip-grup' }, el('legend', { text: f.etiket }), giris, kritik ? el('p', { class: 'alan-not', text: 'Ekip onayından sonra yayına girer.' }) : null)
+        : alan(f.etiket, giris, kritik ? el('p', { class: 'alan-not', text: 'Ekip onayından sonra yayına girer.' }) : null);
+      return { alan: f.alan, kap, oku, eski: v == null || (Array.isArray(v) && !v.length) ? null : v };
+    });
+    const ekSecili = new Set(ekKategoriler(m));
+    const ekKutular = Object.entries(kategoriler).filter(([k, v]) => k !== TUMU && v && k !== m.kategori).map(([k, v]) => {
+      const c = el('input', { type: 'checkbox', value: k }); c.checked = ekSecili.has(k);
+      return el('label', { class: 'sahip-cip' }, c, v.ad);
+    });
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const kaydet = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: 'Kaydet' });
+    const talepler = (ozet.talepler || []).map(t => el('li', null,
+      el('span', { text: Object.keys(t.alanlar).map(k => ({ ad: 'Ad', kategori: 'Kategori', durum: 'Kapanış', lat: 'Konum', lng: 'Konum' })[k] || k).filter((x, i, a) => a.indexOf(x) === i).join(', ') }),
+      ` · ${tarihYaz(t.olusturma)} · `, el('strong', { text: { bekliyor: 'inceleniyor', onaylandi: 'onaylandı', reddedildi: 'onaylanmadı', geri_cekildi: 'geri çekildi' }[t.durum] || t.durum }),
+      t.karar_notu ? ` (${t.karar_notu})` : null));
+    const form = el('form', { class: 'form-dikey', novalidate: true },
+      el('h3', { class: 'sahip-alt-baslik', text: 'İletişim' }),
+      alan('Telefon', tel), alan('Web sitesi', web), alan('Adres', adres), alan('E-posta', eposta), alan('Instagram', insta), alan('Facebook', fb),
+      alan('Çalışma saatleri', saat),
+      alanlar.length ? el('h3', { class: 'sahip-alt-baslik', text: 'Özellikler' }) : null, alanlar.map(a => a.kap),
+      el('details', { class: 'sahip-ek', open: ekSecili.size > 0 },
+        el('summary', { text: `Ek kategoriler (en çok 3)${ekSecili.size ? ` · ${[...ekSecili].map(k => kategoriler[k].ad).join(', ')}` : ''}` }),
+        el('p', { class: 'alan-not', text: 'İşletmen başka kategorilerde de listelensin (ör. otel-restoran → Restoranlar).' }),
+        el('div', { class: 'sahip-cipler', role: 'group', 'aria-label': 'Ek kategoriler' }, ekKutular)),
+      el('h3', { class: 'sahip-alt-baslik', text: 'Ekip onayıyla değişenler' }),
+      alan('İşletmenin adı', ad), alan('Ana kategori', anaKat),
+      el('label', { class: 'sahip-cip' }, kapandi, 'İşletme kalıcı olarak kapandı'),
+      alan('Gerekçe', gerekce),
+      talepler.length ? el('div', { class: 'kutu' }, el('p', null, el('strong', { text: 'Onay bekleyen ve son değişikliklerin' })), el('ul', { class: 'sahip-talepler' }, talepler)) : null,
+      el('p', { class: 'ipucu', text: 'Kaydettiğin bilgiler sayfada "İşletme tarafından güncellendi" notuyla, hemen görünür. Ad, kategori ve kapanış ekip onayından sonra değişir. Konum düzeltmesi için ekiple iletişime geç.' }),
+      hata, kaydet);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      const d = {};
+      const fark = (k, yeni, eski) => { const y = yeni === '' ? null : yeni; if (JSON.stringify(y ?? null) !== JSON.stringify(eski ?? null)) d[k] = y; };
+      fark('telefon', tel.value.trim(), m.telefon); fark('web', web.value.trim(), m.web); fark('adres', adres.value.trim(), m.adres);
+      fark('eposta', eposta.value.trim(), oz.eposta); fark('instagram', insta.value.trim(), oz.instagram); fark('facebook', fb.value.trim(), oz.facebook);
+      fark('calisma_saatleri', saat.value.trim(), typeof oz.calisma_saatleri === 'string' ? oz.calisma_saatleri : null);
+      for (const a of alanlar) fark(a.alan, a.oku(), a.eski);
+      const ekYeni = ekKutular.map(l => l.querySelector('input')).filter(c => c.checked).map(c => c.value);
+      if (ekYeni.length > 3) { hata.textContent = 'En çok 3 ek kategori seçebilirsin.'; return; }
+      fark('ek_kategori', ekYeni.length ? ekYeni : null, ekSecili.size ? [...ekSecili] : null);
+      if (ad.value.trim() && ad.value.trim() !== m.ad) d.ad = ad.value.trim();
+      if (anaKat.value !== m.kategori) d.kategori = anaKat.value;
+      if (kapandi.checked) d.durum = 'kapali';
+      if (d.web && !/^https?:\/\/\S+$/i.test(d.web)) { hata.textContent = 'Web adresi https:// ile başlamalı.'; web.focus(); return; }
+      for (const k of ['instagram', 'facebook']) if (d[k] && !/^https:\/\/(www\.|m\.)?(instagram|facebook)\.com\//.test(d[k])) { hata.textContent = `${k === 'instagram' ? 'Instagram' : 'Facebook'} bağlantısı tam adres olmalı (https://www.${k}.com/…).`; return; }
+      if (d.eposta && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(d.eposta)) { hata.textContent = 'E-posta adresi geçersiz görünüyor.'; eposta.focus(); return; }
+      if (!Object.keys(d).length) { hata.textContent = 'Değişiklik yok.'; return; }
+      kaydet.disabled = true; kaydet.textContent = 'Kaydediliyor…';
+      try {
+        const r = await uyeRpc('sahip_mekan_guncelle', { p_mekan: m.id, p_alanlar: d, p_gerekce: gerekce.value || null });
+        // Ekrandaki kaydı güncelle (sunucu aynı değişikliği yaptı).
+        const uyg = new Set(r && r.uygulanan || []);
+        for (const k of ['telefon', 'web', 'adres']) if (uyg.has(k)) m[k] = d[k];
+        m.ozellikler = { ...m.ozellikler };
+        for (const k of uyg) if (!['telefon', 'web', 'adres'].includes(k)) { if (d[k] == null) delete m.ozellikler[k]; else m.ozellikler[k] = d[k]; }
+        if (uyg.size) { m.ozellikler.isletme_guncelleme = istGun(new Date()); m.dogrulanacak = (m.dogrulanacak || []).filter(x => !uyg.has(x) && !(uyg.has('adres') && x === 'adres_yaklasik')); }
+        const iletiler = [];
+        if (uyg.size) iletiler.push('Bilgiler kaydedildi.');
+        if (r && r.talep) iletiler.push('Ad, kategori ya da kapanış değişikliğin ekip onayına gönderildi.');
+        bildir(iletiler.join(' ') || 'Kaydedildi.');
+        if (durum.sayfa === m.id) mekanSayfasiniCiz(m);
+        sahipPaneli(m, 'bilgi');
+        guncelle();
+      } catch (h) {
+        hata.textContent = sahipHata(h, 'Kaydedilemedi. Yeniden dene.');
+        kaydet.disabled = false; kaydet.textContent = 'Kaydet';
+      }
+    });
+    return [form];
+  }
+
+  function sahipFotoBolumu(m, ozet) {
+    const hak = (ozet.sinir && ozet.sinir.foto) || 5;
+    const kayit = fotoOnbellek.get(m.id);
+    const benimkiler = (kayit && kayit.liste || []).filter(f => f.kaynak === 'isletme');
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const sayac = el('p', null, el('strong', { text: `${benimkiler.length} / ${hak}` }), ' fotoğraf yükledin.');
+    const izgara = el('ul', { class: 'sahip-fotolar' }, benimkiler.map(f => {
+      const sil = el('button', { class: 'bag', type: 'button', text: 'Sil' });
+      sil.addEventListener('click', async () => {
+        if (sil.dataset.onay !== '1') { sil.dataset.onay = '1'; sil.textContent = 'Silmek için yeniden bas'; return; }
+        sil.disabled = true;
+        try {
+          const { error: e1 } = await hesap.db.storage.from(DEPO_FOTO).remove([f.yol, f.kucuk_yol]);
+          if (e1) throw e1;
+          const { error: e2 } = await hesap.db.from('mekan_foto').delete().eq('id', f.id);
+          if (e2) throw e2;
+          fotoOnbellek.delete(m.id); await fotolariGetir(m.id); sahipPaneli(m, 'foto');
+        } catch (h) { hata.textContent = sahipHata(h, 'Fotoğraf silinemedi.'); sil.disabled = false; }
+      });
+      return el('li', null, el('img', { src: fotoAdresi(f.kucuk_yol), alt: '', loading: 'lazy', width: 160, height: 120 }), sil);
+    }));
+    const sec = el('input', { type: 'file', accept: 'image/*', multiple: true, hidden: true });
+    const ekle = el('button', { class: 'dugme', type: 'button', text: 'Fotoğraf ekle', disabled: benimkiler.length >= hak });
+    ekle.addEventListener('click', () => sec.click());
+    sec.addEventListener('change', async () => {
+      hata.textContent = '';
+      const dosyalar = [...sec.files].slice(0, Math.max(0, hak - benimkiler.length));
+      if (sec.files.length > dosyalar.length) hata.textContent = `Hakkın ${hak} fotoğraf; fazlası alınmadı.`;
+      ekle.disabled = true; ekle.textContent = 'Yükleniyor…';
+      let sira = 100 + benimkiler.length;
+      for (const d of dosyalar) {
+        if (!/^image\//.test(d.type) || d.size > 25 * 1024 * 1024) { hata.textContent = `${d.name}: görsel değil ya da 25 MB'tan büyük.`; continue; }
+        const uuid = crypto.randomUUID(), yol = `${m.id}/${uuid}.webp`, kucukYol = `${m.id}/${uuid}-k.webp`;
+        const yuklenen = [];
+        try {
+          const buyuk = await fotoHazirlaSahip(d, 1600, 0.82), kucuk = await fotoHazirlaSahip(d, 480, 0.78);
+          const depo = hesap.db.storage.from(DEPO_FOTO);
+          let r = await depo.upload(yol, buyuk.blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false }); if (r.error) throw r.error; yuklenen.push(yol);
+          r = await depo.upload(kucukYol, kucuk.blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false }); if (r.error) throw r.error; yuklenen.push(kucukYol);
+          const { error } = await hesap.db.from('mekan_foto').insert({ mekan_id: m.id, yol, kucuk_yol: kucukYol, genislik: buyuk.w, yukseklik: buyuk.h, sira: ++sira, kaynak: 'isletme', yukleyen: hesap.oturum.user.id });
+          if (error) throw error;
+        } catch (h) {
+          if (yuklenen.length) hesap.db.storage.from(DEPO_FOTO).remove(yuklenen).catch(() => {});
+          hata.textContent = h && h.message === 'webp' ? `${d.name}: bu tarayıcı fotoğrafı hazırlayamıyor; Chrome, Edge ya da Firefox ile dene.` : `${d.name}: ${sahipHata(h, 'yüklenemedi.')}`;
+        }
+      }
+      fotoOnbellek.delete(m.id); await fotolariGetir(m.id);
+      if ($('#diyalog').open) sahipPaneli(m, 'foto');
+    });
+    return [sayac,
+      el('p', { class: 'ipucu', text: 'Fotoğraflar yüklenirken küçültülür ve içindeki konum bilgisi silinir. Kişilerin yüzünün açıkça göründüğü fotoğraflar için izinlerini al.' }),
+      benimkiler.length ? izgara : el('p', { class: 'raf-bos', text: 'Henüz fotoğraf yüklemedin.' }),
+      el('div', { class: 'profil-eylem' }, ekle, sec), hata];
+  }
+  const DEPO_FOTO = 'mekan-foto';
+  async function fotoHazirlaSahip(dosya, enUzun, kalite) {
+    const bmp = await createImageBitmap(dosya, { imageOrientation: 'from-image' });
+    const o = Math.min(1, enUzun / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width * o)), h = Math.max(1, Math.round(bmp.height * o));
+    const tuval = document.createElement('canvas'); tuval.width = w; tuval.height = h;
+    tuval.getContext('2d').drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise(r => tuval.toBlob(r, 'image/webp', kalite));
+    if (!blob || blob.type !== 'image/webp') throw new Error('webp');
+    return { blob, w, h };
+  }
+
+  function sahipDuyuruBolumu(m, ozet) {
+    const s = ozet.sinir || {}, ay = s.duyuru_ay || 2, kullanilan = ozet.duyuru_bu_ay || 0;
+    const hata = el('p', { class: 'form-hata', role: 'alert' });
+    const saglik = m.kategori === 'saglik';
+    const tur = el('select', null, Object.entries(DUYURU_TURLERI).filter(([k]) => !saglik || k === 'genel').map(([k, t]) => el('option', { value: k, text: t })));
+    const baslik = el('input', { type: 'text', maxlength: 80, placeholder: saglik ? 'ör. Bayramda poliklinik kapalı' : 'ör. Bu akşam canlı müzik' });
+    const metin = el('textarea', { rows: 3, maxlength: 500 });
+    const yerel = d => { const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+    const b0 = new Date(); b0.setHours(Math.max(b0.getHours() + 1, 19), 0, 0, 0);
+    const bas = el('input', { type: 'datetime-local', value: yerel(b0) });
+    const bit = el('input', { type: 'datetime-local', value: yerel(new Date(b0.getTime() + 3 * 36e5)) });
+    const yayinla = el('button', { class: 'dugme dugme-dolu', type: 'submit', text: 'Duyuruyu yayınla', disabled: kullanilan >= ay });
+    const form = el('form', { class: 'form-dikey', novalidate: true },
+      el('p', null, el('strong', { text: `Bu ay ${kullanilan} / ${ay} duyuru hakkını kullandın.` }), ' Hak her ayın 1\'inde yenilenir; silinen duyuru hakkı geri vermez.'),
+      saglik ? el('p', { class: 'ipucu', text: 'Sağlık kurumları yalnızca bilgilendirme duyurusu yapabilir; kampanya ve indirim duyurusu yayınlanamaz.' }) : null,
+      alan('Tür', tur), alan('Başlık', baslik), alan('Ayrıntı (isteğe bağlı)', metin),
+      el('div', { class: 'sahip-iki' }, alan('Başlangıç', bas), alan('Bitiş', bit)),
+      el('p', { class: 'ipucu', text: 'Duyuru başlangıçtan bitişe kadar sayfanda görünür, sonra kendiliğinden kalkar. Yayınladıktan sonra tarih değiştirilemez; metni düzeltebilirsin.' }),
+      hata, yayinla);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      hata.textContent = '';
+      if (baslik.value.trim().length < 3) { hata.textContent = 'Başlık en az 3 karakter olmalı.'; baslik.focus(); return; }
+      const b = new Date(bas.value), t = new Date(bit.value);
+      if (isNaN(b) || isNaN(t) || t <= b) { hata.textContent = 'Bitiş, başlangıçtan sonra olmalı.'; return; }
+      yayinla.disabled = true;
+      try {
+        await uyeRpc('duyuru_ekle', { p_mekan: m.id, p_tur: tur.value, p_baslik: baslik.value, p_metin: metin.value || null, p_baslangic: b.toISOString(), p_bitis: t.toISOString() });
+        bildir('Duyuru yayınlandı.');
+        duyurulariGetir(m.id, true);
+        sahipPaneli(m, 'duyuru');
+      } catch (h) { hata.textContent = sahipHata(h, 'Duyuru yayınlanamadı.'); yayinla.disabled = false; }
+    });
+    const liste = (ozet.duyurular || []).map(d => {
+      const gizle = el('button', { class: 'bag', type: 'button', text: d.durum === 'yayinda' ? 'Gizle' : 'Yayınla' });
+      const sil = el('button', { class: 'bag', type: 'button', text: 'Sil' });
+      const yap = async (yeni, b) => {
+        if (yeni === 'silindi' && b.dataset.onay !== '1') { b.dataset.onay = '1'; b.textContent = 'Silmek için yeniden bas'; return; }
+        b.disabled = true;
+        try { await uyeRpc('duyuru_guncelle', { p_id: d.id, p_baslik: null, p_metin: null, p_durum: yeni }); duyurulariGetir(m.id, true); sahipPaneli(m, 'duyuru'); }
+        catch (h) { hata.textContent = sahipHata(h); b.disabled = false; }
+      };
+      gizle.addEventListener('click', () => yap(d.durum === 'yayinda' ? 'gizli' : 'yayinda', gizle));
+      sil.addEventListener('click', () => yap('silindi', sil));
+      const bitti = new Date(d.bitis) <= new Date();
+      return el('li', { class: 'duyuru' },
+        el('p', { class: 'duyuru-ust' }, el('span', { class: 'duyuru-tur', text: DUYURU_TURLERI[d.tur] || 'Duyuru' }), el('span', { class: 'duyuru-zaman', text: duyuruZamani(d) }),
+          el('span', { class: 'duyuru-durum', text: bitti ? 'bitti' : d.durum === 'yayinda' ? 'yayında' : d.durum === 'gizli' ? 'gizli' : 'kaldırıldı (ekip)' })),
+        el('p', { class: 'duyuru-baslik', text: d.baslik }), d.metin ? el('p', { class: 'duyuru-metin', text: d.metin }) : null,
+        d.durum === 'kaldirildi' || bitti ? null : el('p', { class: 'duyuru-eylem' }, gizle, ' · ', sil));
+    });
+    return [form, liste.length ? el('div', null, el('h3', { class: 'sahip-alt-baslik', text: 'Duyuruların' }), el('ul', { class: 'duyuru-liste' }, liste)) : null];
+  }
+
+  /* --- Sayfam: işletmelerim --- */
+  var isletmeler = { durum: 'bos', veri: null, zaman: 0 };
+  async function isletmelerimTazele() {
+    if (!hesapHazir()) { isletmeler.durum = 'bos'; isletmeler.veri = null; return; }
+    isletmeler.durum = 'yukleniyor';
+    try { isletmeler.veri = await uyeRpc('isletmelerim', {}); isletmeler.durum = 'tamam'; isletmeler.zaman = Date.now(); }
+    catch (h) { console.warn('İşletmelerim alınamadı', h); isletmeler.durum = 'hata'; }
+    if (durum.sekme === 'sayfam') { const e = $('#sayfamIsletme'); if (e) e.replaceWith(isletmelerimKutusu()); }
+  }
+  function isletmelerimKutusu() {
+    const v = isletmeler.veri;
+    const kap = el('div', { class: 'kutu', id: 'sayfamIsletme' });
+    if (!v || (!v.mekanlar.length && !v.basvurular.length)) { kap.hidden = true; return kap; }
+    const ac = (id, sonra) => {
+      const m = mekanBul(id);
+      const git = x => { if (!x) { bildir('Bu yer şu an açılamadı.'); return; } mekanSayfasiniAc(x, { kaynak: 'sayfam' }); if (sonra) sonra(x); };
+      if (m) git(m); else kimlikleriYukle([id]).then(() => git(mekanBul(id)));
+    };
+    const dugme = (metin, is, sinif = 'bag') => { const b = el('button', { class: sinif, type: 'button', text: metin }); b.addEventListener('click', is); return b; };
+    kap.append(el('h3', { class: 'raf-baslik', text: 'İşletmelerim' }));
+    if (v.mekanlar.length) kap.append(el('ul', { class: 'sahip-talepler' }, v.mekanlar.map(x => el('li', null,
+      el('strong', { text: x.ad }), ` · ${x.ilce}, ${x.il} · `, dugme('Sayfayı aç', () => ac(x.id)), ' · ',
+      dugme('Yönet', () => ac(x.id, m => sahipPaneli(m)))))));
+    const bek = v.basvurular.filter(b => b.durum !== 'onaylandi');
+    if (bek.length) kap.append(el('p', null, el('strong', { text: 'Başvurularım' })), el('ul', { class: 'sahip-talepler' }, bek.map(b => el('li', null,
+      dugme(b.ad, () => ac(b.mekan_id)), ` · ${tarihYaz(b.olusturma)} · `,
+      el('strong', { text: { bekliyor: 'inceleniyor', reddedildi: 'onaylanmadı', geri_cekildi: 'geri çekildi' }[b.durum] || b.durum }),
+      b.karar_notu ? ` (${b.karar_notu})` : null))));
+    return kap;
   }
 
   /* ---------- işletme sayfası: puan ---------- */

@@ -962,6 +962,16 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
   .ust { gap: 8px; padding-inline: 12px; }
   .baglam { display: none; }
 }
+.isletme-liste { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.isletme-oge { padding: 12px; border: 1px solid var(--cizgi); border-radius: 12px; display: flex; flex-direction: column; gap: 6px; }
+.isletme-oge p { margin: 0; }
+.isletme-oge .rozetler { display: flex; gap: 6px; flex-wrap: wrap; }
+.isletme-oge .rozet-uyari { padding: 1px 8px; border-radius: 999px; background: var(--uyari, #b45309); color: #fff; font-size: 12px; font-weight: 600; }
+.isletme-oge .aciklama { white-space: pre-line; }
+.isletme-oge .karar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.isletme-oge .karar input { flex: 1; min-width: 160px; }
+.isletme-oge table { border-collapse: collapse; font-size: 14px; }
+.isletme-oge td, .isletme-oge th { padding: 2px 10px 2px 0; text-align: left; vertical-align: top; }
 @media (prefers-reduced-motion: reduce) {
   .ynt *, .ynt *::before, .ynt *::after { transition: none !important; }
 }
@@ -1068,6 +1078,7 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
           </div>
           <button class="dugme dugme-dolu tam" id="yeniMekan" type="button">+ Yeni mekan</button>
           <button class="bag" id="etiketYonet" type="button">Etiket listesi ve öneriler</button>
+          <button class="bag" id="isletmeYonet" type="button">İşletme başvuruları <span id="isletmeSayi"></span></button>
         </div>
         <ul class="mekan-liste" id="mekanListe"></ul>
       </aside>
@@ -1251,6 +1262,17 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
     <ul class="etiket-oneriler" id="etiketOneriler"></ul>
     <p class="ipucu" id="etiketDiyalogBilgi" role="status"></p>
     <div class="eylemler"><button class="dugme" id="etiketDiyalogKapat" type="button">Kapat</button></div>
+  </dialog>
+
+  <dialog class="diyalog genis" id="isletmeDiyalog" aria-labelledby="isletmeDiyalogBaslik">
+    <h2 id="isletmeDiyalogBaslik">İşletme sahipleri</h2>
+    <p class="ipucu">Sahiplik başvurularını ve sahiplerin ekip onayı isteyen değişikliklerini (ad, ana kategori, kapanış; sağlıkta kurum tipi, acil servis, SGK) buradan karara bağla. Kanıt yöntemi henüz seçilmedi: açıklamayı ve belgeleri incele, gerekirse başvuranı ara.</p>
+    <h3>Sahiplik başvuruları</h3>
+    <ul class="isletme-liste" id="isletmeBasvurular"></ul>
+    <h3>Onay bekleyen değişiklikler</h3>
+    <ul class="isletme-liste" id="isletmeTalepler"></ul>
+    <p class="ipucu" id="isletmeBilgi" role="status"></p>
+    <div class="eylemler"><button class="dugme" id="isletmeYenile" type="button">Yenile</button><button class="dugme" id="isletmeKapat" type="button">Kapat</button></div>
   </dialog>
 
   <dialog class="diyalog" id="ayrilDiyalog" aria-labelledby="ayrilBaslik">
@@ -1525,6 +1547,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
       return;
     }
     await mekanlariYukle();
+    isletmeSayisiniYaz();
   }
 
   async function cikisYap(neden) {
@@ -2469,6 +2492,85 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     });
   }
 
+  /* ---------- işletme sahipleri: başvurular ve onay bekleyen değişiklikler (sql/isletme_sahip.sql) ---------- */
+  const TALEP_ALAN = { ad: 'Ad', kategori: 'Ana kategori', durum: 'Durum', lat: 'Enlem', lng: 'Boylam', kurum_tipi: 'Kurum tipi', acil_servis: 'Acil servis', sgk_anlasmasi: 'SGK anlaşması' };
+  function isletmeYonetimiKur() {
+    const d = $('#isletmeDiyalog');
+    $('#isletmeYonet').addEventListener('click', () => { $('#isletmeBilgi').textContent = ''; d.showModal(); isletmeDiyaloguCiz(); });
+    $('#isletmeKapat').addEventListener('click', () => d.close());
+    $('#isletmeYenile').addEventListener('click', isletmeDiyaloguCiz);
+  }
+  async function isletmeSayisiniYaz() {
+    const [a, b] = await Promise.all([
+      db.from('sahiplik_basvuru').select('id', { count: 'exact', head: true }).eq('durum', 'bekliyor'),
+      db.from('sahip_talep').select('id', { count: 'exact', head: true }).eq('durum', 'bekliyor')]);
+    const n = (a.count || 0) + (b.count || 0);
+    $('#isletmeSayi').textContent = n ? `(${n})` : '';
+  }
+  async function isletmeDiyaloguCiz() {
+    const bilgi = $('#isletmeBilgi'), ul1 = $('#isletmeBasvurular'), ul2 = $('#isletmeTalepler');
+    ul1.replaceChildren(el('li', { text: 'Yükleniyor…' })); ul2.replaceChildren();
+    const [b, t] = await Promise.all([
+      db.from('sahiplik_basvuru').select('*').eq('durum', 'bekliyor').order('olusturma'),
+      db.from('sahip_talep').select('*').eq('durum', 'bekliyor').order('olusturma')]);
+    if (b.error || t.error) { ul1.replaceChildren(); bilgi.textContent = hataMetni(b.error || t.error); return; }
+    const idler = [...new Set([...b.data, ...t.data].map(x => x.mekan_id))];
+    const mekanlar = new Map();
+    if (idler.length) {
+      const { data } = await db.from('mekan').select('id,ad,kategori,il,ilce,adres,telefon,durum,lat,lng,ozellikler').in('id', idler);
+      for (const m of data || []) mekanlar.set(m.id, m);
+    }
+    const mekanSatiri = id => { const m = mekanlar.get(id); return el('p', null, el('strong', { text: m ? m.ad : id }), m ? ` · ${m.kategori} · ${m.ilce}, ${m.il}` : '', ' · ',
+      el('a', { href: `./#mekan=${encodeURIComponent(id)}`, target: '_blank', rel: 'noopener', text: 'Sitede aç' })); };
+    const kararAlani = (onayMetni, is) => {
+      const not = el('input', { class: 'giris-alani', type: 'text', maxlength: 300, placeholder: 'Not (başvurana görünür; ret için önerilir)', 'aria-label': 'Karar notu' });
+      const onay = el('button', { class: 'dugme dugme-dolu', type: 'button', text: onayMetni });
+      const ret = el('button', { class: 'dugme', type: 'button', text: 'Reddet' });
+      const yap = async (evet, dugme) => {
+        if (dugme.dataset.emin !== '1') { dugme.dataset.emin = '1'; dugme.textContent = evet ? 'Emin misin? Onayla' : 'Emin misin? Reddet'; return; }
+        onay.disabled = ret.disabled = true;
+        const { error } = await is(evet, not.value);
+        bilgi.textContent = error ? hataMetni(error) : evet ? 'Onaylandı.' : 'Reddedildi.';
+        isletmeDiyaloguCiz(); isletmeSayisiniYaz();
+      };
+      onay.addEventListener('click', () => yap(true, onay));
+      ret.addEventListener('click', () => yap(false, ret));
+      return el('div', { class: 'karar' }, not, onay, ret);
+    };
+    ul1.replaceChildren(...(b.data.length ? b.data.map(x => {
+      const belgeler = el('p', null, x.belgeler.length ? 'Belgeler: ' : 'Belge yok.');
+      x.belgeler.forEach((yol, i) => {
+        const a = el('a', { href: '#', text: `${i + 1}. belge (${yol.split('.').pop()})` });
+        a.addEventListener('click', async e => {
+          e.preventDefault();
+          const { data, error } = await db.storage.from('sahiplik-belge').createSignedUrl(yol, 600);
+          if (error) { bilgi.textContent = hataMetni(error); return; }
+          window.open(data.signedUrl, '_blank', 'noopener');
+        });
+        belgeler.append(i ? ' · ' : '', a);
+      });
+      return el('li', { class: 'isletme-oge' }, mekanSatiri(x.mekan_id),
+        el('div', { class: 'rozetler' },
+          x.itiraz ? el('span', { class: 'rozet-uyari', text: 'İtiraz: mekanın sahibi var, onaylanırsa sahiplik devredilir' }) : null,
+          x.istisna ? el('span', { class: 'rozet-uyari', text: 'İstisna: başvuranın başka bir mekanı var' }) : null),
+        el('p', null, el('strong', { text: x.ad_soyad }), ` · ${x.rol}`, x.telefon ? ` · ${x.telefon}` : '', x.eposta ? ` · ${x.eposta}` : ''),
+        el('p', { class: 'aciklama', text: x.aciklama }), belgeler,
+        el('p', { class: 'ipucu', text: `Başvuru: ${new Date(x.olusturma).toLocaleString('tr-TR')}` }),
+        kararAlani('Onayla (sahip yap)', (evet, not) => db.rpc('sahiplik_karar', { p_id: x.id, p_onay: evet, p_not: not || null })));
+    }) : [el('li', { class: 'ipucu', text: 'Bekleyen başvuru yok.' })]));
+    ul2.replaceChildren(...(t.data.length ? t.data.map(x => {
+      const m = mekanlar.get(x.mekan_id) || {};
+      const simdi = k => (['ad', 'kategori', 'durum', 'lat', 'lng'].includes(k) ? m[k] : (m.ozellikler || {})[k]);
+      return el('li', { class: 'isletme-oge' }, mekanSatiri(x.mekan_id),
+        el('table', null, el('tr', null, el('th', { text: 'Alan' }), el('th', { text: 'Şimdi' }), el('th', { text: 'İstenen' })),
+          Object.entries(x.alanlar).map(([k, v]) => el('tr', null, el('td', { text: TALEP_ALAN[k] || k }),
+            el('td', { text: simdi(k) == null ? '—' : String(simdi(k)) }), el('td', null, el('strong', { text: v == null ? '—' : String(v) }))))),
+        x.gerekce ? el('p', { class: 'aciklama', text: `Gerekçe: ${x.gerekce}` }) : null,
+        el('p', { class: 'ipucu', text: `İstek: ${new Date(x.olusturma).toLocaleString('tr-TR')}` }),
+        kararAlani('Onayla (uygula)', (evet, not) => db.rpc('talep_karar', { p_id: x.id, p_onay: evet, p_not: not || null })));
+    }) : [el('li', { class: 'ipucu', text: 'Bekleyen değişiklik yok.' })]));
+  }
+
   async function fotolariYukle(id) {
     foto.mekanId = id; foto.liste = []; foto.hata = null;
     fotolariCiz();
@@ -2933,6 +3035,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
     $('#yenile').addEventListener('click', listeyiYenile);
     $('#yeniMekan').addEventListener('click', yeniMekanIste);
     etiketYonetimiKur();
+    isletmeYonetimiKur();
     $('#cikis').addEventListener('click', async () => {
       if (!(await ayrilabilirMi())) return;
       formuKapat();
