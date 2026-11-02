@@ -4515,7 +4515,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       return b;
     };
     const cizgi = () => el('div', { class: 'hesap-menu-cizgi', role: 'separator' });
-    m.replaceChildren(
+    m.replaceChildren(...[
       el('div', { class: 'hesap-menu-bas' }, avatar(p.kullanici_adi, p.foto),
         el('div', { class: 'hesap-menu-kim' }, el('strong', { text: p.ad || `@${p.kullanici_adi}` }), p.ad ? el('span', { text: `@${p.kullanici_adi}` }) : null)),
       cizgi(),
@@ -4525,7 +4525,7 @@ window.KESIF_AYAR = Object.assign({"veriYolu":"","altliklar":[{"ad":"ofm","tur":
       isletmemVar() ? oge('İşletmelerim', () => { profilDuzenleniyor = false; sayfamaGit(); setTimeout(() => { const e = $('#sayfamIsletme'); if (e && !e.hidden) e.scrollIntoView({ block: 'start' }); }, 50); }) : null,
       oge('Ayarlar', ayarlarDiyalogu),
       cizgi(),
-      oge('Çıkış yap', cikisYap, 'tehlike'));
+      oge('Çıkış yap', cikisYap, 'tehlike')].filter(Boolean));   // replaceChildren null'u "null" yazısı olarak basar
   }
   function hesapMenusuKur() {
     const kap = $('#hesapKap'), b = $('#hesapDugme'), m = $('#hesapMenu');
