@@ -46,7 +46,7 @@ returns smallint language sql immutable parallel safe set search_path = '' as $$
 $$;
 grant execute on function public.mekan_ilgi3(text, text, text, text, jsonb, smallint, real, text) to anon, authenticated;
 
--- NOT (01.11.2026): mekan_nokta_esle'nin güncel sürümü sql/populer.sql'de (kaynak kolonu). Bu dosyayı yeniden uygularsan ardından populer.sql'i de uygula.
+-- NOT: mekan_nokta_esle'nin güncel sürümü sql/ek_kategori.sql'de. Bu dosyayı yeniden uygularsan ardından populer.sql ve ek_kategori.sql'i de uygula.
 create or replace function public.mekan_nokta_esle() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin

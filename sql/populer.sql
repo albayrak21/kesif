@@ -42,7 +42,7 @@ returns int language sql immutable parallel safe as $$
   select coalesce(skor, 0) + 15 * (greatest(coalesce(kaynak, 1), 1) - 1) + public.kategori_agirlik(kategori)
 $$;
 
--- mekan tetikleyicisi kaynak sayısını da yazar (mekan_ic satırı varsa).
+-- mekan tetikleyicisi kaynak sayısını da yazar (mekan_ic satırı varsa). GÜNCEL SÜRÜM: sql/ek_kategori.sql (bu dosyadan sonra uygula).
 create or replace function public.mekan_nokta_esle() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare ks smallint;

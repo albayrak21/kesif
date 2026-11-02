@@ -6,7 +6,7 @@
 --   p_q dolu              -> aramanın eşleştiği etiketleri taşıyanlar (en önde) + adı eşleşenler + p_q_kats (aramanın eşleştiği
 --                            kategoriler) + p_q_turler ([kategori, tür] çiftleri). Etiket eşleşmesi sunucuda: etiket adı ya da eş
 --                            anlamlılarında her kelime bir kelimenin başında geçmeli (ör. "michelin", "michelin yıldızlı", "şık").
---   p_kats dolu           -> yalnız bu kategoriler (aramayla birlikte: arama sonuçları bu kategorilerle sınırlanır)
+--   p_kats dolu           -> yalnız bu kategoriler, ek kategori olarak bulunanlar dahil (mekan_nokta_ek; aramayla birlikte: arama sonuçları bu kategorilerle sınırlanır)
 -- p_filtre: [{alan, tip: secim|evet_hayir|coklu, eslesme: herhangi|hepsi, s}] (yalnız etkin olanlar). Bilgisi olmayan kayıt elenmez.
 -- p_izgara: [sütun, satır, hücre başına]. Dönüş: {toplam, kayitlar} ya da {toplam, sayilar}.
 -- p_yakin: yakın görünüm (sitede z ≥ 15). Arama ve kategori yokken öne çıkanlarla yetinmez, alandaki her yer gelir;
@@ -58,16 +58,22 @@ declare
   etk text[];
   et_k text := '';
   f_etk text[];
+  ek_k text := '';     -- ek kategori parçası için kategori koşulu (mekan_nokta_ek)
+  kat_et text := '';   -- etiket parçasında kategori koşulu (ana ya da ek kategori)
+  tur_e text := '';
 begin
   if p_kutu is null or cardinality(p_kutu) <> 4 then return jsonb_build_object('hata', 'kutu'); end if;
   select array_agg(x) into kel from (select x from unnest(string_to_array(tam, ' ')) x where x <> '' limit 5) q;
   gez := kel is null and coalesce(cardinality(p_kats), 0) = 0;
   kutu_k := format('p.lat between %s and %s and p.lng between %s and %s', s, n, w, e);
   -- Filtre sayılarında tür, nokta tablosundaki tur dizisinden sayılır (mekan'a gitmeden).
-  if p_ne = 'sayi' then tur_s := ', p.tur'; end if;
+  if p_ne = 'sayi' then tur_s := ', p.tur'; tur_e := ', null::text[] as tur'; end if;
   if p_kats is not null and cardinality(p_kats) > 0 then
     kat_k := format(' and p.kategori = any(%L::text[])', p_kats);
-    m_kat_k := format(' and m.kategori = any(%L::text[])', p_kats);
+    -- Ek kategoriler (sql/ek_kategori.sql): ana kategorisi başka olup bu kategoride de listelenen yerler.
+    m_kat_k := format(' and (m.kategori = any(%1$L::text[]) or m.ozellikler->''ek_kategori'' ?| %1$L::text[])', p_kats);
+    kat_et := format(' and (p.kategori = any(%1$L::text[]) or exists (select 1 from mekan_nokta_ek x where x.id = p.id and x.kategori = any(%1$L::text[])))', p_kats);
+    ek_k := format(' and p.kategori = any(%1$L::text[]) and not exists (select 1 from mekan_nokta z where z.id = p.id and z.kategori = any(%1$L::text[]))', p_kats);
   end if;
 
   -- Filtreler: bilinmeyen değer elenmez (sitede "bilgisi eksik" diye ayrı gösterilir).
@@ -96,6 +102,8 @@ begin
   end if;
 
   if f_etk is not null then
+    ek_k := ek_k || format(' and p.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
+    kat_et := kat_et || format(' and p.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
     kat_k := kat_k || format(' and p.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
     m_kat_k := m_kat_k || format(' and m.id = any(%L::text[])', coalesce(public.etiket_mekanlari(f_etk), '{}'));
   end if;
@@ -107,6 +115,9 @@ begin
     taban := format('select p.id, p.lat, p.lng, p.ilgi as puan%s from mekan_nokta p where p.ilgi > 0 and %s', tur_s, kutu_k);
   elsif kel is null then
     taban := format('select p.id, p.lat, p.lng, p.skor as puan%s from mekan_nokta p where %s%s', tur_s, kutu_k, kat_k);
+    if ek_k <> '' then
+      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta_ek p where %s%s', tur_e, kutu_k, ek_k);
+    end if;
   else
     -- Ad: her kelime adda bir kelimenin başında geçmeli. Kısa aramada (3 harften az) yalnız adı bununla başlayanlar (önek indeksi).
     if (select max(length(x)) from unnest(kel) x) < 3 then
@@ -136,12 +147,15 @@ begin
       et_k := ' and m.id not in (select id from et)';
     end if;
     taban := format('with et as materialized (select p.id, p.lat, p.lng, p.skor + 1000 + (100 - least(t.sira, 99)) * 100 as puan%s from etiket_mekan_sira(%L::text[]) t join mekan_nokta p on p.id = t.mekan_id where %s%s), ad as materialized (select m.id, m.lat, m.lng, mekan_skor(m.onem, m.guven, m.telefon, m.web, m.adres, m.dogrulanacak) as puan%s from mekan m where m.durum = ''acik'' and m.lat between %s and %s and m.lng between %s and %s%s%s%s%s limit %s) select * from et union all select * from ad',
-      tur_s, coalesce(etk, '{}'), kutu_k, kat_k,
+      tur_s, coalesce(etk, '{}'), kutu_k, case when kat_et <> '' then kat_et else kat_k end,
       case when tur_s <> '' then ', case when jsonb_typeof(m.ozellikler->''tur'') = ''array'' then array(select jsonb_array_elements_text(m.ozellikler->''tur'')) end as tur' else '' end,
       s, n, w, e, il_k, ad_k, m_kat_k, et_k, ad_sinir);
     if p_q_kats is not null and cardinality(p_q_kats) > 0 then
       taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%s from mekan_nokta p where %s and p.kategori = any(%L::text[])%s and p.id not in (select id from ad) and p.id not in (select id from et)',
         tur_s, kutu_k, p_q_kats, kat_k);
+      -- Aramanın eşleştiği kategoride ek kategori olarak bulunanlar (ana kategorisi zaten eşleşenler tekrar edilmez).
+      taban := taban || format(' union all select p.id, p.lat, p.lng, p.skor%1$s from mekan_nokta_ek p where %2$s and p.kategori = any(%3$L::text[])%4$s and not exists (select 1 from mekan_nokta z where z.id = p.id and z.kategori = any(%3$L::text[])) and p.id not in (select id from ad) and p.id not in (select id from et)',
+        tur_e, kutu_k, p_q_kats, ek_k);
     end if;
     if p_q_turler is not null and jsonb_typeof(p_q_turler) = 'array' and jsonb_array_length(p_q_turler) > 0 then
       -- Kategori başına ayrı parça: (kategori, lat, lng) indeksi kullanılsın. Aramanın eşleştiği kategoriler zaten yukarıda.
