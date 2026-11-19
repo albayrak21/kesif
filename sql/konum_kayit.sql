@@ -39,3 +39,16 @@ select cron.schedule('konum-temizle', '23 2 * * *', $c$delete from public.konum_
 -- select cron.unschedule('konum-temizle');
 -- drop function public.konum_yaz(text, double precision, double precision, real, text);
 -- drop table public.konum_kayit;
+
+-- Migration yonetici_seviye (19.11.2026): yönetici seviyeleri. 1 = Emre (her şey), 2 = Emine Pınar (konum kayıtları hariç).
+-- Yeni eklenen yönetici varsayılan olarak 2. seviye olur. Seviyeyi yalnız veritabanından (postgres) değiştirmek mümkün.
+alter table public.yonetici add column seviye smallint not null default 2 check (seviye in (1, 2));
+update public.yonetici set seviye = 1 where user_id = '32dbb947-b9f4-4100-bec8-20ba861fafbd';   -- emrealbayrak21
+create or replace function private.yonetici1_mi()
+returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.yonetici y where y.user_id = auth.uid() and y.seviye = 1);
+$$;
+revoke all on function private.yonetici1_mi() from public, anon;
+grant execute on function private.yonetici1_mi() to authenticated;
+drop policy "konum yonetici okur" on public.konum_kayit;
+create policy "konum yalniz yonetici 1 okur" on public.konum_kayit for select to authenticated using ((select private.yonetici1_mi()));

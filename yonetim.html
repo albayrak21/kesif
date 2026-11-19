@@ -1000,7 +1000,7 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
     <nav class="ust-sekme" id="ustSekme" aria-label="Bölümler" hidden>
       <button type="button" data-bolum="calisma" aria-current="true">Mekanlar</button>
       <button type="button" data-bolum="secki"><span class="uzun">Öne çıkan </span>Listeler</button>
-      <button type="button" data-bolum="konum">Konum<span class="uzun">lar</span></button>
+      <button type="button" data-bolum="konum" hidden>Konum<span class="uzun">lar</span></button>
     </nav>
     <div class="ust-sag">
       <span class="kullanici" id="kullanici" hidden></span>
@@ -1569,7 +1569,7 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   async function oturumAc(u) {
     kullanici = u;
     yukleniyor('Yetki denetleniyor…');
-    const { data, error, status } = await db.from('yonetici').select('user_id').eq('user_id', u.id).maybeSingle();
+    const { data, error, status } = await db.from('yonetici').select('user_id,seviye').eq('user_id', u.id).maybeSingle();
     if (error) {
       if (status === 401 || /jwt/i.test(error.message || '')) { await cikisYap('Oturumun süresi dolmuş. Yeniden giriş yap.'); return; }
       mesajGoster('Bağlantı sorunu', hataMetni(error), { etiket: 'Tekrar dene', is: () => oturumAc(u) });
@@ -1580,6 +1580,8 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
         { etiket: 'Başka hesapla gir', is: () => cikisYap() });
       return;
     }
+    // Konumlar sekmesi yalnız 1. seviye yöneticiye (Emre) görünür; veritabanı da yalnız ona okutur.
+    $('#ustSekme button[data-bolum="konum"]').hidden = data.seviye !== 1;
     await mekanlariYukle();
     isletmeSayisiniYaz();
   }
