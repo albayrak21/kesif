@@ -1822,10 +1822,13 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   // sunucudan getirilir (bkz. uzakListe). Diğer kategoriler her zamanki gibi tümüyle yüklenir.
   const bolgeselKategoriler = () => Object.entries(kategoriler || {}).filter(([, v]) => v && v.yukleme === 'bolge').map(([k]) => k);
   async function tumMekanlar() {
+    // Büyük kategoriler dışındakiler, adlarıyla istenir: "büyükler hariç" (NOT IN) sorgusu bütün tabloyu tarıyor ve
+    // 2,7 milyon kayıtta süre sınırını aşıyordu. Adla istemek mekan_kategori_id_idx dizinini kullanır.
     const SAYFA = 1000, tum = [], haric = bolgeselKategoriler();
+    const dahil = Object.keys(kategoriler || {}).filter(k => !haric.includes(k));
     for (let i = 0; ; i += SAYFA) {
       let sorgu = db.from('mekan').select('*', { count: 'exact' });
-      if (haric.length) sorgu = sorgu.not('kategori', 'in', `(${haric.join(',')})`);
+      if (haric.length) sorgu = sorgu.in('kategori', dahil.length ? dahil : ['-']);
       const { data, error, count } = await sorgu.order('id').range(i, i + SAYFA - 1);
       if (error) return { data: null, error };
       tum.push(...data);
