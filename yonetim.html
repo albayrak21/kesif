@@ -920,6 +920,19 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
 .ust-sekme { display: flex; gap: 4px; }
 .ust-sekme button { min-height: 34px; padding: 6px 10px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--soluk); font: 600 14.5px/1 var(--yazi-dar); cursor: pointer; }
 .ust-sekme button[aria-current="true"] { border-color: var(--cizgi-koyu); background: var(--yuzey-2); color: var(--murekkep); }
+.kb { min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); }
+.kb-panel { min-height: 0; display: flex; flex-direction: column; background: var(--yuzey); border-right: 1px solid var(--cizgi); }
+.kb-bas { display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--cizgi); }
+.kb-harita { position: relative; min-height: 0; }
+#kbHarita { position: absolute; inset: 0; z-index: 0; isolation: isolate; }
+.kb-oturum { margin: 10px 4px 2px; color: var(--soluk); font: 600 12px/1.2 var(--yazi-dar); letter-spacing: .06em; text-transform: uppercase; }
+.kb-satir > button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.kb-satir > button:hover { background: var(--zemin); }
+@media (max-width: 899.98px) {
+  .kb { grid-template-columns: 1fr; grid-template-rows: 55vh minmax(0, 1fr); }
+  .kb-harita { order: -1; }
+  .kb-panel { border-right: 0; border-top: 1px solid var(--cizgi); }
+}
 .sk-satir { display: flex; align-items: center; gap: 4px; }
 .sk-satir { padding-right: 4px; }
 .sk-satir > button.sk-ac { flex: 1; min-width: 0; display: block; padding: 10px 10px 9px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
@@ -960,6 +973,8 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
 }
 @media (max-width: 479.98px) {
   .ust { gap: 8px; padding-inline: 12px; }
+  .ust-sekme { gap: 0; }
+  .ust .marka { font-size: 0; gap: 0; }
   .baglam { display: none; }
 }
 .isletme-liste { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -985,6 +1000,7 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
     <nav class="ust-sekme" id="ustSekme" aria-label="Bölümler" hidden>
       <button type="button" data-bolum="calisma" aria-current="true">Mekanlar</button>
       <button type="button" data-bolum="secki"><span class="uzun">Öne çıkan </span>Listeler</button>
+      <button type="button" data-bolum="konum">Konum<span class="uzun">lar</span></button>
     </nav>
     <div class="ust-sag">
       <span class="kullanici" id="kullanici" hidden></span>
@@ -1018,6 +1034,24 @@ dialog.diyalog.genis { width: min(720px, calc(100% - 32px)); max-height: calc(10
         <button class="dugme dugme-dolu tam" id="mesajEylem" type="button" hidden></button>
       </div>
     </section>
+
+    <!-- GEÇİCİ (test dönemi): ziyaretçi konumları. Yayından önce kaldırılacak (sql/konum_kayit.sql). -->
+    <div class="kb" id="konumBolumu" hidden>
+      <aside class="kb-panel" aria-label="Ziyaretçi konumları">
+        <div class="kb-bas">
+          <div class="liste-ust">
+            <h2 class="baslik-kucuk" id="kbSayi">Ziyaretçi konumları</h2>
+            <button class="bag" id="kbYenile" type="button">Yenile</button>
+          </div>
+          <select class="giris-alani" id="kbDonem" aria-label="Dönem">
+            <option value="1">Son 24 saat</option><option value="7" selected>Son 7 gün</option><option value="30">Son 30 gün</option>
+          </select>
+          <p class="ipucu">Geçici, test dönemi. Konum düğmesini açanların konumu; oturum = tarayıcı sekmesi. 30 günden eskiler kendiliğinden silinir.</p>
+        </div>
+        <ul class="mekan-liste" id="kbListe"></ul>
+      </aside>
+      <div class="kb-harita"><div id="kbHarita"></div></div>
+    </div>
 
     <div class="calisma" id="seckiBolumu" data-gorunum="liste" hidden>
       <aside class="liste-panel" aria-label="Öne çıkan listeler">
@@ -1442,10 +1476,10 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   let kaydediliyor = false;
 
   /* ---------- görünümler ---------- */
-  const BOLUMLER = { yukleniyor: '#yukleniyor', giris: '#girisBolumu', mesaj: '#mesajBolumu', calisma: '#calisma', secki: '#seckiBolumu' };
+  const BOLUMLER = { yukleniyor: '#yukleniyor', giris: '#girisBolumu', mesaj: '#mesajBolumu', calisma: '#calisma', secki: '#seckiBolumu', konum: '#konumBolumu' };
   function goster(ad) {
     for (const [k, s] of Object.entries(BOLUMLER)) $(s).hidden = k !== ad;
-    $('#ustSekme').hidden = !(ad === 'calisma' || ad === 'secki');
+    $('#ustSekme').hidden = !(ad === 'calisma' || ad === 'secki' || ad === 'konum');
     for (const b of $('#ustSekme').querySelectorAll('button')) b.setAttribute('aria-current', String(b.dataset.bolum === ad));
     $('#kullanici').textContent = kullanici ? kullanici.email || '' : '';
     $('#kullanici').hidden = !kullanici;
@@ -1579,10 +1613,66 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   async function bolumeGec(ad) {
     if (ad === 'secki' && !$('#seckiBolumu').hidden) return;
     if (ad === 'calisma' && !$('#calisma').hidden) return;
-    if (ad === 'secki' && !(await ayrilabilirMi())) return;
-    if (ad === 'calisma' && skKirli() && !confirm('Listede kaydedilmemiş değişiklik var. Yine de çıkılsın mı?')) return;
+    if (ad === 'konum' && !$('#konumBolumu').hidden) return;
+    if ((ad === 'secki' || ad === 'konum') && !$('#calisma').hidden && !(await ayrilabilirMi())) return;
+    if (ad !== 'secki' && !$('#seckiBolumu').hidden && skKirli() && !confirm('Listede kaydedilmemiş değişiklik var. Yine de çıkılsın mı?')) return;
     goster(ad);
     if (ad === 'secki') await skYukle();
+    if (ad === 'konum') await kbYukle();
+  }
+
+  /* ---------- GEÇİCİ (test dönemi): ziyaretçi konumları ---------- */
+  let kbHarita = null, kbKatman = null;
+  const kbRenk = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#db2777', '#65a30d'];
+  function kbHaritaKur() {
+    if (kbHarita || typeof window.L === 'undefined') return !!kbHarita;
+    kbHarita = L.map('kbHarita', { zoomControl: false, minZoom: 4, maxZoom: 19 }).setView([39, 35], 6);
+    kbHarita.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    L.control.zoom({ position: 'bottomright', zoomInTitle: 'Yakınlaştır', zoomOutTitle: 'Uzaklaştır' }).addTo(kbHarita);
+    const a = AYAR.altliklar[0];
+    if (a) L.tileLayer(a.url, { attribution: a.atif, subdomains: a.altAlanlar || 'abc', maxZoom: 20, maxNativeZoom: a.enYakin || 19 }).addTo(kbHarita);
+    kbKatman = L.featureGroup().addTo(kbHarita);
+    new ResizeObserver(() => kbHarita.invalidateSize({ pan: false })).observe(kbHarita.getContainer());
+    return true;
+  }
+  const kbCihaz = c => ({ telefon: 'Telefon', tablet: 'Tablet', masaustu: 'Masaüstü' }[c] || 'Cihaz ?');
+  const kbZaman = z => new Date(z).toLocaleString(TR, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  async function kbYukle() {
+    kbHaritaKur();
+    $('#kbSayi').textContent = 'Yükleniyor…';
+    const gun = Number($('#kbDonem').value) || 7;
+    const { data, error } = await db.from('konum_kayit').select('zaman,oturum,lat,lng,dogruluk,cihaz')
+      .gte('zaman', new Date(Date.now() - gun * 864e5).toISOString()).order('zaman', { ascending: false }).limit(5000);
+    if (error) { $('#kbSayi').textContent = 'Konumlar alınamadı'; $('#kbListe').replaceChildren(el('li', { class: 'ipucu bos-liste', text: hataMetni(error) })); return; }
+    const satirlar = data || [];
+    const oturumlar = new Map();
+    for (const r of satirlar) { if (!oturumlar.has(r.oturum)) oturumlar.set(r.oturum, []); oturumlar.get(r.oturum).push(r); }
+    $('#kbSayi').textContent = satirlar.length ? `${oturumlar.size} ziyaret · ${satirlar.length} konum` : 'Bu dönemde konum yok';
+    if (kbKatman) kbKatman.clearLayers();
+    const ogeler = [];
+    let i = 0;
+    for (const [oturum, kayitlar] of oturumlar) {
+      const renk = kbRenk[i++ % kbRenk.length];
+      const ilk = kayitlar[kayitlar.length - 1], son = kayitlar[0];
+      if (kbKatman) {
+        if (kayitlar.length > 1) L.polyline(kayitlar.map(r => [r.lat, r.lng]), { color: renk, weight: 2, opacity: .6, interactive: false }).addTo(kbKatman);
+        for (const r of kayitlar) {
+          L.circleMarker([r.lat, r.lng], { radius: r === son ? 7 : 4, color: '#fff', weight: 1.5, fillColor: renk, fillOpacity: .95 })
+            .bindPopup(`${kbZaman(r.zaman)}<br>${kbCihaz(r.cihaz)} · ±${Math.round(r.dogruluk || 0)} m<br>${r.lat.toFixed(6)}, ${r.lng.toFixed(6)}<br><a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener">Google Haritalar'da aç</a>`)
+            .addTo(kbKatman);
+        }
+      }
+      ogeler.push(el('li', { class: 'kb-oturum', text: `${kbZaman(ilk.zaman)}${kayitlar.length > 1 ? ' – ' + kbZaman(son.zaman) : ''} · ${kbCihaz(son.cihaz)} · ${kayitlar.length} konum` }));
+      for (const r of kayitlar) {
+        const b = el('button', { type: 'button' },
+          el('span', { class: 'oge-ad', text: `${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}`, style: `color:${renk}` }),
+          el('span', { class: 'oge-bilgi' }, el('span', { text: kbZaman(r.zaman) }), el('span', { text: `±${Math.round(r.dogruluk || 0)} m` })));
+        b.addEventListener('click', () => { if (kbHarita) { kbHarita.setView([r.lat, r.lng], 17); if (window.matchMedia('(max-width: 899.98px)').matches) $('#kbHarita').scrollIntoView({ behavior: 'smooth' }); } });
+        ogeler.push(el('li', { class: 'kb-satir' }, b));
+      }
+    }
+    $('#kbListe').replaceChildren(...ogeler);
+    if (kbKatman && satirlar.length) kbHarita.fitBounds(kbKatman.getBounds(), { padding: [30, 30], maxZoom: 16 });
   }
   async function skYukle(secilecek) {
     $('#skSayi').textContent = 'Yükleniyor…';
@@ -1709,6 +1799,8 @@ window.KESIF_AYAR = {"veriYolu":"","altliklar":[{"ad":"osm","url":"https://tile.
   }
   function seckiOlaylariniKur() {
     for (const b of $('#ustSekme').querySelectorAll('button')) b.addEventListener('click', () => bolumeGec(b.dataset.bolum));
+    $('#kbYenile').addEventListener('click', () => kbYukle());
+    $('#kbDonem').addEventListener('change', () => kbYukle());
     $('#skYenile').addEventListener('click', () => { if (skKirli() && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Yenilensin mi?')) return; sk.taslak = null; skYukle(); });
     $('#skYeni').addEventListener('click', () => { if (skKirli() && !confirm('Kaydedilmemiş değişiklik var. Yine de yeni liste açılsın mı?')) return; skAc('yeni'); });
     $('#skGeri').addEventListener('click', () => { $('#seckiBolumu').dataset.gorunum = 'liste'; });
